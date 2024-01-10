@@ -20,6 +20,7 @@ export default auth((req) => {
     if (isApiAuthRoute) return null
     if (nextUrl.pathname.startsWith('/sklep')) return null
     if (nextUrl.pathname.startsWith('/api/shop')) return null
+    if (nextUrl.pathname.startsWith('/api/payment')) return null
 
     if (isAuthRoute) {
         if (isLoggedIn) {
