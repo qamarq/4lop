@@ -57,21 +57,23 @@ export const settings = async (value: z.infer<typeof SettingsSchema>) => {
         data: { ...values }
     })
 
-    await stripe.customers.update(dbUser.stripeCustomerId, {
-        name: `${values.firstname} ${values.lastname}`,
-        phone: values.phone,
-        shipping: {
-            address: {
-                line1: values.street,
-                postal_code: values.zipCode,
-                city: values.city,
-                country: values.country
-            },
+    if (values.firstname && values.lastname && values.phone && values.street && values.zipCode && values.city && values.country) {
+        await stripe.customers.update(dbUser.stripeCustomerId, {
             name: `${values.firstname} ${values.lastname}`,
-            phone: values.phone
-        
-        }
-    })
+            phone: values.phone,
+            shipping: {
+                address: {
+                    line1: values.street,
+                    postal_code: values.zipCode,
+                    city: values.city,
+                    country: values.country
+                },
+                name: `${values.firstname} ${values.lastname}`,
+                phone: values.phone
+            
+            }
+        })
+    }
 
     await update({
         user: {
