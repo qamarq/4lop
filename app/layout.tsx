@@ -3,7 +3,6 @@ import { CartProvider } from '@/hooks/use-cart'
 import "@/styles/index.scss"
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
-import ScrollToTop from '@/components/scrollToTop'
 import { Toaster } from '@/components/ui/toaster'
 import styles from '../styles/Layout.module.scss';
 import Image from "next/image"
@@ -14,6 +13,9 @@ import { Suspense } from 'react'
 import LoadingPage from './loading'
 import { SessionProvider } from 'next-auth/react'
 import { auth } from '@/auth'
+
+import { Analytics } from '@vercel/analytics/react';
+import { SpeedInsights } from "@vercel/speed-insights/next"
 
 
 const inter = Inter({ subsets: ['latin'] })
@@ -121,6 +123,8 @@ export default async function RootLayout({
                                 </div>
                             </footer>
                         </div>
+                        <Analytics />
+                        <SpeedInsights/>
                     </body>
                 </SessionProvider>
             </CartProvider>
