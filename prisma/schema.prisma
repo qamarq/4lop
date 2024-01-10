@@ -1,0 +1,243 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider     = "mongodb"
+  url          = env("DATABASE_URL")
+//   relationMode = "prisma"
+}
+
+model Account {
+  id                 String  @id @default(auto()) @map("_id") @db.ObjectId
+  userId             String
+  type               String
+  provider           String
+  providerAccountId  String
+  refresh_token      String?  
+  access_token       String? 
+  expires_at         Int?
+  token_type         String?
+  scope              String?
+  id_token           String? 
+  session_state      String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+enum UserRole {
+    USER
+    ADMIN
+}
+
+enum UserTwoFactorProviders {
+    APP
+    PASSKEY
+}
+
+enum AccountType {
+    WOMEN
+    MAN
+    OTHER
+    BUSINESS
+}
+
+enum purchaseDocumentType {
+    CONFIRMATION
+    INVOICE
+    EINVOICE
+}
+
+enum orderStatusType {
+    NEW
+    PAID
+    PROCESSING
+    SENDED
+    DELIVERED
+    CANCELLED
+    RETURNED
+    REFUNDED
+    COMPLETED
+}
+
+// model User {
+//     id          String @id @default(auto()) @map("_id") @db.ObjectId
+//     firstname   String
+//     lastname    String
+//     street      String
+//     zipCode     String
+//     city        String
+//     phone       String
+//     email       String @unique
+//     login       String @unique
+//     password    String
+//     accountType String
+//     newsletter  Boolean
+// }
+
+model User {
+    id                    String                   @id @default(auto()) @map("_id") @db.ObjectId
+    name                  String?
+    email                 String?                  @unique
+    emailVerified         DateTime?
+    image                 String?
+    password              String?
+    role                  UserRole                 @default(USER)
+    stripeCustomerId      String?
+    accounts              Account[]
+    isTwoFactorEnabled    Boolean                  @default(false)
+    twoFactorSecret       String?
+    twoFactorRecovery     String[]                 @default([])
+    twoFactorConfirmation TwoFactorConfirmation?
+    twoFactorProviders    UserTwoFactorProviders[] @default([])
+    firstname             String?
+    lastname              String?
+    street                String?
+    zipCode               String?
+    city                  String?
+    phone                 String?
+    country               String?                  @default("PL")
+    accountType           AccountType
+    newsletter            Boolean?
+    cart                  Cart?
+}
+
+model VerificationToken {
+    id String @id @default(auto()) @map("_id") @db.ObjectId
+    email String
+    token String @unique
+    expires DateTime
+
+    @@unique([email, token])
+}
+
+model PasswordResetToken {
+    id String @id @default(auto()) @map("_id") @db.ObjectId
+    email String
+    token String @unique
+    expires DateTime
+
+    @@unique([email, token])
+}
+
+model TwoFactorConfirmation {
+    id String @id @default(auto()) @map("_id") @db.ObjectId
+    userId String
+    user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+    expires DateTime
+
+    @@unique([userId])
+}
+
+type cartsItems {
+    productId Int
+    quantity  Int @default(1)
+}
+
+model Cart {
+    id         String         @id @default(auto()) @map("_id") @db.ObjectId
+    userId     String
+    user       User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+    products   cartsItems[] 
+    shippingId String?        @db.ObjectId 
+    
+    @@unique([userId])
+}
+
+model ShippingMethod {
+    id                String   @id @default(auto()) @map("_id") @db.ObjectId
+    name              String
+    price             Float
+    image             String?
+    description       String
+    excludedProducts  String[]
+    pickupPoint       Boolean  @default(false)
+    companyKey        String?
+    prepaid           Boolean  @default(true)
+    minWorth          Float    @default(0)
+    maxWorth          Float    @default(0)
+}
+
+type deliveryAddress {
+    firstname String
+    lastname  String
+    street    String
+    zipCode   String
+    city      String
+    country   String
+    phone     String
+    email     String
+}
+
+type coordinatesType {
+    latitude  Int
+    longitude Int
+    distance  Int
+}
+
+type addressType {
+    companyName String
+    taxNumber   String
+    firstname   String
+    lastname    String
+    street      String
+    zipcode     String
+    city        String
+    province    String
+    countryName String
+}
+
+type pickupPointData {
+    id                   String
+    codeExternal         String
+    name                 String
+    location             String
+    link                 String
+    markerIconUrl        String
+    requiredClientNumber Boolean
+    phone                String
+    courierId            String
+    coordinates          coordinatesType
+    address              addressType
+}
+
+model Orders {
+    id                   String                @id @default(auto()) @map("_id") @db.ObjectId
+    userId               String
+    orderDate            DateTime              @default(now())
+    orderNumber          Int                   @default(0)
+    orderStatus          orderStatusType       @default(NEW)
+    orderAddress         deliveryAddress
+    prepaid              Boolean
+    paymentID            String?   
+    paymentSecret        String?  
+    paymentStatus        String?   
+    orderAmount          Float     
+    paymentCurrency      String?  
+    products             Json[]  
+    shippingMethodId     String?               @db.ObjectId
+    purchaseDocument     purchaseDocumentType  @default(CONFIRMATION)
+    deliveryRemarks      String                @default("")
+    remarks              String                @default("")
+    pickupPointId        String                @default("")
+    pickupPointData      pickupPointData?
+}
+
+model Products {
+    id                   String @id @default(auto()) @map("_id") @db.ObjectId
+    productId            Int
+    priceGrossValue      Float
+    priceNetValue        Float
+    priceTaxValue        Float
+    priceGrossFormatted  String
+    priceNetFormatted    String
+    priceTaxFormatted    String
+    amount               Int
+
+    @@unique([productId])
+}

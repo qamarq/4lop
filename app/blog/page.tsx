@@ -1,0 +1,213 @@
+/* eslint-disable @next/next/no-img-element */
+import React from 'react'
+import { ChevronRight } from 'lucide-react'
+import styles from '@/styles/Blog.module.scss'
+import {
+    Select,
+    SelectContent,
+    SelectGroup,
+    SelectItem,
+    SelectLabel,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select"
+
+import heroImage from "@/assets/blog/hero.jpg"
+import Image from 'next/image'
+import { client } from '@/sanity/lib/client'
+import Link from 'next/link'
+import { revalidatePath } from 'next/cache'
+
+async function getPosts() {
+    const query = `
+    *[ _type == "post" ] {
+        title,
+        publishedAt,
+        "categories": categories[]->title,
+        "author": author->name,
+        "slug": slug.current,
+        overview,
+        "image": mainImage.asset->url
+    }
+    `
+    const data = await client.fetch(query)
+    return data
+}
+
+async function getCategories() {
+    const query = `*[ _type == "category" ] {
+        _id,
+        title,
+        slug
+    }`
+    const data = await client.fetch(query)
+    return data
+}
+
+export default async function BlogPage() {
+    const data = await getPosts() as Post[]
+    revalidatePath("/blog")
+    const categories = await getCategories() as { title: string, _id: string, slug: { current: string } }[]
+    return (
+        <>
+            <div className={styles.container}>
+                <h4 className={styles.navigation_label}>Strona główna <ChevronRight size={18} style={{marginInline: 6}} /> Blog</h4>
+                <div className={styles.title}>
+                    <h1>Blog</h1>
+                    <span className={styles.line} />
+                </div>
+
+                <section className={styles.hero}>
+                    <div className={styles.item}>
+                        <Image src={heroImage} alt="" draggable={false} />
+                    </div>
+                    <div className={styles.item}>
+                        <h1>Chcesz dowiedzieć się czegoś więcej na temat naszych stołów?</h1>
+                        <p>Może jesteś ciekawy jak funkcjonujemy i jak usprawniamy proces pakowania paczek?</p>
+                        <p>Zerknij poniżej w blog 4lop i sprawdź, czy znajdziesz tekst, który Cię zainteresuje.</p>
+                    </div>
+                </section>
+
+                <section className={styles.blog}>
+                    <div className={styles.navigation}>
+                        <div className={styles.chips}>
+                            <div className={`${styles.chip} ${styles.active}`}>
+                                <p>Wszystko</p>
+                            </div>
+                            {categories.map((category) => (
+                                <Link href={"/blog/category/"+category.slug.current} key={category.title} className={styles.chip}>
+                                    <p>{category.title}</p>
+                                </Link>
+                            ))}
+                        </div>
+
+                        {/* <Select defaultValue={"latest"}>
+                            <SelectTrigger className={`w-[180px] ${styles.select}`}>
+                                <SelectValue placeholder="Wybierz sortowanie" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectGroup>
+                                    <SelectLabel>Opcje sortowania</SelectLabel>
+                                    <SelectItem value="latest">Od najnowszych</SelectItem>
+                                    <SelectItem value="oldest">Od najstarszych</SelectItem>
+                                    <SelectItem value="populat">Najpopularniejsze</SelectItem>
+                                </SelectGroup>
+                            </SelectContent>
+                        </Select> */}
+                    </div>
+
+                    <div className={styles.posts}>
+                        {data.map((post) => (
+                            <Link href={"/blog/article/"+post.slug} key={post._id} className={styles.post}>
+                                <Image src={post.image} alt={post.title} draggable={false} width={500} height={500}  />
+
+                                <div className={styles.texts}>
+                                    <h1>{post.title}</h1>
+                                    <p>{post.overview}</p>
+                                </div>
+
+                                <div className={styles.bottom}>
+                                    <p>Przeczytaj post</p>
+                                    <div className={styles.icon}>
+                                        <ChevronRight size={25} />
+                                    </div>
+                                </div>
+                            </Link>
+                        ))}
+
+                        {/* <div className={styles.post}>
+                            <Image src={img1} alt="" draggable={false} />
+
+                            <div className={styles.texts}>
+                                <h1>Ważność stołu w procesie pakowania</h1>
+                                <p>Obecnie coraz częściej spotykamy się z pakowaniem oraz wysyłką zamówień, realizowanych przez internet. Często tego typu działaniom towarzyszy bałagan....</p>
+                            </div>
+
+                            <div className={styles.bottom}>
+                                <p>Przeczytaj post</p>
+                                <div className={styles.icon}>
+                                    <ChevronRight size={25} />
+                                </div>
+                            </div>
+                        </div>
+                        <div className={styles.post}>
+                            <Image src={img2} alt="" draggable={false} />
+
+                            <div className={styles.texts}>
+                                <h1>Ważność stołu w procesie pakowania</h1>
+                                <p>Obecnie coraz częściej spotykamy się z pakowaniem oraz wysyłką zamówień, realizowanych przez internet. Często tego typu działaniom towarzyszy bałagan....</p>
+                            </div>
+
+                            <div className={styles.bottom}>
+                                <p>Przeczytaj post</p>
+                                <div className={styles.icon}>
+                                    <ChevronRight size={25} />
+                                </div>
+                            </div>
+                        </div>
+                        <div className={styles.post}>
+                            <Image src={img2} alt="" draggable={false} />
+
+                            <div className={styles.texts}>
+                                <h1>Ważność stołu w procesie pakowania</h1>
+                                <p>Obecnie coraz częściej spotykamy się z pakowaniem oraz wysyłką zamówień, realizowanych przez internet. Często tego typu działaniom towarzyszy bałagan....</p>
+                            </div>
+
+                            <div className={styles.bottom}>
+                                <p>Przeczytaj post</p>
+                                <div className={styles.icon}>
+                                    <ChevronRight size={25} />
+                                </div>
+                            </div>
+                        </div>
+                        <div className={styles.post}>
+                            <Image src={img1} alt="" draggable={false} />
+
+                            <div className={styles.texts}>
+                                <h1>Ważność stołu w procesie pakowania</h1>
+                                <p>Obecnie coraz częściej spotykamy się z pakowaniem oraz wysyłką zamówień, realizowanych przez internet. Często tego typu działaniom towarzyszy bałagan....</p>
+                            </div>
+
+                            <div className={styles.bottom}>
+                                <p>Przeczytaj post</p>
+                                <div className={styles.icon}>
+                                    <ChevronRight size={25} />
+                                </div>
+                            </div>
+                        </div>
+                        <div className={styles.post}>
+                            <Image src={img1} alt="" draggable={false} />
+
+                            <div className={styles.texts}>
+                                <h1>Ważność stołu w procesie pakowania</h1>
+                                <p>Obecnie coraz częściej spotykamy się z pakowaniem oraz wysyłką zamówień, realizowanych przez internet. Często tego typu działaniom towarzyszy bałagan....</p>
+                            </div>
+
+                            <div className={styles.bottom}>
+                                <p>Przeczytaj post</p>
+                                <div className={styles.icon}>
+                                    <ChevronRight size={25} />
+                                </div>
+                            </div>
+                        </div>
+                        <div className={styles.post}>
+                            <Image src={img2} alt="" draggable={false} />
+
+                            <div className={styles.texts}>
+                                <h1>Ważność stołu w procesie pakowania</h1>
+                                <p>Obecnie coraz częściej spotykamy się z pakowaniem oraz wysyłką zamówień, realizowanych przez internet. Często tego typu działaniom towarzyszy bałagan....</p>
+                            </div>
+
+                            <div className={styles.bottom}>
+                                <p>Przeczytaj post</p>
+                                <div className={styles.icon}>
+                                    <ChevronRight size={25} />
+                                </div>
+                            </div>
+                        </div> */}
+                    </div>
+                </section>
+            </div>
+        </>
+    )
+}

@@ -1,0 +1,193 @@
+@import "vars";
+@import "mixins";
+
+.button {
+    max-width: max-content;
+    padding-inline: 6.4rem; 
+    font-size: 3rem; 
+    line-height: 3.9rem;
+    border: 3px solid #FF7930;
+    background-color: #FF7930;
+    border-radius: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+
+    p {
+        color: #f8f8f8;
+        font-weight: 600;
+        font-size: 1.8rem;
+    }
+
+    &.outline {
+        background-color: #fff6f1;
+
+        p {
+            color: #FF7930;
+        }
+    }
+
+    .icon {
+        margin-right: 10px;
+        color: #fff;
+        display: none;
+    }
+}
+
+.container {
+    max-width: 1280px;
+    width: 100%;
+    margin-inline: auto;
+    padding-inline: 32px;
+    
+    padding-top: 3rem;
+    padding-bottom: 3rem;
+  
+    @media only screen and (max-width: $xl-BreakPoint) {
+    }
+  
+    @media only screen and (max-width: $lg-BreakPoint) {
+    }
+  
+    @media only screen and (max-width: $md-BreakPoint) {
+    }
+  
+    @media only screen and (max-width: $sm-BreakPoint) {
+        padding-inline: 16px;
+    }
+
+    .navigation_label {
+        @include display-xs;
+        font-weight: 500;
+        color: #646464;
+        display: flex;
+        align-items: center;
+        cursor: default;
+    }
+
+    .title {
+        width: 100%;
+        position: relative;
+        margin-top: 40px;
+        display: flex;
+        align-items: center;
+
+        .icon_back {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            left: -10px;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #FBFBFB;
+            cursor: pointer;
+        }
+
+        h1 {
+            @include display-lg;
+            color: #2b2b2b;
+            background-color: #FBFBFB;
+            max-width: max-content;
+            padding-inline: 10px;
+            transform: translateX(20px);
+            font-weight: 600;
+        }
+
+        h2 {
+            margin-left: 30px;
+            background-color: #FBFBFB;
+            padding-inline: 10px;
+            @include display-xs;
+            font-weight: 500;
+            transform: translateY(1px);
+        }
+
+        span.line {
+            position: absolute;
+            top: 50%;
+            // transform: translateY(-50%);
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background-color: $primary-color;
+            z-index: -1;
+            border-radius: 100px;
+        }
+    }
+}
+
+.bounce {
+    animation-name: bounce-5;
+    animation-timing-function: ease;
+}
+@keyframes bounce-5 {
+    0%   { transform: scale(1,1)    translateY(0); }
+    10%  { transform: scale(1.1,.9) translateY(0); }
+    30%  { transform: scale(.9,1.1) translateY(-10px); }
+    50%  { transform: scale(1,1)    translateY(0); }
+    57%  { transform: scale(1,1)    translateY(-7px); }
+    64%  { transform: scale(1,1)    translateY(0); }
+    100% { transform: scale(1,1)    translateY(0); }
+}
+
+.input {
+    display: flex;
+    align-items: center;
+    // background-color: $primary-backdrop;
+    border: 2px solid rgba($primary-color, .7);
+    border-radius: 5px;
+    margin: 5px 0;
+    padding: 1rem 1.2rem;
+    transition: all .3s;
+
+    input {
+        border: none;
+        background-color: transparent;
+        font-size: 1.5rem;
+        width: 100%;
+
+        &:focus {
+            outline: none;
+        }
+    }
+
+    .icon {
+        cursor: pointer;
+        display: flex;
+        align-items: flex-end;
+        justify-content: center;
+    }
+
+    // &:hover {
+    //     border: 2px solid rgba($primary-color, .7);
+    // }
+
+    &:focus-within {
+        border: 2px solid rgba($primary-color, .7);
+    }
+}
+
+.checkbox {
+    display: block;
+    position: relative;
+    margin-bottom: 12px;
+    cursor: pointer;
+    font-size: 13px;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+
+    input {
+        margin-right: 5px;
+        transform: translateY(2px);
+    }
+}
+
+.font_reset {
+    font-size: 100%;
+}

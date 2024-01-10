@@ -1,0 +1,32 @@
+@mixin display-xl() {
+    font-size: 3.75rem;
+    line-height: 4.5rem;
+    letter-spacing: -2%;
+}
+
+@mixin display-lg() {
+    font-size: 3rem;
+    line-height: 3.75rem;
+    letter-spacing: -2%;
+}
+
+@mixin display-md() {
+    font-size: 2.25rem;
+    line-height: 2.75rem;
+    letter-spacing: -2%;
+}
+
+@mixin display-sm() {
+    font-size: 1.875rem;
+    line-height: 2.375rem;
+}
+
+@mixin display-xs() {
+    font-size: 1.5rem;
+    line-height: 2rem;
+}
+
+@mixin display-xss() {
+    font-size: 1.2rem;
+    line-height: 1.6rem;
+}
