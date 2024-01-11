@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/db"
+import { getProductById } from "./products"
 
 export const getProductFromCart = async (userId: string, productId: number) => {
     const data = await prisma.cart.findFirst({
@@ -22,8 +23,6 @@ export const addToBasketByProductId = async (userId: string, productId: number, 
     }
 
     // const productExistsInDB = await prisma.products.findUnique({ where: { productId } })
-    // let product = await getProductById(productId)
-    
 
     // if (productExistsInDB) {
     //     product.price.price.gross.value = productExistsInDB.priceGrossValue
@@ -31,7 +30,23 @@ export const addToBasketByProductId = async (userId: string, productId: number, 
     //     product.price.price.gross.formatted = productExistsInDB.priceGrossFormatted
     //     product.price.price.net.formatted = productExistsInDB.priceNetFormatted
     // }
-    const productExistsInDB = await prisma.products.findUnique({ where: { productId } })
+    let productExistsInDB = await prisma.products.findUnique({ where: { productId } })
+    if (!productExistsInDB) {
+        let product = await getProductById(productId)
+        productExistsInDB = await prisma.products.create({
+            data: {
+                productId: product.id,
+                priceGrossValue: product.price.price.gross.value,
+                priceNetValue: product.price.price.net.value,
+                priceGrossFormatted: product.price.price.gross.formatted,
+                priceNetFormatted: product.price.price.net.formatted,
+                priceTaxValue: product.price.tax.worth.value,
+                priceTaxFormatted: product.price.tax.worth.formatted,
+                amount: product.sizes[0].amount
+            }
+        })
+    }
+
     if (!productExistsInDB) return { error: "Product not found" }
 
     const productExistInCart = await getProductFromCart(userId, productId)
@@ -54,7 +69,7 @@ export const addToBasketByProductId = async (userId: string, productId: number, 
         let notEnoughProducts = false
         const cartItems = userCart.products.map((cartProduct) => {
             if (cartProduct.productId === productId) {
-                if ((cartProduct.quantity + quantity) > productExistsInDB.amount) {
+                if ((cartProduct.quantity + quantity) > (productExistsInDB ? productExistsInDB.amount : 0)) {
                     notEnoughProducts = true
                     return cartProduct
                 }
