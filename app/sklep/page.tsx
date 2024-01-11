@@ -10,7 +10,7 @@ import { Select, SelectTrigger, SelectValue, SelectContent, SelectGroup, SelectL
 import { Slider } from '@/components/ui/slider';
 import { v4 } from 'uuid';
 import { Label } from '@/components/ui/label';
-import Pagination from '@/components/pagination';
+import { PaginationComponent } from '@/components/pagination';
 
 export default function ShopPage() {
     const [resultPage, setResultPage] = useState(0);
@@ -57,7 +57,6 @@ export default function ShopPage() {
     }, [resultPage])
 
     const handlePagination = (paginationData: any) => {
-        console.log(paginationData)
         if (resultPage === paginationData.currentPage-1) return;
         setTimeout(() => {
             setLoading(true)
@@ -115,26 +114,32 @@ export default function ShopPage() {
                             ))}
                         </div>
                     ) : (
-                        <div className={styles.items}>
-                            {!returnResults ? (
-                                <div>brak produktow</div>
+                        <>
+                            {!returnResults || !returnResults.products ? (
+                                <div className='w-full h-full flex items-center justify-center'>
+                                    <p className='font-medium text-xl uppercase text-gray-600'>Nie znaleziono żadnych produktów</p>
+                                </div>
                             ) : (
-                                <>
-                                    {returnResults.products.map((product) => (
-                                        <HomeProduct 
-                                            key={v4()} 
-                                            id={product.id.toString()} 
-                                            name={product.name} 
-                                            image={`https://elektromaniacy.pl/${product.icon}`} 
-                                            price={product.price.price.gross.value} 
-                                            tax={product.price.tax.vatPercent} 
-                                            cart={true}
-                                            link={product.link}
-                                        /> 
-                                    ))}
-                                </>
+                                <div className={styles.items}>
+                                    
+                                        <>
+                                            {returnResults.products.map((product) => (
+                                                <HomeProduct 
+                                                    key={v4()} 
+                                                    id={product.id.toString()} 
+                                                    name={product.name} 
+                                                    image={`https://elektromaniacy.pl/${product.icon}`} 
+                                                    price={product.price.price.gross.value} 
+                                                    tax={product.price.tax.vatPercent} 
+                                                    cart={true}
+                                                    link={product.link}
+                                                /> 
+                                            ))}
+                                        </>
+                                    
+                                </div>
                             )}
-                        </div>
+                        </>
                     )}
                     <div className={styles.filters}>
                         <h1 className={styles.title}>Filtry</h1>
@@ -230,8 +235,8 @@ export default function ShopPage() {
                         </Button>
                     </div>
                 </div>
-                {!loading && returnResults?.products?.length > 0 && (
-                    <Pagination totalRecords={returnResults.results.resultCount} pageLimit={returnResults.results.limitPerPage} onPageChanged={handlePagination} onClick={() => {
+                {returnResults?.products?.length > 0 && (
+                    <PaginationComponent totalRecords={returnResults.results.resultCount} pageLimit={returnResults.results.limitPerPage} onPageChanged={handlePagination} onClick={() => {
                         if (divToScroll.current) {
                             divToScroll.current.scrollIntoView({ behavior: 'smooth' });
                         }

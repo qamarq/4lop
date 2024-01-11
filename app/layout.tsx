@@ -16,6 +16,7 @@ import { auth } from '@/auth'
 
 import { Analytics } from '@vercel/analytics/react';
 import { SpeedInsights } from "@vercel/speed-insights/next"
+import Link from 'next/link'
 
 
 const inter = Inter({ subsets: ['latin'] })
@@ -51,22 +52,30 @@ export default async function RootLayout({
                                 </div>
                                 <div className={styles.item}>
                                     <h1>Nawigacja</h1>
-                                    <div className={styles.subitem}>
-                                        <ChevronRight className={styles.icon} size={FooterIconsSize} />
-                                        <p>Strona główna</p>
-                                    </div>
-                                    <div className={styles.subitem}>
-                                        <ChevronRight className={styles.icon} size={FooterIconsSize} />
-                                        <p>Produkty</p>
-                                    </div>
-                                    <div className={styles.subitem}>
-                                        <ChevronRight className={styles.icon} size={FooterIconsSize} />
-                                        <p>O nas</p>
-                                    </div>
-                                    <div className={styles.subitem}>
-                                        <ChevronRight className={styles.icon} size={FooterIconsSize} />
-                                        <p>Konﬁgurator</p>
-                                    </div>
+                                    <Link href="/">
+                                        <div className={styles.subitem}>
+                                            <ChevronRight className={styles.icon} size={FooterIconsSize} />
+                                            <p>Strona główna</p>
+                                        </div>
+                                    </Link>
+                                    <Link href="/sklep">
+                                        <div className={styles.subitem}>
+                                            <ChevronRight className={styles.icon} size={FooterIconsSize} />
+                                            <p>Produkty</p>
+                                        </div>
+                                    </Link>
+                                    <Link href="/onas">
+                                        <div className={styles.subitem}>
+                                            <ChevronRight className={styles.icon} size={FooterIconsSize} />
+                                            <p>O nas</p>
+                                        </div>
+                                    </Link>
+                                    <Link href="/konfigurator">
+                                        <div className={styles.subitem}>
+                                            <ChevronRight className={styles.icon} size={FooterIconsSize} />
+                                            <p>Konﬁgurator</p>
+                                        </div>
+                                    </Link>
                                 </div>
                                 {/* <div className={styles.item}>
                                     <h1>Szybkie linki</h1>

@@ -95,7 +95,8 @@ export default function ProductPage() {
 
             if (response.ok) {
                 const responseData = await response.json();
-                responseData.returnData.longDescription = responseData.returnData.longDescription.replace(/\/data\/include\/cms\//g, "https://elektromaniacy.pl/data/include/cms/");
+                console.log(responseData.returnData.longDescription)
+                responseData.returnData.longDescription = responseData.returnData.longDescription.replace(/"\/data\/include\/cms\//g, '"https://elektromaniacy.pl/data/include/cms/');
                 // console.log(responseData.returnData)
                 setProduct(responseData.returnData)
             } else {
@@ -273,7 +274,7 @@ export default function ProductPage() {
                         <div dangerouslySetInnerHTML={{__html: product.longDescription}} className={styles.longdesc}></div>
                     </div>
 
-                    <div className={styles.container}>
+                    {/* <div className={styles.container}>
                         <div className={styles.title}>
                             <h1>Napisz swoją opinię</h1>
                             <span className={styles.line} />
@@ -285,7 +286,7 @@ export default function ProductPage() {
                             <h1>Zobacz również</h1>
                             <span className={styles.line} />
                         </div>
-                    </div>
+                    </div> */}
                 </>
             )}
         </>

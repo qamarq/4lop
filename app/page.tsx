@@ -31,6 +31,7 @@ import { Suspense } from 'react';
 import Skelete from '@/components/HomeComponents/Skelete';
 import Bestsellers from '@/components/HomeComponents/Bestsellers';
 import NewProducts from '@/components/HomeComponents/NewProducts';
+import Link from 'next/link';
 
 export default function Home() {
     return (
@@ -44,9 +45,11 @@ export default function Home() {
 
                                 <h2>Z naszą szeroką ofertą masz szansę zmodyfikować swój stół pod zamówienie</h2>
 
-                                <button className={styles.button}>
-                                    <p>Sprawdź</p>
-                                </button>
+                                <Link href="/sklep">
+                                    <button className={styles.button}>
+                                        <p>Sprawdź</p>
+                                    </button>
+                                </Link>
                             </div>
                             <Image draggable={false} src={heroImg} alt="" />
                             {/* <QuickFAQ /> */}

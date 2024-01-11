@@ -311,8 +311,8 @@ export default function ConfiguratorPage() {
                                         <li>
                                             Stół podstawowy
                                             <span className={styles.version}>({selectedTableInfo.version}cm)</span>
-                                            {/* {" - "}
-                                            {selectedTableInfo.price.toFixed(2)} zł */}
+                                            {" - "}
+                                            {selectedTableInfo.price.toFixed(2)} zł
                                         </li>
                                         {appliedAddons.map(appliedAddon => {
                                             let addonItem = options[selectedTable-1].addons[appliedAddon-1]
@@ -326,9 +326,9 @@ export default function ConfiguratorPage() {
                                                     {selectedVersion && (
                                                         <span className={styles.version}>({selectedVersion.len}cm)</span>
                                                     )}
-                                                    {/* <span>
+                                                    <span>
                                                         {" - "}{!selectedVersion ? addonItem.price : selectedVersion.price}{" zł"}
-                                                    </span> */}
+                                                    </span>
                                                 </li>
                                             )
                                         })}
@@ -337,8 +337,8 @@ export default function ConfiguratorPage() {
                                 <Button disabled={loading} className='w-[100%] sm:w-[280px]' onClick={addToBasket}>
                                     {!loading ? <ShoppingBasketIcon className='w-4 h-4 mr-2' /> : <Loader2Icon className='w-4 h-4 mr-2 animate-spin' />}
                                     Dodaj do koszyka
-                                    {/* {" - "}
-                                    {totalPrice.toFixed(2)} zł */}
+                                    {" - "}
+                                    {totalPrice.toFixed(2)} zł
                                 </Button>
                             </div>
                         </motion.div>

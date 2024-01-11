@@ -36,7 +36,7 @@ const range = (from: number, to: number, step = 1): number[] => {
   return rangeArr;
 };
 
-const Pagination: React.FC<PaginationProps> = ({
+export const PaginationComponent: React.FC<PaginationProps> = ({
   totalRecords = 0,
   pageLimit = 30,
   pageNeighbours = 0,
@@ -45,12 +45,7 @@ const Pagination: React.FC<PaginationProps> = ({
 }: PaginationProps) => {
   const [currentPage, setCurrentPage] = useState(1);
   const totalPages = Math.ceil(totalRecords / pageLimit);
-
-//   useEffect(() => {
-//     gotoPage(1);
-//     console.log(totalRecords)
-//   }, [totalRecords]);
-
+  
   const gotoPage = (page: number) => {
     const newCurrentPage = Math.max(0, Math.min(page, totalPages));
 
@@ -190,5 +185,3 @@ const Pagination: React.FC<PaginationProps> = ({
     </motion.div>
   );
 };
-
-export default Pagination;
