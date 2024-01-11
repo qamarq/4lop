@@ -2,7 +2,7 @@ import { orderStatusType } from "@prisma/client";
 
 export type PaymentStatus = "requires_confirmation" | "requires_action" | "processing" | "succeeded" | "requires_payment_method" | "canceled" | "incomplete";
 
-export const paymentStatuses: Record<PaymentStatus, string> = {
+export const paymentStatuses: Record<string, string> = {
     requires_confirmation: "Wymaga potwierdzenia",
     requires_action: "Wymaga akcji",
     processing: "Przetwarzanie",
@@ -10,6 +10,7 @@ export const paymentStatuses: Record<PaymentStatus, string> = {
     requires_payment_method: "Płatność zakończona niepowodzeniem",
     canceled: "Płatność anulowana",
     incomplete: "Płatność niekompletna",
+    dvp: "Płatność przy odbiorze"
 }
 
 export const orderStatuses: Record<orderStatusType, string> = {

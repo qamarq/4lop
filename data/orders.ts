@@ -82,18 +82,18 @@ export const getPreparedOrderByOrderId = async (orderId: string) => {
                 currency: "pln",
                 formatted: formattedPrice(basketProducts.reduce((acc, curr) => acc + curr.quantity * curr.productDetails.price.price.gross.value, 0))
             },
-            orderedProducts: basketProducts.map((basketProduct) => { return basketProduct.productDetails }) as any,
+            orderedProducts: basketProducts.map((basketProduct) => { return { ...basketProduct.productDetails, quantity: basketProduct.quantity } }) as any,
         },
         payment: {
-            paymentId: order.paymentID || "dvp",
-            paymentSystemNumber: order.paymentID || "dvp",
+            paymentId: order ? order.paymentID || "" : "dvp",
+            paymentSystemNumber: order ? order.paymentID || "" : "dvp",
             paymentTimestamp: order.orderDate,
             status: order.paymentStatus || "dvp",
             paymentMethod: {
-                id: paymentMethod.id || "dvp",
-                name: paymentOptions[paymentMethod.type] || "Płatność za pobraniem",
+                id: paymentMethod ? paymentMethod.id : "dvp",
+                name: paymentMethod ? paymentOptions[paymentMethod.type] : "Płatność za pobraniem",
                 description: "",
-                icon: paymentOptionsIcons[paymentMethod.type || "dvp"],
+                icon: paymentOptionsIcons[paymentMethod ? paymentMethod.type : "dvp"],
                 refreshPayment: false,
             },
             bankTransferData: {}

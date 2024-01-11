@@ -8,6 +8,7 @@ import { useSearchParams } from 'next/navigation'
 import { PaymentStatus, paymentStatuses } from '@/constants/payment'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
+import Link from 'next/link'
 
 export default function PaymentSummaryPage() {
     const searchParams = useSearchParams()
@@ -15,6 +16,7 @@ export default function PaymentSummaryPage() {
     const fetchedRef = useRef(false)
     const [isPending, startTransition] = useTransition()
     const [paymentStatus, setPaymentStatus] = useState<PaymentStatus>("processing")
+    const [orderNumber, setOrderNumber] = useState("")
 
     const checkPayment = () => {
         startTransition(async () => {
@@ -22,6 +24,7 @@ export default function PaymentSummaryPage() {
                 .then((data) => {
                     if (data.success) {
                         setPaymentStatus(data.payment.status)
+                        setOrderNumber(data.payment.orderNumber)
                     }
                 })
         })
@@ -61,8 +64,10 @@ export default function PaymentSummaryPage() {
                             )}
                         </div>
                         <h1 className='font-semibold text-2xl text-center'>{isPending ? "Przetwarzanie płatności..." : paymentStatuses[paymentStatus || "processing"] }</h1>
-                        <Button className='w-full max-w-[400px] mt-8'>
-                            Przejdź do swojego zamówienia
+                        <Button disabled={orderNumber === ""} className='w-full max-w-[400px] mt-8' asChild>
+                            <Link href={`/konto/zamowienia/${orderNumber}`}>
+                                Przejdź do swojego zamówienia
+                            </Link>
                         </Button>
                     </div>
                 </div>

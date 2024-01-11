@@ -1,5 +1,6 @@
 "use server"
 
+import { dvpPickupAddress } from "@/constants"
 import { getPreparedOrderByOrderId } from "@/data/orders"
 import { getProductById } from "@/data/products"
 import { currentUser } from "@/lib/auth"
@@ -12,7 +13,7 @@ interface createOrderProps {
     remarks: string
     paymentMethodId: string
     courierId: string
-    pickupPointId: string
+    pickupPointData: ParcelLocker | null
     prepaid: string
     purchaseDocumentType: string
 }
@@ -22,14 +23,13 @@ export const createOrder = async ({
     remarks,
     paymentMethodId,
     courierId,
-    pickupPointId,
+    pickupPointData,
     prepaid,
     purchaseDocumentType: purchaseDocumentTypeString
 }: createOrderProps) => {
     const user = await currentUser()
     if (!user) return { error: "Brak zalogowanego użytkownika" }
 
-    console.log(deliveryRemarks, remarks, paymentMethodId, courierId, pickupPointId, prepaid, purchaseDocumentTypeString)
     const userCart = await prisma.cart.findUnique({ where: { userId: user.id } })
     if (!userCart || userCart.products.length === 0) return { error: "Brak koszyka" }
 
@@ -50,57 +50,91 @@ export const createOrder = async ({
     const courier = await prisma.shippingMethod.findUnique({ where: { id: courierId } })
     if (courier) { 
         shippingCost = courier.price
-        pickupData = courier.pickupPoint ? {
-            id: "",
-            codeExternal: "",
-            name: "",
-            location: "",
-            link: "",
-            markerIconUrl: "",
-            requiredClientNumber: false,
-            phone: "",
-            courierId: "",
-            coordinates: {
-                latitude: 0,
-                longitude: 0,
-                distance: 0,
-            },
-            address: {
-                companyName: "",
-                taxNumber: "",
-                firstname: "",
-                lastname: "",
-                street: "",
-                zipcode: "",
-                city: "",
-                province: "",
-                countryName: "",
+        if (courier.pickupPoint && pickupPointData) {
+            pickupData = {
+                id: pickupPointData.name,
+                codeExternal: pickupPointData.name,
+                name: pickupPointData.name,
+                location: pickupPointData.location_description,
+                link: pickupPointData.href,
+                markerIconUrl: pickupPointData.image_url,
+                requiredClientNumber: false,
+                phone: "",
+                courierId: "InPostShipX",
+                coordinates: {
+                    latitude: pickupPointData.location.latitude,
+                    longitude: pickupPointData.location.longitude,
+                    distance: 10,
+                },
+                address: {
+                    companyName: pickupPointData.name,
+                    taxNumber: "",
+                    firstname: "",
+                    lastname: "",
+                    street: `${pickupPointData.address_details.street}${pickupPointData.address_details.building_number ? ` ${pickupPointData.address_details.building_number}` : ""}`,
+                    zipcode: pickupPointData.address_details.post_code,
+                    city: pickupPointData.address_details.city,
+                    province: pickupPointData.address_details.province,
+                    countryName: "PL",
+                }
             }
-        } : {
-            id: "nope",
-            codeExternal: "nope",
-            name: courier.name,
-            location: `Kurier ${courier.name}`,
-            link: "nope",
-            markerIconUrl: "nope",
-            requiredClientNumber: false,
-            phone: user.phone,
-            courierId: courier.id,
-            coordinates: {
-                latitude: 0,
-                longitude: 0,
-                distance: 0,
-            },
-            address: {
-                companyName: "",
-                taxNumber: "",
-                firstname: user.firstname,
-                lastname: user.lastname,
-                street: user.street,
-                zipcode: user.zipCode,
-                city: user.city,
-                province: "",
-                countryName: user.country,
+        } else {
+            if (courier.personalCollection === true) {
+                pickupData = {
+                    id: "personalCollection",
+                    codeExternal: "personalCollection",
+                    name: courier.name,
+                    location: "",
+                    link: "",
+                    markerIconUrl: "",
+                    requiredClientNumber: false,
+                    phone: dvpPickupAddress.contact.phone,
+                    courierId: "",
+                    coordinates: {
+                        latitude: 0,
+                        longitude: 0,
+                        distance: 0,
+                    },
+                    address: {
+                        companyName: "",
+                        taxNumber: "",
+                        firstname: "",
+                        lastname: "",
+                        street: dvpPickupAddress.street,
+                        zipcode: dvpPickupAddress.postal_code,
+                        city: dvpPickupAddress.city,
+                        province: "",
+                        countryName: "PL",
+                    }
+                }
+            } else {
+                pickupData = {
+                    id: "nope",
+                    codeExternal: "nope",
+                    name: courier.name,
+                    location: courier.name,
+                    link: "nope",
+                    markerIconUrl: "nope",
+                    requiredClientNumber: false,
+                    phone: user.phone,
+                    courierId: courier.id,
+                    coordinates: {
+                        latitude: 0,
+                        longitude: 0,
+                        distance: 0,
+                    },
+                    address: {
+                        companyName: "",
+                        taxNumber: "",
+                        firstname: user.firstname,
+                        lastname: user.lastname,
+                        street: user.street,
+                        zipcode: user.zipCode,
+                        city: user.city,
+                        province: "",
+                        countryName: user.country,
+                    }
+                }
             }
         }
     }
@@ -122,7 +156,20 @@ export const createOrder = async ({
                 payment_method_types: ['card', 'p24', 'blik'],
                 metadata: {
                     order_id: '0',
+                    order_number: '0',
                 },
+                shipping: {
+                    address: {
+                        line1: user.street,
+                        postal_code: user.zipCode,
+                        city: user.city,
+                        country: user.country,
+                    },
+                    name: user.name,
+                    carrier: courier ? courier.name : "Brak dostawy",
+                    phone: user.phone,
+                    tracking_number: ""
+                }
             });
         }
 
@@ -153,16 +200,19 @@ export const createOrder = async ({
                 purchaseDocument: purchaseDocumentTypeString as purchaseDocumentType,
                 deliveryRemarks,
                 remarks,
-                pickupPointId,
+                pickupPointId: pickupPointData ? pickupPointData.name : undefined,
                 pickupPointData: pickupData
             }
         })
 
-        await stripe.paymentIntents.update(paymentIntent.id, {
-            metadata: {
-                order_id: order.id,
-            },
-        })
+        if (prepaidBool) {
+            await stripe.paymentIntents.update(paymentIntent.id, {
+                metadata: {
+                    order_id: order.id,
+                    order_number: order.orderNumber
+                },
+            })
+        }
 
         await prisma.cart.delete({ where: { userId: user.id } })
 

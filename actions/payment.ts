@@ -6,7 +6,7 @@ export const getPaymentStatus = async (paymentId: string) => {
     try {
         const payment = await stripe.paymentIntents.retrieve(paymentId);
 
-        return { success: true, payment: { status: payment.status } }
+        return { success: true, payment: { status: payment.status, orderNumber: payment.metadata.order_number } }
     } catch (error) {
         console.log(error)
         return { error: "Something went wrong" }

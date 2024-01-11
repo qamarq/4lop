@@ -150,17 +150,18 @@ model Cart {
 }
 
 model ShippingMethod {
-    id                String   @id @default(auto()) @map("_id") @db.ObjectId
-    name              String
-    price             Float
-    image             String?
-    description       String
-    excludedProducts  String[]
-    pickupPoint       Boolean  @default(false)
-    companyKey        String?
-    prepaid           Boolean  @default(true)
-    minWorth          Float    @default(0)
-    maxWorth          Float    @default(0)
+    id                 String   @id @default(auto()) @map("_id") @db.ObjectId
+    name               String
+    price              Float
+    image              String?
+    description        String
+    excludedProducts   String[]
+    pickupPoint        Boolean  @default(false)
+    companyKey         String?
+    prepaid            Boolean  @default(true)
+    minWorth           Float    @default(0)
+    maxWorth           Float    @default(0)
+    personalCollection Boolean  @default(false)
 }
 
 type deliveryAddress {
@@ -175,9 +176,9 @@ type deliveryAddress {
 }
 
 type coordinatesType {
-    latitude  Int
-    longitude Int
-    distance  Int
+    latitude  Float
+    longitude Float
+    distance  Float
 }
 
 type addressType {

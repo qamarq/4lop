@@ -8,6 +8,19 @@ export const COOKIE_CLIENT_ID = "4lopClientId";
 export const MAX_AGE = 60 * 60 * 24
 export const SAVED_ORDER_SETTINGS_NAME = "4lopSavedOrderSettings";
 
+/**
+ * Adres odbioru osobistego firmy 4lop. Znajdziesz w "@/constants/index.ts"
+ */
+export const dvpPickupAddress = {
+    name: "Siedziba 4lop",
+    street: "ul. Żółkiewskiego 12",
+    city: "Toruń",
+    postal_code: "87-100",
+    contact: {
+        phone: "+48 519 653 388",
+        email: "kontakt@4lop.pl"
+    }
+}
 
 export const getProductDataQuery = (id: string) => {
     return(`{

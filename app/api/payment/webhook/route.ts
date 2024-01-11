@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/db"
 import { stripe } from "@/lib/stripe";
+import { orderStatusType } from "@prisma/client";
 import { NextResponse } from "next/server";
 import { Resend } from "resend";
 
@@ -33,7 +34,8 @@ export async function POST(req: Request) {
                             id: ticket.id
                         },
                         data: {
-                            paymentStatus: paymentIntentSucceeded.status
+                            paymentStatus: paymentIntentSucceeded.status,
+                            orderStatus: orderStatusType.PAID
                         }
                     })
 

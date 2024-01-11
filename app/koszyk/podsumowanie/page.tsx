@@ -45,7 +45,7 @@ export default function SummaryPage() {
                 remarks: orderNotes,
                 paymentMethodId: orderOptions.payment,
                 courierId: orderOptions?.delivery.courierId,
-                pickupPointId: orderOptions?.selectedPickupPoint,
+                pickupPointData: orderOptions?.selectedPickupPoint,
                 prepaid: orderOptions?.shippingMode,
                 purchaseDocumentType: receiptType,
             })

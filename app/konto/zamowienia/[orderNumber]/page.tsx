@@ -5,7 +5,7 @@ import { toast } from '@/components/ui/use-toast'
 import styles from "@/styles/Account.module.scss"
 import { usePathname, useRouter } from 'next/navigation'
 import React, { useEffect, useRef, useState } from 'react'
-import { ChevronLeftIcon, Loader2Icon } from 'lucide-react'
+import { ChevronLeftIcon, Loader2Icon, MapPinIcon } from 'lucide-react'
 import Link from 'next/link'
 import { prepareLink } from '@/lib/utils'
 import { orderStatuses, paymentStatuses } from '@/constants/payment'
@@ -136,6 +136,33 @@ export default function OrderDetails() {
                                 <p className={styles.item_body_text}>{order.shipping.courier.name}</p>
                             </div>
                         </div>
+
+                        {order.shipping.courier.pickupPoint && (
+                            <div className={styles.order_item}>
+                                <h1 className={styles.order_item_title}>Wybrany paczkomat</h1>
+                
+                                <div className={styles.order_item_body}>
+                                    <div className='flex items-center justify-between'>
+                                        <div className='flex items-center'>
+                                            <div className='w-[100px] h-[100px]'>
+                                                <img src={order.shipping.pickupData.markerIconUrl} alt="" className='rounded-md object-cover w-full h-full' />
+                                            </div>
+                                            <div className='flex flex-col ml-2'>
+                                                <h1 className='text-lg mb-2 font-semibold'>{order.shipping.pickupData.name}</h1>
+                                                <p className='mt-1 font-normal'>Opis: <span className='font-semibold'>{order.shipping.pickupData.location}</span></p>
+                                                <p className='mt-1 font-normal'>Adres: <span className='font-semibold'>{order.shipping.pickupData.address.street}, {order.shipping.pickupData.address.zipcode} - {order.shipping.pickupData.address.city}</span></p>
+                                            </div>
+                                        </div>
+                                        <Button asChild>
+                                            <Link target='_blank' href={`https://www.google.com/maps/search/?api=1&query=${order.shipping.pickupData.coordinates.latitude},${order.shipping.pickupData.coordinates.longitude}`}>
+                                                <MapPinIcon className='w-4 h-4 mr-2' />
+                                                Zobacz na mapie
+                                            </Link>
+                                        </Button>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
             
                         <div className={styles.order_item}>
                             <h1 className={styles.order_item_title}>Płatność</h1>
@@ -147,7 +174,7 @@ export default function OrderDetails() {
                                     {order.payment.status == "n" && (
                                         <span> - wystąpił błąd</span>
                                     )}
-                                    {" "}- {paymentStatuses[order.payment.status as keyof typeof paymentStatuses]}
+                                    {" "}- {paymentStatuses[order.payment.status as string]}
                                 </p>
                             
                                 {order.payment.status == "n" && (

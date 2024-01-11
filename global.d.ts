@@ -440,7 +440,7 @@ interface OrderOptions {
     delivery: {courierId: string, prepaid: boolean, courierName: string},
     insurance: boolean,
     shippingMode: "dvp" | "prepaid",
-    selectedPickupPoint: string,
+    selectedPickupPoint: ParcelLocker | null,
     selectedPayment: string
 }
 
@@ -614,3 +614,30 @@ interface Post {
     _createdAt: string
     categories: string[]
 }
+
+interface ParcelLocker {
+    name: string;
+    href: string;
+    status: string;
+    location: {
+        longitude: number;
+        latitude: number;
+    }
+    location_description: string;
+    address: {
+        line1: string;
+        line2: string;
+    }
+    address_details: {
+        city: string;
+        province: string;
+        post_code: string;
+        street: string;
+        building_number: string;
+        flat_number: string;
+    }
+    functions: string[];
+    image_url: string;
+}
+
+declare module 'react-inpost-geowidget';
