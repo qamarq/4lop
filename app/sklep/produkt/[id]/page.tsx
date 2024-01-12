@@ -97,6 +97,7 @@ export default function ProductPage() {
                 const responseData = await response.json();
                 console.log(responseData.returnData.longDescription)
                 responseData.returnData.longDescription = responseData.returnData.longDescription.replace(/"\/data\/include\/cms\//g, '"https://elektromaniacy.pl/data/include/cms/');
+                responseData.returnData.longDescription = responseData.returnData.longDescription.replace("autoplay=1", 'autoplay=0');
                 // console.log(responseData.returnData)
                 setProduct(responseData.returnData)
             } else {

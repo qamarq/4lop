@@ -8,6 +8,25 @@ export const getShipmentMethods = async () => {
     if (!shipmentMethods) return { error: "Shipment methods not found" }
 
     const shipmentResponse: Shipment[] = await Promise.all(shipmentMethods.map(async (shipmentItem): Promise<Shipment> => {
+        let deliveryDays = 0
+        let deliveryHours = 0
+        let deliveryMinutes = 0
+
+        const shippingTimeDays = shipmentItem.shippingTimeDays
+        const shippingInWeekends = shipmentItem.shippingInWeekends
+
+        if (shippingInWeekends) {
+            deliveryHours = 48
+        } else {
+            const currentDate = new Date()
+            const currentDay = currentDate.getDay()
+            const daysToAdd = shippingTimeDays + Math.floor((currentDay + shippingTimeDays) / 5) * 2
+            const deliveryDate = new Date(currentDate.getTime() + daysToAdd * 24 * 60 * 60 * 1000)
+            deliveryDays = Math.floor(daysToAdd)
+            deliveryHours = deliveryDate.getHours()
+            deliveryMinutes = deliveryDate.getMinutes()
+        }
+
         return {
             courier: {
                 id: shipmentItem.id,
@@ -21,6 +40,7 @@ export const getShipmentMethods = async () => {
             },
             prepaid: shipmentItem.prepaid ? "prepaid" : "dvp",
             comment: shipmentItem.description,
+            excludedProducts: shipmentItem.excludedProducts || [],
             availability: "",
             calendar: false,
             calendarOption: "",
@@ -35,9 +55,9 @@ export const getShipmentMethods = async () => {
             },
             deliveryTime: {
                 time: {
-                    days: 1,
-                    hours: 1,
-                    minutes: 1
+                    days: deliveryDays,
+                    hours: deliveryHours,
+                    minutes: deliveryMinutes
                 },
                 workingDays: 1,
                 weekDay: 1,

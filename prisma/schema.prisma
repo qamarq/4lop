@@ -162,6 +162,8 @@ model ShippingMethod {
     minWorth           Float    @default(0)
     maxWorth           Float    @default(0)
     personalCollection Boolean  @default(false)
+    shippingTimeDays   Int      @default(0)
+    shippingInWeekends Boolean  @default(false)
 }
 
 type deliveryAddress {

@@ -240,6 +240,7 @@ interface Shipment {
     },
     prepaid: string,
     comment: string,
+    excludedProducts: string[],
     availability: string,
     calendar: boolean,
     calendarOption: string,
