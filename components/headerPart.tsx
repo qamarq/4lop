@@ -12,11 +12,13 @@ import logo from '@/public/4lop.svg';
 import { ClockIcon, LogIn, LogOutIcon, MenuIcon, Search, ShoppingCartIcon, User2Icon, XIcon } from 'lucide-react'
 import { useCurrentUser } from '@/hooks/use-current-user'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from './ui/dropdown-menu'
-import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar'
 import { LogoutButton } from './auth/logout-button'
+import { useCurrentRole } from '@/hooks/use-current-role'
+import { UserRole } from '@prisma/client'
 
 export default function HeaderPart() {
     const pathname = usePathname();
+    const role = useCurrentRole();
     const router = useRouter()
     const [mobileMenuOpened, setMobileMenuOpened] = React.useState(false)
     const user = useCurrentUser()
@@ -61,6 +63,14 @@ export default function HeaderPart() {
                                     )} */}
                                 </Link>
                             ))}
+                            {role === UserRole.ADMIN && (
+                                <Link href="/dashboard">
+                                    <div className={`${styles.button} ${pathname === "/dashboard" ? styles.active : ""}`}>
+                                        Panel administratora
+                                        <span className={styles.bg}></span>
+                                    </div>
+                                </Link>
+                            )}
                         </div>
                         <div className={styles.icons_buttons}>
                             <Link href="/sklep" className={styles.icon}><Search size={22}/></Link>
