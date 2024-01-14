@@ -111,3 +111,17 @@ export const NewPasswordSchema = z.object({
         message: 'Password must be at least 8 characters',
     }).max(100),
 });
+
+export const BasicShipmentSchema = z.object({
+    name: z.string().min(1, { message: "Nazwa jest wymagana" }),
+    description: z.string().min(1, { message: "Opis jest wymagany" }),
+    image: z.string().min(1, { message: "Obraz jest wymagany" }),
+    price: z.string().min(1, { message: "Cena jest wymagana" }),
+    pickupPoint: z.boolean(),
+    personalCollection: z.boolean(),
+    prepaid: z.boolean(),
+    shippingTimeDays: z.string().min(1, { message: "Czas wysyłki jest wymagany" }),
+    shippingInWeekends: z.boolean(),
+    minWorth: z.string().min(1, { message: "Minimalna wartość jest wymagana" }),
+    maxWorth: z.string().min(1, { message: "Maksymalna wartość jest wymagana" })
+});
