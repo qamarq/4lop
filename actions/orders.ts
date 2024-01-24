@@ -184,7 +184,7 @@ export const createOrder = async ({
                 email: user.email || "",
                 country: Country.Poland,
                 language: Language.PL,
-                urlReturn: `${process.env.NEXTAUTH_URL}/koszyk/platnosc/podsumowanie`,
+                urlReturn: `${process.env.NEXTAUTH_URL}/koszyk/platnosc/podsumowanie?sessionID=${paymentSessionID}`,
                 urlStatus: `https://4lop.pl/api/payment/p24`, // callback to get notification
                 timeLimit: 15, // 15min
                 encoding: Encoding.UTF8,

@@ -219,7 +219,9 @@ model Orders {
     prepaid              Boolean
     paymentID            String?   
     paymentSecret        String?  
-    paymentStatus        String?   
+    paymentStatus        String?  
+    paymentOrderID       String?
+    paymentStatement     String?
     orderAmount          Float     
     paymentCurrency      String?  
     products             Json[]  

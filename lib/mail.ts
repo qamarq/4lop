@@ -29,13 +29,7 @@ export const sendVerificationEmail = async (email: string, token: string) => {
         html: emailHtml
     };
       
-    transporter.sendMail(mailOptions, (err, info) => {
-        if (err) {
-            console.error(err)
-        } else {
-            console.log(info)
-        }  
-    });
+    transporter.sendMail(mailOptions);
 }
 
 export const sendPasswordResetEmail = async (email: string, token: string) => {

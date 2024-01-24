@@ -13,6 +13,15 @@ export const paymentStatuses: Record<string, string> = {
     dvp: "Płatność przy odbiorze"
 }
 
+export type Przelewy24PaymentStatus = "0" | "1" | "2" | "3";
+
+export const przelewy24PaymentStatuses: Record<string, string> = {
+    "0": "Brak płatności",
+    "1": "Zaliczka",
+    "2": "Zapłacono",
+    "3": "Anulowano",
+}
+
 export const orderStatuses: Record<orderStatusType, string> = {
     NEW: "Zamówienie złożone",
     PAID: "Zamówienie opłacone",
