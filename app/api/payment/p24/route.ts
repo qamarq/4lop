@@ -47,7 +47,7 @@ export async function POST(req: Request) {
                             id: order.id
                         },
                         data: {
-                            paymentStatus: paymentStatus.payment.status,
+                            paymentStatus: paymentStatus.payment.status.toString(),
                             orderStatus: orderStatusType.PAID
                         }
                     })

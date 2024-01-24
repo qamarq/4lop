@@ -17,7 +17,7 @@ export type Przelewy24PaymentStatus = "0" | "1" | "2" | "3";
 
 export const przelewy24PaymentStatuses: Record<string, string> = {
     "0": "Brak płatności",
-    "1": "Płatność w trakcie przeywarzania",
+    "1": "Płatność w trakcie przetwarzania",
     "2": "Potwierdzono płatność",
     "3": "Zwrócono środki",
 }
