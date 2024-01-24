@@ -8,8 +8,8 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 
 export const transporter = nodemailer.createTransport({
     host: "serwer1720679.home.pl",
-    port: 587,
-    secure: false, // upgrade later with STARTTLS
+    port: 465,
+    secure: true, // upgrade later with STARTTLS
     auth: {
         user: "noreply@4lop.pl",
         pass: "jXF7SOpd",
@@ -29,7 +29,13 @@ export const sendVerificationEmail = async (email: string, token: string) => {
         html: emailHtml
     };
       
-    transporter.sendMail(mailOptions);
+    transporter.sendMail(mailOptions, (err, info) => {
+        if (err) {
+            console.error(err)
+        } else {
+            console.log(info)
+        }  
+    });
 }
 
 export const sendPasswordResetEmail = async (email: string, token: string) => {
