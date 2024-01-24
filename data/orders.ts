@@ -2,8 +2,8 @@ import { currentUser } from "@/lib/auth"
 import { prisma } from "@/lib/db"
 import { formattedPrice } from "@/lib/utils"
 import { getProductById } from "./products"
-import { stripe } from "@/lib/stripe"
 import { paymentOptions, paymentOptionsIcons } from "@/constants/payment"
+import { getPaymentMethodById, getPaymentStatus } from "@/actions/payment"
 
 export const getPreparedOrderByOrderId = async (orderId: string) => {
     const order = await prisma.orders.findUnique({ where: { id: orderId } })
@@ -14,12 +14,14 @@ export const getPreparedOrderByOrderId = async (orderId: string) => {
     const userHasOrder = await prisma.orders.findFirst({ where: { id: orderId, userId: user.id } })
     if (!userHasOrder) return
 
-    let paymentIntent = null
     let paymentMethod = null
 
     if (order.paymentID) {
-        paymentIntent = await stripe.paymentIntents.retrieve(order.paymentID)
-        paymentMethod = await stripe.paymentMethods.retrieve(paymentIntent.payment_method)
+        const paymentStatus = await getPaymentStatus(order.paymentID)
+        if (paymentStatus.success) {
+            const getPaymentResponse = await getPaymentMethodById(paymentStatus.payment.paymentMethod)
+            if (getPaymentResponse.success) paymentMethod = getPaymentResponse.paymentMethod
+        }
     }
 
     let shippingCost = 0
@@ -90,10 +92,10 @@ export const getPreparedOrderByOrderId = async (orderId: string) => {
             paymentTimestamp: order.orderDate,
             status: order.paymentStatus || "dvp",
             paymentMethod: {
-                id: paymentMethod ? paymentMethod.id : "dvp",
-                name: paymentMethod ? paymentOptions[paymentMethod.type] : "Płatność za pobraniem",
+                id: paymentMethod ? paymentMethod.id.toString() : "dvp",
+                name: paymentMethod ? paymentMethod.name : "Płatność za pobraniem",
                 description: "",
-                icon: paymentOptionsIcons[paymentMethod ? paymentMethod.type : "dvp"],
+                icon: paymentMethod ? paymentMethod.imgUrl : paymentOptionsIcons["dvp"],
                 refreshPayment: false,
             },
             bankTransferData: {}

@@ -48,6 +48,8 @@ export async function POST(req: Request) {
                         },
                         data: {
                             paymentStatus: paymentStatus.payment.status.toString(),
+                            paymentOrderID: paymentStatus.payment.orderId,
+                            paymentStatement: paymentStatus.payment.statement,
                             orderStatus: orderStatusType.PAID
                         }
                     })

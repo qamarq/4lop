@@ -540,7 +540,7 @@ interface Order {
         paymentTimestamp: Date
         status: string
         paymentMethod: {
-            id: number
+            id: string
             name: string
             description: string
             icon: string

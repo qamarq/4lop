@@ -8,7 +8,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import { ChevronLeftIcon, Loader2Icon, MapPinIcon } from 'lucide-react'
 import Link from 'next/link'
 import { prepareLink } from '@/lib/utils'
-import { orderStatuses, paymentStatuses } from '@/constants/payment'
+import { orderStatuses, paymentStatuses, przelewy24PaymentStatuses } from '@/constants/payment'
 import { Button } from '@/components/ui/button'
 import { useCurrentUser } from '@/hooks/use-current-user'
 import { getOrderByOrderNumber } from '@/actions/orders'
@@ -174,7 +174,7 @@ export default function OrderDetails() {
                                     {order.payment.status == "n" && (
                                         <span> - wystąpił błąd</span>
                                     )}
-                                    {" "}- {paymentStatuses[order.payment.status as string]}
+                                    {" "}- {przelewy24PaymentStatuses[order.payment.status as string]}
                                 </p>
                             
                                 {order.payment.status == "n" && (

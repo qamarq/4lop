@@ -147,6 +147,8 @@ export const createOrder = async ({
     try {
         let paymentIntent = null
         let paymentSessionID = null
+        const newOrderNumber = await prisma.orders.count() + 1
+
         if (prepaidBool) {
             // paymentIntent = await stripe.paymentIntents.create({
             //     amount: orderAmountTotal*100,
@@ -180,10 +182,15 @@ export const createOrder = async ({
                 sessionId: paymentSessionID,
                 amount: orderAmountTotal*100, // Transaction amount expressed in lowest currency unit, e.g. 1.23 PLN = 123
                 currency: Currency.PLN,
-                description: "test order",
+                description: `Zamówienie ze sklepu 4lop o numerze ${newOrderNumber}`,
                 email: user.email || "",
                 country: Country.Poland,
                 language: Language.PL,
+                client: `${user.firstname} ${user.lastname}`,
+                address: user.street,
+                zip: user.zipCode,
+                city: user.city,
+                phone: user.phone,
                 urlReturn: `${process.env.NEXTAUTH_URL}/koszyk/platnosc/podsumowanie?sessionID=${paymentSessionID}`,
                 urlStatus: `https://4lop.pl/api/payment/p24`, // callback to get notification
                 timeLimit: 15, // 15min
@@ -191,8 +198,6 @@ export const createOrder = async ({
             }
             paymentIntent = await p24.createTransaction(order)
         }
-
-        const newOrderNumber = await prisma.orders.count() + 1
 
         const order = await prisma.orders.create({
             data: {
@@ -211,7 +216,7 @@ export const createOrder = async ({
                 },
                 paymentID: paymentIntent ? paymentSessionID : null,
                 paymentSecret: paymentIntent ? paymentIntent.token : null,
-                paymentStatus: "pending",
+                paymentStatus: "0",
                 paymentCurrency: "pln",
                 orderAmount: orderAmountTotal,
                 products: userCart.products,

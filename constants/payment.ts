@@ -14,6 +14,17 @@ export const paymentStatuses: Record<string, string> = {
 }
 
 export type Przelewy24PaymentStatus = "0" | "1" | "2" | "3";
+export type Przelewy24PaymentMethod = {
+    name: string,
+    id: number,
+    group: string,
+    subgroup: string,
+    status: boolean,
+    imgUrl: string,
+    mobileImgUrl: string,
+    mobile: boolean,
+    availabilityHours: { mondayToFriday: string, saturday: string, sunday: string }
+}
 
 export const przelewy24PaymentStatuses: Record<string, string> = {
     "0": "Brak płatności",
