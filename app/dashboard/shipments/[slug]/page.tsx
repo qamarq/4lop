@@ -12,6 +12,7 @@ const getShipmentData = async (id: string) => {
     
         return shipmentData
     } catch (err) {
+        console.log("Error: ", err)
         return null
     }
 }

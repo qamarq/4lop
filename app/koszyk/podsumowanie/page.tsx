@@ -55,7 +55,8 @@ export default function SummaryPage() {
                         if (orderOptions.payment === "dvp") {
                             router.push(`/konto/zamowienia/${data.order.orderNumber}`)
                         } else {
-                            router.push(`/koszyk/platnosc?orderId=${data.order.orderId}&orderNumber=${data.order.orderNumber}&paymentId=${data.payment ? data.payment.paymentId : 0}&paymentSecret=${data.payment ? data.payment.paymentSecret : 0}`)
+                            // router.push(`/koszyk/platnosc?orderId=${data.order.orderId}&orderNumber=${data.order.orderNumber}&paymentId=${data.payment ? data.payment.paymentId : 0}&paymentSecret=${data.payment ? data.payment.paymentSecret : 0}`)
+                            window.location.href = data.payment?.link || `/konto/zamowienia/${data.order.orderNumber}`
                         }
                     } else {
                         toast({

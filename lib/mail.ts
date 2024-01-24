@@ -6,10 +6,10 @@ import { prisma } from './db';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-const transporter = nodemailer.createTransport({
+export const transporter = nodemailer.createTransport({
     host: "serwer1720679.home.pl",
-    port: 465,
-    secure: true, // upgrade later with STARTTLS
+    port: 587,
+    secure: false, // upgrade later with STARTTLS
     auth: {
         user: "noreply@4lop.pl",
         pass: "jXF7SOpd",
@@ -19,7 +19,6 @@ const transporter = nodemailer.createTransport({
 export const sendVerificationEmail = async (email: string, token: string) => {
     const user = await prisma.user.findUnique({ where: { email } })
     if (!user) return { error: "User not found" }
-    console.log("Sending verification email to", email)
     const confirmationLink = `${process.env.NEXTAUTH_URL}/auth/new-verification?token=${token}`
     const emailHtml = render(WelcomeEmail({ username: user.name || "", url: confirmationLink }));
 
@@ -30,23 +29,26 @@ export const sendVerificationEmail = async (email: string, token: string) => {
         html: emailHtml
     };
       
-    transporter.sendMail(mailOptions, function(error, info){
-        if (error) {
-            console.log(error);
-        } else {
-            console.log('Email sent: ' + info.response);
-        }
-    });
+    transporter.sendMail(mailOptions);
 }
 
 export const sendPasswordResetEmail = async (email: string, token: string) => {
     const confirmationLink = `${process.env.NEXTAUTH_URL}/auth/new-password?token=${token}`
     const emailBody = `<p>Please click the following link to reset your password: <a href="${confirmationLink}">link</a></p>`
 
-    await resend.emails.send({
-        from: "noreply@kamilmarczak.pl",
+    // await resend.emails.send({
+    //     from: "noreply@kamilmarczak.pl",
+    //     to: email,
+    //     subject: "Password reset",
+    //     html: emailBody
+    // })
+
+    const mailOptions = {
+        from: '4lop <noreply@4lop.pl>',
         to: email,
-        subject: "Password reset",
+        subject: "Password reset - 4lop",
         html: emailBody
-    })
+    };
+      
+    transporter.sendMail(mailOptions);
 }

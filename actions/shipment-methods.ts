@@ -87,12 +87,12 @@ export const getShipmentMethods = async () => {
     //     console.log(err)
     // }
 
-    try {
-        const result = await p24.testAccess();
-        console.log(result);
-    } catch (err) {
-        console.log(err)
-    }
+    // try {
+    //     const result = await p24.testAccess();
+    //     console.log(result);
+    // } catch (err) {
+    //     console.log(err)
+    // }
 
     return { success: true, shipmentMethods: shipmentResponse }
 }

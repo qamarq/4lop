@@ -7,9 +7,6 @@ import { currentUser } from "@/lib/auth"
 import { prisma } from "@/lib/db"
 import { stripe } from "@/lib/stripe"
 import { pickupPointData, purchaseDocumentType } from "@prisma/client"
-import { v4 } from "uuid"
-import { Country, Currency, Encoding, Language, Order as P24Order } from "@ingameltd/node-przelewy24"
-import { p24 } from "@/lib/p24"
 
 interface createOrderProps {
     deliveryRemarks: string
@@ -146,50 +143,34 @@ export const createOrder = async ({
 
     try {
         let paymentIntent = null
-        let paymentSessionID = null
         if (prepaidBool) {
-            // paymentIntent = await stripe.paymentIntents.create({
-            //     amount: orderAmountTotal*100,
-            //     currency: "pln",
-            //     receipt_email: user.email,
-            //     // In the latest version of the API, specifying the `automatic_payment_methods` parameter is optional because Stripe enables its functionality by default.
-            //     // automatic_payment_methods: {
-            //     //     enabled: true,
-            //     // },
-            //     customer: user.stripeCustomerId,
-            //     payment_method_types: ['p24'],
-            //     metadata: {
-            //         order_id: '0',
-            //         order_number: '0',
-            //     },
-            //     shipping: {
-            //         address: {
-            //             line1: user.street,
-            //             postal_code: user.zipCode,
-            //             city: user.city,
-            //             country: user.country,
-            //         },
-            //         name: user.name,
-            //         carrier: courier ? courier.name : "Brak dostawy",
-            //         phone: user.phone,
-            //         tracking_number: ""
-            //     }
-            // });
-            paymentSessionID = v4()
-            const order: P24Order = {
-                sessionId: paymentSessionID,
-                amount: orderAmountTotal*100, // Transaction amount expressed in lowest currency unit, e.g. 1.23 PLN = 123
-                currency: Currency.PLN,
-                description: "test order",
-                email: user.email || "",
-                country: Country.Poland,
-                language: Language.PL,
-                urlReturn: `${process.env.NEXTAUTH_URL}/koszyk/platnosc/podsumowanie`,
-                urlStatus: `${process.env.NEXTAUTH_URL}/api/payment/p24`, // callback to get notification
-                timeLimit: 15, // 15min
-                encoding: Encoding.UTF8,
-            }
-            paymentIntent = await p24.createTransaction(order)
+            paymentIntent = await stripe.paymentIntents.create({
+                amount: orderAmountTotal*100,
+                currency: "pln",
+                receipt_email: user.email,
+                // In the latest version of the API, specifying the `automatic_payment_methods` parameter is optional because Stripe enables its functionality by default.
+                // automatic_payment_methods: {
+                //     enabled: true,
+                // },
+                customer: user.stripeCustomerId,
+                payment_method_types: ['p24'],
+                metadata: {
+                    order_id: '0',
+                    order_number: '0',
+                },
+                shipping: {
+                    address: {
+                        line1: user.street,
+                        postal_code: user.zipCode,
+                        city: user.city,
+                        country: user.country,
+                    },
+                    name: user.name,
+                    carrier: courier ? courier.name : "Brak dostawy",
+                    phone: user.phone,
+                    tracking_number: ""
+                }
+            });
         }
 
         const newOrderNumber = await prisma.orders.count() + 1
@@ -209,10 +190,10 @@ export const createOrder = async ({
                     phone: user.phone,
                     email: user.email || ""
                 },
-                paymentID: paymentIntent ? paymentSessionID : null,
-                paymentSecret: paymentIntent ? paymentIntent.token : null,
-                paymentStatus: "pending",
-                paymentCurrency: "pln",
+                paymentID: paymentIntent ? paymentIntent.id : null,
+                paymentSecret: paymentIntent ? paymentIntent.client_secret : null,
+                paymentStatus: paymentIntent ? paymentIntent.status : null,
+                paymentCurrency: paymentIntent ? paymentIntent.currency : null,
                 orderAmount: orderAmountTotal,
                 products: userCart.products,
                 shippingMethodId: courierId,
@@ -224,18 +205,18 @@ export const createOrder = async ({
             }
         })
 
-        // if (prepaidBool) {
-        //     await stripe.paymentIntents.update(paymentIntent.id, {
-        //         metadata: {
-        //             order_id: order.id,
-        //             order_number: order.orderNumber
-        //         },
-        //     })
-        // }
+        if (prepaidBool) {
+            await stripe.paymentIntents.update(paymentIntent.id, {
+                metadata: {
+                    order_id: order.id,
+                    order_number: order.orderNumber
+                },
+            })
+        }
 
         await prisma.cart.delete({ where: { userId: user.id } })
 
-        return { success: "Zamówienie zostało utworzone", order: { orderId: order.id, orderNumber: newOrderNumber }, payment: paymentIntent ? { link: paymentIntent.link } : null }
+        return { success: "Zamówienie zostało utworzone", order: { orderId: order.id, orderNumber: newOrderNumber }, payment: paymentIntent ? { paymentId: paymentIntent.id, paymentSecret: paymentIntent.client_secret } : null }
     } catch (error) {
         console.error(error)
         return { error: "Błąd podczas tworzenia zamówienia" }
