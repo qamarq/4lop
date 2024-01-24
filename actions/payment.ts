@@ -19,8 +19,9 @@ const axiosInstance = axios.create({
 export const getPaymentStatus = async (sessionId: string) => {
     try {
         // const payment = await stripe.paymentIntents.retrieve(paymentId);
-        const res = await axiosInstance.post('/transaction/by/sessionId/'+sessionId);
+        const res = await axiosInstance.get('/transaction/by/sessionId/'+sessionId);
         const response = res.data.data
+        // console.log(response)
         const order = await prisma.orders.findFirst({ where: { paymentID: response.description } })
 
         return { success: true, payment: { status: response.status, orderNumber: order ? order.orderNumber : 0 } }

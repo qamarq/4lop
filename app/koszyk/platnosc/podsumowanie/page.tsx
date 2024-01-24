@@ -5,7 +5,7 @@ import styles from "@/styles/Summary.module.scss"
 import { AlertOctagonIcon, CheckIcon, ChevronRight, Loader2Icon } from 'lucide-react'
 import { getPaymentStatus } from '@/actions/payment'
 import { useSearchParams } from 'next/navigation'
-import { Przelewy24PaymentStatus, paymentStatuses } from '@/constants/payment'
+import { Przelewy24PaymentStatus, paymentStatuses, przelewy24PaymentStatuses } from '@/constants/payment'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
@@ -23,7 +23,7 @@ export default function PaymentSummaryPage() {
             await getPaymentStatus(paymentId)
                 .then((data) => {
                     if (data.success) {
-                        setPaymentStatus(data.payment.status)
+                        setPaymentStatus(data.payment.status.toString())
                         setOrderNumber(data.payment.orderNumber.toString())
                     }
                 })
@@ -63,7 +63,7 @@ export default function PaymentSummaryPage() {
                                 </>
                             )}
                         </div>
-                        <h1 className='font-semibold text-2xl text-center'>{isPending ? "Przetwarzanie płatności..." : paymentStatuses[paymentStatus || "processing"] }</h1>
+                        <h1 className='font-semibold text-2xl text-center'>{isPending ? "Przetwarzanie płatności..." : przelewy24PaymentStatuses[paymentStatus || "0"] }</h1>
                         <Button disabled={orderNumber === ""} className='w-full max-w-[400px] mt-8' asChild>
                             <Link href={`/konto/zamowienia/${orderNumber}`}>
                                 Przejdź do swojego zamówienia
