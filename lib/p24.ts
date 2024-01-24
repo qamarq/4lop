@@ -1,28 +1,11 @@
 import { P24 } from "@ingameltd/node-przelewy24";
 
-const p24ClientSingleton = () => {
-    const merchantId = 1
-    const posId = 1
-    const apiKey = ""
-    const crcKey = ""
-    const options = {
-        sandbox: true,
+export const p24 = new P24(
+    parseInt(process.env.P24_MERCHANT_ID || "1"), 
+    parseInt(process.env.P24_POS_ID || "1"), 
+    process.env.P24_API_KEY || "",
+    process.env.P24_CRC_KEY || "", 
+    { 
+        sandbox: process.env.P24_SANDBOX_MODE === "true" ? true : false // enable or disable sandbox
     }
-    return new P24(
-        merchantId, 
-        posId, 
-        apiKey,
-        crcKey,
-        options
-    );
-}
-
-type P24ClientSingleton = ReturnType<typeof p24ClientSingleton>
-
-const globalForP24 = globalThis as unknown as {
-    p24: P24ClientSingleton | undefined
-}
-
-export const p24 = globalForP24.p24 ?? p24ClientSingleton()
-
-if (process.env.NODE_ENV !== 'production') globalForP24.p24 = p24
+);

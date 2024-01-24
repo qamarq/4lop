@@ -84,14 +84,14 @@ export default function Home() {
                                 </div>
                             </div>
                         </div>
-                        <div className={styles.bottom}>
+                        {/* <div className={styles.bottom}>
                             <div className={styles.icon_btn}>
                                 <PhoneOutgoing size={21} />
                             </div>
                             <div className={styles.icon_down}>
                                 <ChevronsDown size={25} />
                             </div>
-                        </div>
+                        </div> */}
                     </div>
                 </div>
             </div>

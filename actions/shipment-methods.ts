@@ -3,7 +3,8 @@
 import { prisma } from "@/lib/db";
 import { p24 } from "@/lib/p24";
 import { formattedPrice } from "@/lib/utils";
-import { P24Error } from "@ingameltd/node-przelewy24";
+import { P24, P24Error } from "@ingameltd/node-przelewy24";
+import nodemailer from "nodemailer"
 
 export const getShipmentMethods = async () => {
     const shipmentMethods = await prisma.shippingMethod.findMany()
@@ -85,6 +86,13 @@ export const getShipmentMethods = async () => {
     //     console.log(typeof err)
     //     console.log(err)
     // }
+
+    try {
+        const result = await p24.testAccess();
+        console.log(result);
+    } catch (err) {
+        console.log(err)
+    }
 
     return { success: true, shipmentMethods: shipmentResponse }
 }
