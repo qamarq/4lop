@@ -8,6 +8,7 @@ import { useCart } from '@/hooks/use-cart';
 import { Skeleton } from '../ui/skeleton';
 import { prepareLink } from '@/lib/utils';
 import { useState } from 'react';
+import Link from 'next/link';
 
 export const HomeProduct = (
     { 
@@ -37,6 +38,13 @@ export const HomeProduct = (
     const { addItem } = useCart();
     const [isAdding, setIsAdding] = useState(false)
     const router = useRouter()
+    const formattedName = name
+        .replace(/[^a-zA-Z0-9]+/g, " ")
+        .trim()
+        .toLowerCase()
+        .replace(/\s+/g, "-");
+    const linkToHref = `/sklep/produkt/${formattedName}-${id}`
+
     const cardClick = () => {
         if (cart) {
             if (link) {
@@ -89,7 +97,7 @@ export const HomeProduct = (
     }
 
     return (
-        <div className={styles.card} onClick={cardClick}>
+        <Link href={linkToHref} className={styles.card} onClick={cardClick}>
             <img draggable={false} src={image} alt={name} />
             <h1>{name}</h1>
             <h2>
@@ -138,7 +146,7 @@ export const HomeProduct = (
                     </div>
                 )}
             </div>
-        </div>
+        </Link>
     )
 }
 
