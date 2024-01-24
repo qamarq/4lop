@@ -25,7 +25,7 @@ export const sendVerificationEmail = async (email: string, token: string) => {
 
     const mailOptions = {
         from: '4lop <noreply@4lop.pl>',
-        to: "01jmckiil9u2mxmtu@mailchecker.net",
+        to: email,
         subject: "Email verification - 4lop",
         html: emailHtml
     };
