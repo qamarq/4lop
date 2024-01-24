@@ -1534,7 +1534,8 @@ export const options: Table[] = [
                 name: "Półka 160x20cm pod blat/na nadstawkę",
                 price: 0, 
                 code: 0, 
-                size: "uniw"
+                size: "uniw",
+                notAvailable: true
             },
             {
                 name: "Nadstawka do stołu",
@@ -1556,10 +1557,14 @@ export const options: Table[] = [
                 ]
             },
             {
-                name: "Półka 160x20cm pod blat/na nadstawkę",
-                price: 0, 
-                code: 0, 
-                size: "uniw"
+                name: "Półka pod blat/na nadstawkę",
+                depedencies: [6],
+                versions: [
+                    { len: 140, price: 152, code: 12854, size: "uniw" },
+                    { len: 160, price: 188, code: 11428, size: "uniw" },
+                    { len: 180, price: 206, code: 11429, size: "uniw" },
+                    { len: 200, price: 233, code: 11430, size: "uniw" }
+                ]
             },
             {
                 name: "Rurka na stretch z uchwytami",
