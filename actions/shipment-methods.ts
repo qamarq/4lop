@@ -1,7 +1,9 @@
 "use server"
 
 import { prisma } from "@/lib/db";
+import { p24 } from "@/lib/p24";
 import { formattedPrice } from "@/lib/utils";
+import { P24Error } from "@ingameltd/node-przelewy24";
 
 export const getShipmentMethods = async () => {
     const shipmentMethods = await prisma.shippingMethod.findMany()
@@ -71,6 +73,18 @@ export const getShipmentMethods = async () => {
             courierPickupPoints: false
         }
     }))
+
+    // try {
+    //     const result = await p24.testAccess();
+    //     console.log(result);
+    // } catch (err) {
+    //     if (err instanceof P24Error) {
+    //         console.log("hahahah")
+    //         console.log(err.message);
+    //     }
+    //     console.log(typeof err)
+    //     console.log(err)
+    // }
 
     return { success: true, shipmentMethods: shipmentResponse }
 }

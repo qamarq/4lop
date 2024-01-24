@@ -153,7 +153,7 @@ export const createOrder = async ({
                 //     enabled: true,
                 // },
                 customer: user.stripeCustomerId,
-                payment_method_types: ['card', 'p24', 'blik'],
+                payment_method_types: ['p24'],
                 metadata: {
                     order_id: '0',
                     order_number: '0',
