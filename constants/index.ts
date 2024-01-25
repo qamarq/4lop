@@ -3,6 +3,7 @@ import Image2 from "@/public/configurator/stol_warsztat/jpg/B.jpg"
 import Image3 from "@/public/configurator/stol_nozem/jpg/C.jpg"
 
 export const COOKIE_SESSION_KEY_NAME = '4lopSessionKey';
+export const LOCALSTORAGE_CART_KEY_NAME = '4lopCart';
 export const COOKIE_CLIENT_ID = "4lopClientId";
 // export const COOKIE_CLIENT_ID = "4lopToken";
 export const MAX_AGE = 60 * 60 * 24

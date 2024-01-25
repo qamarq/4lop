@@ -123,4 +123,5 @@ export const BasicShipmentSchema = z.object({
     shippingTimeDays: z.string().min(1, { message: "Czas wysyłki jest wymagany" }),
     shippingInWeekends: z.boolean(),
     excluding: z.boolean(),
+    excludedProducts: z.array(z.string()),
 });

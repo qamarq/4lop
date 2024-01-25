@@ -3,7 +3,7 @@
 
 import { addToBasket, getBasket, removeFromBasket, updateBasket } from "@/actions/basket";
 import { toast } from "@/components/ui/use-toast";
-import { SAVED_ORDER_SETTINGS_NAME } from "@/constants";
+import { LOCALSTORAGE_CART_KEY_NAME, SAVED_ORDER_SETTINGS_NAME } from "@/constants";
 import { createContext, useContext, useEffect, useState, ReactNode, useRef } from "react";
 
 type DeliveryUpdate = { courierId: string, prepaid: boolean } | null;
@@ -26,6 +26,56 @@ interface CartContextType {
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
+const buildOfflineCart = async () => {
+    const cart = localStorage.getItem(LOCALSTORAGE_CART_KEY_NAME);
+    
+    const basketData: Cart = {
+        basketCost: {
+            shippingUndefined: true,
+            basketShippingCost: {
+                shippingCost: { value: 0, currency: "pln", formatted: "0.00 zł" },
+                shippingCostAfterRebate: 0,
+                shopVat: 0,
+            },
+            prepaidCost: { value: 0, currency: "pln", formatted: "0.00 zł" },
+            insuranceCost: { value: 0, currency: "pln", formatted: "0.00 zł" },
+            totalProductsCost: {
+                value: 0,
+                currency: "pln",
+                formatted: "0.00 zł",
+            },
+            totalAdditionalCost: {
+                value: 0,
+                currency: "pln",
+                formatted: "0.00 zł",
+            },
+            totalRebate: { value: 0, currency: "pln", formatted: "0.00 zł" },
+            totalRebateWithoutShipping: {
+                value: 0,
+                currency: "pln",
+                formatted: "0.00 zł",
+            },
+            totalToPay: { value: 0, currency: "pln", formatted: "0.00 zł" },
+        },
+        summaryBasket: {
+            productsCount: 0,
+            worth: {
+                gross: { value: 0, currency: "pln", formatted: "0.00 zł" },
+                net: { value: 0, currency: "pln", formatted: "0.00 zł" },
+            },
+            rebate: { value: 0, currency: "pln", formatted: "0.00 zł" },
+            beforeRebate: {
+                gross: { value: 0, currency: "pln", formatted: "0.00 zł" },
+                net: { value: 0, currency: "pln", formatted: "0.00 zł" },
+            },
+            shipping: { cost: { value: 0, currency: "pln", formatted: "0.00 zł" }, shippingDays: 0 },
+        },
+        products: []
+    };  
+    
+    return basketData
+}
+
 export const CartProvider = ({ children }: { children: ReactNode }) => {
     const [cart, setCart] = useState<Cart | null>(null);
     const [delivery, setDelivery] = useState<{courierId: string, prepaid: boolean} | null>(null)
@@ -36,9 +86,14 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
 
     const fetchCart = async () => {
         await getBasket(delivery?.courierId)
-            .then((data) => {
+            .then(async (data) => {
                 if (data.success) {
                     setCart(data.data)
+                } else if (data.error) {
+                    if (data.error === "not_logged_in") {
+                        const offlineCart = await buildOfflineCart()
+                        setCart(offlineCart)
+                    }
                 }
             })
             .catch((error) => {
@@ -51,7 +106,6 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     
     useEffect(() => {
         if (!fetchedFirstTime.current) {
-            console.log("fetching cart");
             fetchCart();
             fetchedFirstTime.current = true;
         }

@@ -9,7 +9,7 @@ import { formattedPrice } from "@/lib/utils";
 
 export const getBasket = async (courierId?: string) => {
     const user = await currentUser()
-    if (!user) return { error: "User not logged in" }
+    if (!user) return { error: "not_logged_in" }
 
     let userCart = await prisma.cart.findUnique({ where: { userId: user.id } })
     if (!userCart) userCart = await prisma.cart.create({ data: { userId: user.id, products: [] } })

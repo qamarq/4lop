@@ -1,7 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 "use client"
 
-import { useState, useTransition } from "react"
+import { useEffect, useRef, useState, useTransition } from "react"
 import * as z from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -26,12 +26,11 @@ import Link from "next/link"
 import { updateBasicShipmentData } from "@/actions/shipment-update"
 import { useRouter } from "next/navigation"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { getOneProduct } from "@/actions/products"
-import { formattedPrice } from "@/lib/utils"
+import { getAllProductsInDB } from "@/actions/products"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
-export const BasicForm = ({ shipment }: { shipment: {
+export const BasicForm = ({ exludedDataTable, shipment }: { exludedDataTable: {name: string, price: string, id: number}[], shipment: {
     id: string;
     name: string;
     price: number;
@@ -50,7 +49,45 @@ export const BasicForm = ({ shipment }: { shipment: {
     const [error, setError] = useState<string | undefined>("")
     const [success, setSuccess] = useState<string | undefined>("")
     const [selectedTmpProduct, setSelectedTmpProduct] = useState<string>("")
+    const [productsInDB, setProductsInDB] = useState<{name: string, id: number}[]>([])
     const router = useRouter()
+    const firstTimeRef = useRef(true)
+
+    const getProducts = async () => {
+        await getAllProductsInDB()
+            .then((data) => {
+                if (data.success) {
+                    setProductsInDB(data.products)
+                }
+            })
+    }
+
+    // useEffect(() => {
+    //     if (shipment && shipment.excludedProducts) {
+    //         const excludedProducts = shipment.excludedProducts
+    //         const exludedDataTable = excludedProducts.map(async (productId): Promise<{ name: string, price: string, id: number }> => {
+    //             const productRAW = await getOneProduct(parseInt(productId))
+                
+    //             const product = productRAW.product
+    //             return {
+    //                 id: product?.id || 1,
+    //                 name: product?.name || "Brak nazwy",
+    //                 price: product?.price.price.gross.formatted || "0",
+    //             }
+    //         })
+    //         Promise.all(exludedDataTable).then((data) => {
+    //             setExludedDataTable(data)
+    //         })
+    //     }
+    // }, [shipment])
+
+    useEffect(() => {
+        if (firstTimeRef.current) {
+            firstTimeRef.current = false
+            
+            getProducts()
+        }
+    }, [])
 
     const form = useForm<z.infer<typeof BasicShipmentSchema>>({
         resolver: zodResolver(BasicShipmentSchema),
@@ -65,13 +102,30 @@ export const BasicForm = ({ shipment }: { shipment: {
             shippingTimeDays: shipment.shippingTimeDays.toString(),
             shippingInWeekends: shipment.shippingInWeekends,
             excluding: shipment.excluding,
+            excludedProducts: shipment.excludedProducts,
         } : {
             prepaid: false,
             pickupPoint: false,
             personalCollection: false,
-            shippingInWeekends: false
+            shippingInWeekends: false,
+            excluding: false,
+            excludedProducts: [],
         }
     })
+
+    const addNewExcludedProduct = () => {
+        if (selectedTmpProduct === "") { return }
+        const newExcludedProducts = [...form.getValues("excludedProducts"), selectedTmpProduct]
+        form.setValue("excludedProducts", newExcludedProducts)
+        form.handleSubmit(onSubmit)()
+        setSelectedTmpProduct("")
+    }
+
+    const removeNewExcludedProduct = (id: number) => {
+        const newExcludedProducts = form.getValues("excludedProducts").filter((productId) => productId !== id.toString())
+        form.setValue("excludedProducts", newExcludedProducts)
+        form.handleSubmit(onSubmit)()
+    }
 
     const onSubmit = (values: z.infer<typeof BasicShipmentSchema>) => {
         setError("")
@@ -372,16 +426,17 @@ export const BasicForm = ({ shipment }: { shipment: {
                                                     </p>
                                                 </div>
 
-                                                <Select>
+                                                <Select value={selectedTmpProduct} onValueChange={setSelectedTmpProduct}>
                                                     <SelectTrigger className="w-full">
                                                         <SelectValue placeholder="Wybierz produkt" />
                                                     </SelectTrigger>
                                                     <SelectContent>
-                                                        <SelectItem value="apple">Apple</SelectItem>
-                                                        <SelectItem value="banana">Banana</SelectItem>
-                                                        <SelectItem value="blueberry">Blueberry</SelectItem>
-                                                        <SelectItem value="grapes">Grapes</SelectItem>
-                                                        <SelectItem value="pineapple">Pineapple</SelectItem>
+                                                        {productsInDB.map((product) => {
+                                                            if (form.getValues("excludedProducts").includes(product.id.toString())) { return null }
+                                                            return (
+                                                                <SelectItem key={product.id} value={product.id.toString()}>{product.name}</SelectItem>
+                                                            )
+                                                        })}
                                                     </SelectContent>
                                                 </Select>
 
@@ -389,7 +444,7 @@ export const BasicForm = ({ shipment }: { shipment: {
                                                     <Button variant={"ghost"} asChild>
                                                         <Link href="/dashboard/products">Nie widzisz produktu?</Link>
                                                     </Button>
-                                                    <Button disabled={selectedTmpProduct === ""}>
+                                                    <Button disabled={selectedTmpProduct === ""} onClick={addNewExcludedProduct}>
                                                         <PlusIcon className="h-4 w-4 mr-2" />
                                                         Dodaj
                                                     </Button>
@@ -401,7 +456,7 @@ export const BasicForm = ({ shipment }: { shipment: {
                             </CardHeader>
                             <CardContent>
                                 <div className="flex flex-col items-center justify-center py-3">
-                                    {!shipment || shipment?.excludedProducts.length === 0 ? (
+                                    {!shipment || exludedDataTable.length === 0 ? (
                                         <p className="text-sm text-muted-foreground">Brak wykluczonych produktów</p>
                                     ) : (
                                         <Table>
@@ -413,17 +468,13 @@ export const BasicForm = ({ shipment }: { shipment: {
                                                 </TableRow>
                                             </TableHeader>
                                             <TableBody>
-                                                {shipment.excludedProducts.map(async (excludedProduct) => {
-                                                    const productItemRaw = await getOneProduct(parseInt(excludedProduct))
-                                                    if (productItemRaw.error || productItemRaw.product === undefined) { return null }
-                                                    const productItem = productItemRaw.product
-                                                    
+                                                {exludedDataTable.map(async (excludedProduct) => {
                                                     return (
-                                                        <TableRow key={excludedProduct}>
-                                                            <TableCell><span className='font-semibold'>{productItem.name}</span></TableCell>
-                                                            <TableCell><span className='font-semibold'>{productItem.price.price.gross.formatted}</span></TableCell>
+                                                        <TableRow key={excludedProduct.id}>
+                                                            <TableCell><span className='font-semibold'>{excludedProduct.name}</span></TableCell>
+                                                            <TableCell><span className='font-semibold'>{excludedProduct.price}</span></TableCell>
                                                             <TableCell className="text-right">
-                                                                <Button variant="ghost" className="h-8 w-8 p-0">
+                                                                <Button variant="ghost" className="h-8 w-8 p-0" onClick={() => removeNewExcludedProduct(excludedProduct.id)}>
                                                                     <span className="sr-only">Usuń</span>
                                                                     <Trash2Icon className="w-4 h-4" />
                                                                 </Button>

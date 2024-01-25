@@ -1,3 +1,4 @@
+import { getOneProduct } from '@/actions/products'
 import { BasicForm } from '@/components/dashboard/shipments/basic-form'
 import { prisma } from '@/lib/db'
 import React from 'react'
@@ -18,10 +19,19 @@ export default async function EditShipmentPage({ params }: { params: { slug: str
     // console.log("Slug: ", slug)
     const shipmentData = await getShipmentData(slug)
     // console.log("Shipment data: ", shipmentData)
+    const exludedDataTable = shipmentData === null ? [] : await Promise.all(shipmentData.excludedProducts.map(async (productId) => {
+        const productRAW = await getOneProduct(parseInt(productId))
+        const product = productRAW.product
+        return {
+            id: product?.id || 0,
+            name: product?.name || productId,
+            price: product?.price.price.gross.formatted || "0 zł",
+        }
+    }))
 
     return (
         <div className='pl-4 w-full'>
-            <BasicForm shipment={shipmentData} />
+            <BasicForm shipment={shipmentData} exludedDataTable={exludedDataTable} />
         </div>
     )
 }

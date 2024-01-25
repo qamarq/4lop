@@ -102,7 +102,7 @@ export default function ShipmentDNDList({ shipmentsList }: { shipmentsList: {
                             </DialogContent>
                             <div className='rounded-lg cursor-move border p-3 shadow-sm w-full overflow-y-auto bg-white flex items-center justify-between'>
                                 <div className='flex items-center'>
-                                    <img src={item.image || ""} alt="" className='w-[70px] h-[30px] object-contain' />
+                                    <img src={item.image || ""} alt="" className='w-[50px] object-contain rounded-md' />
                                     <div className='ml-3'>
                                         <h1 className='text-sm font-semibold'>{item.name} - {item.prepaid ? "Płatność internetowa" : "Za pobraniem"}</h1>
                                         <h2 className='text-xs font-medium'>{item.description}</h2>

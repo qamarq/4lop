@@ -9,6 +9,7 @@ export const publicRoutes: string[] = [
     "/onas",
     "/konfigurator",
     "/blog",
+    "/koszyk",
     "/api/shop/get"
 ]
 
