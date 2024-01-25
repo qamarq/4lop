@@ -2,7 +2,7 @@
 
 import React, { useEffect } from 'react'
 import { usePathname, useRouter } from "next/navigation"
-import { ArchiveIcon, HelpCircleIcon, TruckIcon, LifeBuoyIcon, HomeIcon, BoxIcon, PieChartIcon } from 'lucide-react'
+import { ArchiveIcon, HelpCircleIcon, TruckIcon, LifeBuoyIcon, HomeIcon, BoxIcon, PieChartIcon, User2Icon } from 'lucide-react'
 import bg from "@/assets/account/bg.jpg"
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
@@ -41,6 +41,12 @@ export default function DashboardSidebar() {
                         <BoxIcon className='w-4 h-4' />
                     </div>
                     <h3>Zamówienia</h3>
+                </Link>
+                <Link href="/dashboard/users" className={`${styles.navigation_item} ${activePage == "users" && styles.active}`}>
+                    <div className={styles.icon}>
+                        <User2Icon className='w-4 h-4' />
+                    </div>
+                    <h3>Użytkownicy</h3>
                 </Link>
                 <Link href="/dashboard/shipments" className={`${styles.navigation_item} ${activePage == "shipments" && styles.active}`}>
                     <div className={styles.icon}>

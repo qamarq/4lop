@@ -1,18 +1,20 @@
-import { currentUser } from "@/lib/auth"
+import { currentRole, currentUser } from "@/lib/auth"
 import { prisma } from "@/lib/db"
 import { formattedPrice } from "@/lib/utils"
 import { getProductById } from "./products"
 import { paymentOptions, paymentOptionsIcons } from "@/constants/payment"
 import { getPaymentMethodById, getPaymentStatus } from "@/actions/payment"
+import { UserRole } from "@prisma/client"
 
 export const getPreparedOrderByOrderId = async (orderId: string) => {
     const order = await prisma.orders.findUnique({ where: { id: orderId } })
     if (!order) return
     const user = await currentUser()
+    const role = await currentRole()
     if (!user) return 
 
     const userHasOrder = await prisma.orders.findFirst({ where: { id: orderId, userId: user.id } })
-    if (!userHasOrder) return
+    if (!userHasOrder && role !== UserRole.ADMIN) return
 
     let paymentMethod = null
 
@@ -92,10 +94,10 @@ export const getPreparedOrderByOrderId = async (orderId: string) => {
             paymentTimestamp: order.orderDate,
             status: order.paymentStatus || "dvp",
             paymentMethod: {
-                id: paymentMethod ? paymentMethod.id.toString() : "dvp",
-                name: paymentMethod ? paymentMethod.name : "Płatność za pobraniem",
+                id: order.prepaid ? paymentMethod?.id.toString() || "dvp" : "dvp",
+                name: order.prepaid ? paymentMethod?.name || "Brak formy płatności" : "Płatność za pobraniem",
                 description: "",
-                icon: paymentMethod ? paymentMethod.imgUrl : paymentOptionsIcons["dvp"],
+                icon: order.prepaid ? paymentMethod?.imgUrl || "https://placehold.co/600x400" : paymentOptionsIcons["dvp"],
                 refreshPayment: false,
             },
             bankTransferData: {}

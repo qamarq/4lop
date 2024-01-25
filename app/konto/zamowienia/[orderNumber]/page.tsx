@@ -45,50 +45,6 @@ export default function OrderDetails() {
                     window.location.href = data.paymentLink
                 }
             })
-        // const response = await fetch('/api/shop/payments/prepare', {
-        //     method: 'POST',
-        //     body: JSON.stringify({ 
-        //         paymentId: order.payment.paymentId,
-        //         orderNumber,
-        //         refreshPayment: true
-        //     }),
-        //     headers: {
-        //         'Content-Type': 'application/json'
-        //     }
-        // });
-
-        // if (response.ok) {
-        //     const responseData = await response.json()
-            
-        //     // console.log(responseData)
-        //     const paymentForm = responseData.formData as PaymentForm
-
-        //     let modifiedInputs = paymentForm.inputs.map((input) => {
-        //         if (input.name === 'p24_url_return') {
-        //             return { ...input, value: input.value.replace('https://elektromaniacy.pl/return.php', window.location.origin+'/koszyk/return') };
-        //         } else if (input.name === 'p24_url_status') {
-        //             return { ...input, value: input.value.replace('https://elektromaniacy.pl/edi/', window.location.origin+'/koszyk/edi/') };
-        //         } else {
-        //             return input;
-        //         }
-        //     });
-        //     // modifiedInputs = paymentForm.inputs.map((input) => {
-        //     //     // Zamień wszystkie wystąpienia URL zawierające "https://elektromaniacy.pl/" na własne wartości URL
-        //     //     const modifiedValue = input.value.replace(/https:\/\/elektromaniacy\.pl\//g, 'http://localhost:3000/koszyk/');
-          
-        //     //     return { ...input, value: modifiedValue };
-        //     //   });
-
-        //     setPaymentData({ ...paymentForm, inputs: modifiedInputs });
-        //     setLoadingPayment(false);
-        // } else {
-        //     setLoadingPayment(false);
-        //     toast({
-        //         title: "Wystąpił błąd",
-        //         description: "Podczas składania zamówienia wystąpił błąd",
-        //         variant: "destructive"
-        //     })
-        // }
     }
 
     useEffect(() => {
@@ -134,6 +90,8 @@ export default function OrderDetails() {
                                                     year: 'numeric',
                                                     month: 'long',
                                                     day: 'numeric',
+                                                    hour: 'numeric',
+                                                    minute: 'numeric',
                                                 }).format(new Date(order.timestamp))} roku</h2>
                         </div>
             
@@ -268,7 +226,7 @@ export default function OrderDetails() {
                                 <div className={styles.products_summary}>
                                     <div className={styles.inner}>
                                         <div className={styles.item}>
-                                            <p>Wartość koszyka:</p>
+                                            <p>Wartość produktów:</p>
                                             <h1>{order.products.worthClientCurrency.formatted}</h1>
                                         </div>
                                         <div className={styles.item}>

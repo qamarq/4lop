@@ -38,7 +38,7 @@ export async function POST(req: Request) {
                         }
                     })
 
-                    if (paymentStatus.payment.status.toString() == "2" && process.env.P24_SANDBOX_MODE === "true") {
+                    if (paymentStatus.payment.status.toString() == "2" && process.env.P24_SANDBOX_MODE === "false") {
                         order.products.forEach(async (product: any) => {
                             if (!product) return
                             await prisma.products.update({

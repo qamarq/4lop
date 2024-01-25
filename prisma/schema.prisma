@@ -215,6 +215,7 @@ model Orders {
     orderNumber          Int                   @default(0)
     orderStatus          orderStatusType       @default(NEW)
     orderAddress         deliveryAddress
+    buyerEmail           String?               @default("")
     prepaid              Boolean
     paymentID            String?   
     paymentSecret        String?  

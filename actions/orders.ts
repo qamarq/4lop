@@ -3,10 +3,10 @@
 import { dvpPickupAddress } from "@/constants"
 import { getPreparedOrderByOrderId } from "@/data/orders"
 import { getProductById } from "@/data/products"
-import { currentUser } from "@/lib/auth"
+import { currentRole, currentUser } from "@/lib/auth"
 import { prisma } from "@/lib/db"
 import { stripe } from "@/lib/stripe"
-import { pickupPointData, purchaseDocumentType } from "@prisma/client"
+import { UserRole, pickupPointData, purchaseDocumentType } from "@prisma/client"
 import { v4 } from "uuid"
 import { Country, Currency, Encoding, Language, Order as P24Order } from "@ingameltd/node-przelewy24"
 import { p24 } from "@/lib/p24"
@@ -19,6 +19,14 @@ interface createOrderProps {
     pickupPointData: ParcelLocker | null
     prepaid: string
     purchaseDocumentType: string
+}
+
+export const getAllOrders = async () => {
+    const role = await currentRole()
+    if (role !== UserRole.ADMIN) return { error: "Brak uprawnień" }
+
+    const orders = await prisma.orders.findMany({})
+    return { success: true, orders }
 }
 
 export const createOrder = async ({
@@ -37,6 +45,15 @@ export const createOrder = async ({
     if (!userCart || userCart.products.length === 0) return { error: "Brak koszyka" }
 
     const prepaidBool = prepaid === "prepaid" ? true : false
+
+    let everythingOk = true
+    userCart.products.forEach(async (product) => {
+        const productInDB = await getProductById(product.productId)
+        if (productInDB.sizes[0].amount < product.quantity) {
+            everythingOk = false
+        }
+    })
+    if (!everythingOk) return { error: "Brak wystarczającej ilości produktów" }
 
     const basketProducts = await Promise.all(userCart.products.map(async (cartProduct) => {
         const product = await getProductById(cartProduct.productId)
@@ -202,6 +219,7 @@ export const createOrder = async ({
         const order = await prisma.orders.create({
             data: {
                 userId: user.id,
+                buyerEmail: user.email || "",
                 prepaid: prepaidBool,
                 orderNumber: newOrderNumber,
                 orderAddress: {
@@ -216,7 +234,7 @@ export const createOrder = async ({
                 },
                 paymentID: paymentIntent ? paymentSessionID : null,
                 paymentSecret: paymentIntent ? paymentIntent.token : null,
-                paymentStatus: "0",
+                paymentStatus: prepaidBool ? "0" : "2",
                 paymentCurrency: "pln",
                 orderAmount: orderAmountTotal,
                 products: userCart.products,
@@ -272,6 +290,17 @@ export const getOrderByOrderNumber = async (orderNumber: string) => {
     if (!existingOrder) return { error: "Brak zamówienia" }
 
     const preparedOrder = await getPreparedOrderByOrderId(existingOrder.id)
+
+    return { order: preparedOrder }
+}
+
+export const getOrderByOrderIdAsAdmin = async (orderId: string) => {
+    const user = await currentUser()
+    const role = await currentRole()
+    if (!user) return { error: "Brak zalogowanego użytkownika" }
+    if (role !== UserRole.ADMIN) return { error: "Brak uprawnień" }
+
+    const preparedOrder = await getPreparedOrderByOrderId(orderId)
 
     return { order: preparedOrder }
 }
