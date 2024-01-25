@@ -231,23 +231,14 @@ export default function ProductPage() {
                                             {product.sizes[0].availability.description}
                                         </Button>
                                     ) : (
-                                        <>
-                                        {user !== undefined ? (
-                                            <Button disabled={loading} onClick={addToBasket}>
-                                                {loading ? (
-                                                    <Loader2Icon className="mr-2 h-4 w-4 animate-spin" />
-                                                ) : (
-                                                    <ShoppingCartIcon className='h-4 w-4 mr-2' />
-                                                )}
-                                                Dodaj do koszyka
-                                            </Button>
-                                        ) : (
-                                            <Button onClick={() => router.push('/auth/login')}>
+                                        <Button disabled={loading} onClick={addToBasket}>
+                                            {loading ? (
+                                                <Loader2Icon className="mr-2 h-4 w-4 animate-spin" />
+                                            ) : (
                                                 <ShoppingCartIcon className='h-4 w-4 mr-2' />
-                                                Zaloguj się aby dodać do koszyka
-                                            </Button>
-                                        )}
-                                        </>
+                                            )}
+                                            Dodaj do koszyka
+                                        </Button>
                                     )}
                                     
                                 </div>

@@ -22,7 +22,7 @@ import {
     AlertDialogHeader,
     AlertDialogTitle
 } from "@/components/ui/alert-dialog"
-import { ChevronRight, ChevronDown, ShoppingCartIcon, MoreHorizontal, EyeIcon, CopyIcon, TrashIcon, PencilLineIcon, Loader2Icon, RotateCcwIcon } from "lucide-react"
+import { ChevronRight, ChevronDown, ShoppingCartIcon, MoreHorizontal, EyeIcon, CopyIcon, TrashIcon, PencilLineIcon, Loader2Icon, RotateCcwIcon, LogInIcon } from "lucide-react"
 import styles from "@/styles/Cart.module.scss"
 import { useRouter } from 'next/navigation'
 import basketIcon from "@/assets/icons/basket.svg";
@@ -58,6 +58,7 @@ import { columns } from '@/components/columns'
 import { Label } from '@/components/ui/label'
 import { prepareLink } from '@/lib/utils';
 import { toast } from '@/components/ui/use-toast';
+import { useCurrentUser } from '@/hooks/use-current-user';
 
 
 export default function CartPage() {
@@ -85,6 +86,7 @@ export default function CartPage() {
     const [rowSelection, setRowSelection] = useState({})
     const [dialogDeleteOpened, setDialogDeleteOpened] = useState(false);
     const [dialogUpdateOpened, setDialogUpdateOpened] = useState(false);
+    const user = useCurrentUser()
     
     const table = useReactTable({
         data: cart ? cart.products : [],
@@ -486,12 +488,21 @@ export default function CartPage() {
                                 >
                                     Następne
                                 </Button>
-                                <Button disabled={cart?.products.length === 0} onClick={() => {
-                                    router.push("/koszyk/zamowienie")
-                                }}>
-                                    Przejdź do zamawiania
-                                    <ShoppingCartIcon className='w-4 h-4 ml-2' />
-                                </Button>
+                                {user !== undefined ? (
+                                    <Button disabled={cart?.products.length === 0} onClick={() => {
+                                        router.push("/koszyk/zamowienie")
+                                    }}>
+                                        Przejdź do zamawiania
+                                        <ShoppingCartIcon className='w-4 h-4 ml-2' />
+                                    </Button>
+                                ) : (
+                                    <Button disabled={cart?.products.length === 0} onClick={() => {
+                                        router.push("/login")
+                                    }}>
+                                        Zaloguj się, aby przejść dalej
+                                        <LogInIcon className='w-4 h-4 ml-2' />
+                                    </Button>
+                                )}
                             </div>
                         </div>
                     </div>

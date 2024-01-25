@@ -1,9 +1,10 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 "use client"
 
-import { addToBasket, getBasket, removeFromBasket, updateBasket } from "@/actions/basket";
+import { addToBasket, getBasket, prepareBasketProducts, removeFromBasket, updateBasket } from "@/actions/basket";
 import { toast } from "@/components/ui/use-toast";
 import { LOCALSTORAGE_CART_KEY_NAME, SAVED_ORDER_SETTINGS_NAME } from "@/constants";
+import { formattedPrice } from "@/lib/utils";
 import { createContext, useContext, useEffect, useState, ReactNode, useRef } from "react";
 
 type DeliveryUpdate = { courierId: string, prepaid: boolean } | null;
@@ -27,22 +28,25 @@ interface CartContextType {
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 const buildOfflineCart = async () => {
-    const cart = localStorage.getItem(LOCALSTORAGE_CART_KEY_NAME);
+    let cartRAW = localStorage.getItem(LOCALSTORAGE_CART_KEY_NAME);
+    if (!cartRAW) cartRAW = "[]"
+    const cart = JSON.parse(cartRAW);
+    const basketProducts = await prepareBasketProducts(cart)
     
     const basketData: Cart = {
         basketCost: {
             shippingUndefined: true,
             basketShippingCost: {
-                shippingCost: { value: 0, currency: "pln", formatted: "0.00 zł" },
+                shippingCost: { value: 0, currency: "pln", formatted: formattedPrice(0) },
                 shippingCostAfterRebate: 0,
                 shopVat: 0,
             },
             prepaidCost: { value: 0, currency: "pln", formatted: "0.00 zł" },
             insuranceCost: { value: 0, currency: "pln", formatted: "0.00 zł" },
             totalProductsCost: {
-                value: 0,
+                value: basketProducts.reduce((acc, curr) => acc + curr.quantity * curr.productDetails.price.price.gross.value, 0),
                 currency: "pln",
-                formatted: "0.00 zł",
+                formatted: formattedPrice(basketProducts.reduce((acc, curr) => acc + curr.quantity * curr.productDetails.price.price.gross.value, 0))
             },
             totalAdditionalCost: {
                 value: 0,
@@ -55,12 +59,12 @@ const buildOfflineCart = async () => {
                 currency: "pln",
                 formatted: "0.00 zł",
             },
-            totalToPay: { value: 0, currency: "pln", formatted: "0.00 zł" },
+            totalToPay: { value: basketProducts.reduce((acc, curr) => acc + curr.quantity * curr.productDetails.price.price.gross.value, 0), currency: "pln", formatted: formattedPrice(basketProducts.reduce((acc, curr) => acc + curr.quantity * curr.productDetails.price.price.gross.value, 0)) },
         },
         summaryBasket: {
             productsCount: 0,
             worth: {
-                gross: { value: 0, currency: "pln", formatted: "0.00 zł" },
+                gross: { value: basketProducts.reduce((acc, curr) => acc + curr.quantity * curr.productDetails.price.price.gross.value, 0), currency: "pln", formatted: formattedPrice(basketProducts.reduce((acc, curr) => acc + curr.quantity * curr.productDetails.price.price.gross.value, 0)) },
                 net: { value: 0, currency: "pln", formatted: "0.00 zł" },
             },
             rebate: { value: 0, currency: "pln", formatted: "0.00 zł" },
@@ -70,7 +74,34 @@ const buildOfflineCart = async () => {
             },
             shipping: { cost: { value: 0, currency: "pln", formatted: "0.00 zł" }, shippingDays: 0 },
         },
-        products: []
+        products: basketProducts.map((basketProduct) => {
+            return {
+                id: basketProduct.productId,
+                size: basketProduct.productDetails.sizes[0].name,
+                comment: "",
+                availableNow: true,
+                additional: "",
+                quantity: basketProduct.quantity,
+                worth: {
+                    gross: {
+                        value: basketProduct.quantity * basketProduct.productDetails.price.price.gross.value,
+                        currency: "pln",
+                        formatted: formattedPrice(basketProduct.quantity * basketProduct.productDetails.price.price.gross.value)
+                    },
+                    net: {
+                        value: basketProduct.quantity * basketProduct.productDetails.price.price.net.value,
+                        currency: "pln",
+                        formatted: formattedPrice(basketProduct.quantity * basketProduct.productDetails.price.price.net.value)
+                    }
+                },
+                tax: basketProduct.productDetails.price.tax,
+                data: basketProduct.productDetails,
+                basketGroupId: 0,
+                versionsName: basketProduct.productDetails.versionName,
+                valuesVersionName: "",
+                bundleProducts: null
+            }
+        })
     };  
     
     return basketData
@@ -84,10 +115,73 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     const [loading, setLoading] = useState(true);
     const fetchedFirstTime = useRef(false);
 
+    const addOfflineItem = async ({ id, quantity }: { id: number, quantity: number }): Promise<void> => {
+        let cartRAW = localStorage.getItem(LOCALSTORAGE_CART_KEY_NAME);
+        if (!cartRAW) cartRAW = "[]"
+        const cart = JSON.parse(cartRAW);
+        const existingItemIndex = cart.findIndex((product: any) => product.id === id );
+        if (existingItemIndex !== -1) {
+            cart[existingItemIndex].quantity += quantity;
+        } else {
+            cart.push({id, quantity})
+        }
+        localStorage.setItem(LOCALSTORAGE_CART_KEY_NAME, JSON.stringify(cart));
+        toast({
+            description: "Dodano do koszyka"
+        })
+    }
+
+    const removeOfflineItem = async (id: number): Promise<void> => {
+        let cartRAW = localStorage.getItem(LOCALSTORAGE_CART_KEY_NAME);
+        if (!cartRAW) cartRAW = "[]"
+        const cart = JSON.parse(cartRAW);
+        const existingItemIndex = cart.findIndex((product: any) => product.id === id );
+        if (existingItemIndex !== -1) {
+            cart.splice(existingItemIndex, 1)
+        }
+        localStorage.setItem(LOCALSTORAGE_CART_KEY_NAME, JSON.stringify(cart));
+        toast({
+            description: "Usunięto z koszyka"
+        })
+    }
+
+    const updateOfflineItem = async ({ id, quantity }: { id: number, quantity: number }): Promise<void> => {
+        let cartRAW = localStorage.getItem(LOCALSTORAGE_CART_KEY_NAME);
+        if (!cartRAW) cartRAW = "[]"
+        const cart = JSON.parse(cartRAW);
+        const existingItemIndex = cart.findIndex((product: any) => product.id === id );
+        if (existingItemIndex !== -1) {
+            cart[existingItemIndex].quantity = quantity;
+        }
+        localStorage.setItem(LOCALSTORAGE_CART_KEY_NAME, JSON.stringify(cart));
+    }
+
     const fetchCart = async () => {
         await getBasket(delivery?.courierId)
             .then(async (data) => {
                 if (data.success) {
+                    const offlineCartRAW = localStorage.getItem(LOCALSTORAGE_CART_KEY_NAME);
+                    if (offlineCartRAW) {
+                        const offlineCart = JSON.parse(offlineCartRAW);
+                        offlineCart.forEach(async (item: { id: number, quantity: number }) => {
+                            await addToBasket(item.id, item.quantity)
+                                .then((data) => {
+                                    if (data.success) {
+                                        
+                                    } else if (data.error) {
+                                        toast({
+                                            variant: "destructive",
+                                            description: data.error
+                                        })
+                                    }
+                                })
+                        })
+                        toast({
+                            description: "Dodano do koszyka produkty zapisane w pamięci lokalnej"
+                        })
+                        localStorage.removeItem(LOCALSTORAGE_CART_KEY_NAME)
+                        fetchCart()
+                    }
                     setCart(data.data)
                 } else if (data.error) {
                     if (data.error === "not_logged_in") {
@@ -154,12 +248,17 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
                         if (existingItemIndex === -1) {
                             fetchCart()
                         }
-                    } else {
-                        toast({
-                            description: data.error,
-                            variant: "destructive"
-                        })
-                        setCart(tmpCart)
+                    } else if (data.error) {
+                        if (data.error === "not_logged_in") {
+                            addOfflineItem({ id, quantity })
+                            fetchCart()
+                        } else {
+                            toast({
+                                description: data.error,
+                                variant: "destructive"
+                            })
+                            setCart(tmpCart)
+                        }
                     }
                 })
         }
@@ -187,12 +286,17 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
                             description: "Zaktualizowano pomyślnie"
                         })
                         fetchCart()
-                    } else {
-                        toast({
-                            variant: "destructive",
-                            description: data.error
-                        })
-                        setCart(tmpCart)
+                    } else if (data.error) {
+                        if (data.error === "not_logged_in") {
+                            updateOfflineItem({ id, quantity })
+                            fetchCart()
+                        } else {
+                            toast({
+                                variant: "destructive",
+                                description: data.error
+                            })
+                            setCart(tmpCart)
+                        }
                     }
                 })
         }
@@ -215,12 +319,17 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
                             description: "Usunięto pomyślnie"
                         })
                         fetchCart()
-                    } else {
-                        toast({
-                            variant: "destructive",
-                            description: "Wystąpił błąd"
-                        })
-                        setCart(tmpCart)
+                    } else if (data.error) {
+                        if (data.error === "not_logged_in") {
+                            removeOfflineItem(id)
+                            fetchCart()
+                        } else {
+                            toast({
+                                variant: "destructive",
+                                description: "Wystąpił błąd"
+                            })
+                            setCart(tmpCart)
+                        }
                     }
                 })
         }

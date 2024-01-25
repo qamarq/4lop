@@ -1,12 +1,9 @@
 import { getPaymentStatus } from "@/actions/payment";
 import { prisma } from "@/lib/db"
-import { transporter } from "@/lib/mail";
 import { p24 } from "@/lib/p24";
-import { stripe } from "@/lib/stripe";
 import { Currency, NotificationRequest, Verification } from "@ingameltd/node-przelewy24";
 import { orderStatusType } from "@prisma/client";
 import { NextResponse } from "next/server";
-import { Resend } from "resend";
 
 export async function POST(req: Request) {
 	const rawBody = await req.text();
@@ -37,9 +34,25 @@ export async function POST(req: Request) {
                             paymentStatus: paymentStatus.payment.status.toString(),
                             paymentOrderID: paymentStatus.payment.orderId.toString(),
                             paymentStatement: paymentStatus.payment.statement,
-                            orderStatus: orderStatusType.PAID
+                            orderStatus: paymentStatus.payment.status.toString() == "2" ? orderStatusType.PAID : undefined
                         }
                     })
+
+                    if (paymentStatus.payment.status.toString() == "2" && process.env.P24_SANDBOX_MODE === "true") {
+                        order.products.forEach(async (product: any) => {
+                            if (!product) return
+                            await prisma.products.update({
+                                where: {
+                                    id: product.productId
+                                },
+                                data: {
+                                    amount: {
+                                        decrement: product.quantity
+                                    }
+                                }
+                            })  
+                        })
+                    }
                 }
             }
         }

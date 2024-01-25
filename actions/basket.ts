@@ -7,6 +7,20 @@ import { prisma } from "@/lib/db";
 import { stripe } from "@/lib/stripe";
 import { formattedPrice } from "@/lib/utils";
 
+export const prepareBasketProducts = async (cart: { id: number, quantity: number }[]) => {
+    const basketProducts = await Promise.all(cart.map(async (cartProduct) => {
+        const product = await getProductById(cartProduct.id)
+
+        return {
+            productId: cartProduct.id,
+            quantity: cartProduct.quantity,
+            productDetails: product as ProductItem
+        }
+    }))
+
+    return basketProducts
+}
+
 export const getBasket = async (courierId?: string) => {
     const user = await currentUser()
     if (!user) return { error: "not_logged_in" }
@@ -114,7 +128,7 @@ export const getBasket = async (courierId?: string) => {
 
 export const addToBasket = async (productId: number, quantity: number) => {
     const user = await currentUser()
-    if (!user) return { error: "User not logged in" }
+    if (!user) return { error: "not_logged_in" }
 
     const userCart = await addToBasketByProductId(user.id, productId, quantity)
 
@@ -128,7 +142,7 @@ export const addToBasket = async (productId: number, quantity: number) => {
 
 export const removeFromBasket = async (productId: number) => {
     const user = await currentUser()
-    if (!user) return { error: "User not logged in" }
+    if (!user) return { error: "not_logged_in" }
 
     const userCart = await removeFromBasketByProductId(user.id, productId)
 
@@ -142,7 +156,7 @@ export const removeFromBasket = async (productId: number) => {
 
 export const updateBasket = async (productId: number, quantity: number) => {
     const user = await currentUser()
-    if (!user) return { error: "User not logged in" }
+    if (!user) return { error: "not_logged_in" }
 
     const userCart = await updateQuantityByProductId(user.id, productId, quantity)
 
