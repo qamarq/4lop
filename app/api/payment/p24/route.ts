@@ -43,7 +43,7 @@ export async function POST(req: Request) {
                             if (!product) return
                             await prisma.products.update({
                                 where: {
-                                    id: product.productId
+                                    productId: product.productId
                                 },
                                 data: {
                                     amount: {
