@@ -4,11 +4,7 @@ import React from 'react'
 
 const getShipmentData = async (id: string) => {
     try {
-        const shipmentData = await prisma.shippingMethod.findUnique({
-            where: {
-                id: id
-            }
-        })
+        const shipmentData = await prisma.shippingMethod.findUnique({ where: { id } })
     
         return shipmentData
     } catch (err) {
@@ -19,10 +15,12 @@ const getShipmentData = async (id: string) => {
 
 export default async function EditShipmentPage({ params }: { params: { slug: string } }) {
     const { slug } = params
+    // console.log("Slug: ", slug)
     const shipmentData = await getShipmentData(slug)
+    // console.log("Shipment data: ", shipmentData)
 
     return (
-        <div className='p-4 w-full'>
+        <div className='pl-4 w-full'>
             <BasicForm shipment={shipmentData} />
         </div>
     )

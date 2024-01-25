@@ -126,27 +126,27 @@ export default function Home() {
                 </div>
 
                 <div className={styles.fast_links}>
-                    <div className={styles.card}>
+                    <Link href="/szybkie-linki/dla-malych-esklepow" className={styles.card}>
                         <Image src={card1} alt="" />
                         <div className={styles.card_content}>
                             <p>Dla małych e-sklepów</p>
                             <ChevronRight size={24} />
                         </div>
-                    </div>
-                    <div className={styles.card}>
+                    </Link>
+                    <Link href="/szybkie-linki/ekspresowe-wysylki" className={styles.card}>
                         <Image src={card2} alt="" />
                         <div className={styles.card_content}>
                             <p>Ekspresowe wysyłki</p>
                             <ChevronRight size={24} />
                         </div>
-                    </div>
-                    <div className={styles.card}>
+                    </Link>
+                    <Link href="/szybkie-linki/oferta-dla-dystrybutorow" className={styles.card}>
                         <Image src={card3} alt="" />
                         <div className={styles.card_content}>
                             <p>Oferta dla dystrybutorów</p>
                             <ChevronRight size={24} />
                         </div>
-                    </div>
+                    </Link>
                 </div>
             </div>
             <div className={styles.container}>

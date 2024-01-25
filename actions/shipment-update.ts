@@ -17,8 +17,7 @@ export const updateShipmentOrder = async (shipmentList: {
     pickupPoint: boolean;
     companyKey: string | null;
     prepaid: boolean;
-    minWorth: number;
-    maxWorth: number;
+    excluding: boolean;
     personalCollection: boolean;
     shippingTimeDays: number;
     shippingInWeekends: boolean;
@@ -71,8 +70,6 @@ export const updateBasicShipmentData = async (id: string | null, value: z.infer<
 
     const values = {
         ...parsedData.data,
-        maxWorth: parseFloat(parsedData.data.maxWorth),
-        minWorth: parseFloat(parsedData.data.minWorth),
         price: parseFloat(parsedData.data.price),
         shippingTimeDays: parseInt(parsedData.data.shippingTimeDays)
     }

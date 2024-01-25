@@ -7,7 +7,7 @@ import { Suspense } from "react";
 import { Canvas } from "@react-three/fiber";
 import { BakeShadows, OrbitControls, Stage } from "@react-three/drei";
 import { Button } from '@/components/ui/button'
-import { ChevronLeft, Loader2Icon, ShoppingBasketIcon } from 'lucide-react'
+import { ChevronLeft, Loader2Icon, ShoppingBasketIcon, TrashIcon } from 'lucide-react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { v4 } from 'uuid'
 import Image from 'next/image'
@@ -242,26 +242,45 @@ export default function ConfiguratorPage() {
                             </div>
                             <div className={styles.options_layout}>
                                 <div className={styles.options}>
-                                    {options[selectedTable-1].addons.map((addon, index) => (
-                                        <div 
-                                            key={v4()} 
-                                            onClick={() => {
-                                                if (appliedAddons.includes(index+1)) {
-                                                    setAppliedAddons((prev) => prev.filter((number) => number !== index+1));
-                                                } else {
-                                                    setAppliedAddons(prev => [...prev, index + 1]);
-                                                }
-                                            }}
-                                            className={`${styles.option} ${appliedAddons.includes(index + 1) ? styles.active : ""} ${addon.notAvailable || (addon.depedencies && !addon.depedencies.every(dep => appliedAddons.includes(dep))) ? styles.notAvailable : ""}`}
-                                        >
-                                            <div className={styles.image}>
-                                                <img loading={"eager"} src={`/configurator/${options[selectedTable-1].path}/jpg/${index+1}.jpg`} alt={addon.name} />
+                                    {options[selectedTable-1].addons.map((addon, index) => {
+                                        let selectedVersion = null
+                                        if (addon.versions) {
+                                            selectedVersion = addon.versions.find(version => version.len === selectedSize);
+                                        }
+
+                                        return (
+                                            <div 
+                                                key={v4()} 
+                                                onClick={() => {
+                                                    if (appliedAddons.includes(index+1)) {
+                                                        setAppliedAddons((prev) => prev.filter((number) => number !== index+1));
+                                                        // const optionsWithAddonIndex = options.filter(option => option.addons.some(addon => addon.depedencies?.includes(index+1)));
+                                                        const optionsWithAddonIndex = appliedAddons.filter(addon => {
+                                                            const addonItem = options[selectedTable-1].addons[addon-1];
+                                                            if (addonItem.depedencies) {
+                                                                return addonItem.depedencies.includes(index+1)
+                                                            }
+                                                            return false;
+                                                        });
+                                                        optionsWithAddonIndex.map(option => {
+                                                            setAppliedAddons((prev) => prev.filter((number) => number !== option));
+                                                        })
+                                                    } else {
+                                                        setAppliedAddons(prev => [...prev, index + 1]);
+                                                    }
+                                                }}
+                                                style={{ display: addon.hidden ? "none" : "flex" }}
+                                                className={`${styles.option} ${appliedAddons.includes(index + 1) ? styles.active : ""} ${addon.notAvailable || (addon.depedencies && !addon.depedencies.every(dep => appliedAddons.includes(dep))) ? styles.notAvailable : ""}`}
+                                            >
+                                                <div className={styles.image}>
+                                                    <img loading={"eager"} src={`/configurator/${options[selectedTable-1].path}/jpg/${index+1}.jpg`} alt={addon.name} />
+                                                </div>
+                                                <div className={styles.text}>
+                                                    <p>{addon.name} - {!selectedVersion ? addon.price : selectedVersion.price} zł</p>
+                                                </div>
                                             </div>
-                                            <div className={styles.text}>
-                                                <p>{addon.name}</p>
-                                            </div>
-                                        </div>
-                                    ))}
+                                        )
+                                    })}
                                 </div>
                                 <Button onClick={() => setStep(4)}>Przejdź do podsumowania</Button>
                             </div>
@@ -308,7 +327,7 @@ export default function ConfiguratorPage() {
                                     <h2>{options[selectedTable-1].name}</h2>
                                     <h3>Komponenty:</h3>
                                     <ul>
-                                        <li>
+                                        <li className='mb-[3px]'>
                                             Stół podstawowy
                                             <span className={styles.version}>({selectedTableInfo.version}cm)</span>
                                             {" - "}
@@ -322,13 +341,18 @@ export default function ConfiguratorPage() {
                                             }
                                             return (
                                                 <li key={v4()}>
-                                                    {addonItem.name}
-                                                    {selectedVersion && (
-                                                        <span className={styles.version}>({selectedVersion.len}cm)</span>
-                                                    )}
-                                                    <span>
-                                                        {" - "}{!selectedVersion ? addonItem.price : selectedVersion.price}{" zł"}
-                                                    </span>
+                                                    <div className='inline-block relative my-[3px]'>
+                                                        {addonItem.name}
+                                                        {selectedVersion && (
+                                                            <span className={styles.version}>({selectedVersion.len}cm)</span>
+                                                        )}
+                                                        <span>
+                                                            {" - "}{!selectedVersion ? addonItem.price : selectedVersion.price}{" zł"}
+                                                        </span>
+                                                        <span className='absolute right-0'><TrashIcon className='w-4 h-4 ml-2 cursor-pointer' onClick={() => {
+                                                            setAppliedAddons((prev) => prev.filter((number) => number !== appliedAddon));
+                                                        }} /></span>
+                                                    </div>
                                                 </li>
                                             )
                                         })}

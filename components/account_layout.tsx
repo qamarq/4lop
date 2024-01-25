@@ -10,6 +10,7 @@ import styles from "@/styles/Account.module.scss"
 import { Skeleton } from './ui/skeleton'
 import { useCurrentUser } from '@/hooks/use-current-user'
 import { LogoutButton } from './auth/logout-button'
+import Link from 'next/link'
 
 export default function AccountLayout() {
     const router = useRouter()
@@ -30,37 +31,37 @@ export default function AccountLayout() {
             </div>
             <Separator className='my-4' />
             <div className={styles.navigation_items}>
-                <div className={`${styles.navigation_item} ${activePage == "konto" && styles.active}`} onClick={() => router.push("/konto")}>
+                <Link href="/konto" className={`${styles.navigation_item} ${activePage == "konto" && styles.active}`}>
                     <div className={styles.icon}>
                         <UserIcon className='w-4 h-4' />
                     </div>
                     <h3>Twoje konto</h3>
-                </div>
-                <div className={`${styles.navigation_item} ${activePage == "zamowienia" && styles.active}`} onClick={() => router.push("/konto/zamowienia")}>
+                </Link>
+                <Link href="/konto/zamowienia" className={`${styles.navigation_item} ${activePage == "zamowienia" && styles.active}`}>
                     <div className={styles.icon}>
                         <ArchiveIcon className='w-4 h-4' />
                     </div>
                     <h3>Zamówienia</h3>
-                </div>
-                <div className={`${styles.navigation_item} ${activePage == "zabezpieczenia" && styles.active}`} onClick={() => router.push("/konto/zabezpieczenia")}>
+                </Link>
+                <Link href="/konto/zabezpieczenia" className={`${styles.navigation_item} ${activePage == "zabezpieczenia" && styles.active}`}>
                     <div className={styles.icon}>
                         <KeyRoundIcon className='w-4 h-4' />
                     </div>
                     <h3>Zabezpieczenia</h3>
-                </div>
+                </Link>
                 <Separator className='my-2' />
-                <div className={`${styles.navigation_item}`}>
+                <Link href="/konto/pomoc" className={`${styles.navigation_item} ${activePage == "pomoc" && styles.active}`}>
                     <div className={styles.icon}>
                         <HelpCircleIcon className='w-4 h-4' />
                     </div>
                     <h3>Potrzebujesz pomocy?</h3>
-                </div>
-                <div className={`${styles.navigation_item}`}>
+                </Link>
+                <Link href="/konto/zwrot" className={`${styles.navigation_item} ${activePage == "zwrot" && styles.active}`}>
                     <div className={styles.icon}>
                         <LifeBuoyIcon className='w-4 h-4' />
                     </div>
                     <h3>Jak zrobić zwrot</h3>
-                </div>
+                </Link>
             </div>
             <div className={styles.space_h}></div>
             <LogoutButton>

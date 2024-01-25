@@ -72,9 +72,12 @@
         justify-content: center;
 
         .items {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 5rem;
+            // display: grid;
+            // grid-template-columns: repeat(3, 1fr);
+            // gap: 5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             padding-inline: 10rem;
             margin-top: 60px;
 
@@ -88,6 +91,7 @@
                 border: 3px solid #d1d1d1;
                 border-radius: 15px;
                 width: 100%;
+                max-width: 400px;
                 display: flex;
                 flex-direction: column;
                 align-items: center;

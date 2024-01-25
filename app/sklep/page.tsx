@@ -179,7 +179,7 @@ export default function ShopPage() {
                         </div> */}
                         <div className="grid w-full items-center gap-1 mb-3">
                             <Label htmlFor="rozmiar">Rozmiar stołu</Label>
-                            <Select defaultValue="default">
+                            <Select defaultValue="default" onValueChange={setSortingName}>
                                 <SelectTrigger id="rozmiar">
                                     <SelectValue placeholder="Wybierz rozmiar" />
                                 </SelectTrigger>

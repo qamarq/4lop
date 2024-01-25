@@ -122,6 +122,5 @@ export const BasicShipmentSchema = z.object({
     prepaid: z.boolean(),
     shippingTimeDays: z.string().min(1, { message: "Czas wysyłki jest wymagany" }),
     shippingInWeekends: z.boolean(),
-    minWorth: z.string().min(1, { message: "Minimalna wartość jest wymagana" }),
-    maxWorth: z.string().min(1, { message: "Maksymalna wartość jest wymagana" })
+    excluding: z.boolean(),
 });

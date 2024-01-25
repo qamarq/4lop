@@ -1535,7 +1535,8 @@ export const options: Table[] = [
                 price: 0, 
                 code: 0, 
                 size: "uniw",
-                notAvailable: true
+                notAvailable: true,
+                hidden: true
             },
             {
                 name: "Nadstawka do stołu",

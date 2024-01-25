@@ -26,6 +26,7 @@ export const getProductById = async (productId: number) => {
         productExistsInDB = await prisma.products.create({
             data: {
                 productId: product.id,
+                productName: product.name,
                 priceGrossValue: product.price.price.gross.value,
                 priceNetValue: product.price.price.net.value,
                 priceGrossFormatted: product.price.price.gross.formatted,

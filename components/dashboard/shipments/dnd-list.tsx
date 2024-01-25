@@ -37,8 +37,7 @@ export default function ShipmentDNDList({ shipmentsList }: { shipmentsList: {
     pickupPoint: boolean;
     companyKey: string | null;
     prepaid: boolean;
-    minWorth: number;
-    maxWorth: number;
+    excluding: boolean;
     personalCollection: boolean;
     shippingTimeDays: number;
     shippingInWeekends: boolean;
@@ -60,9 +59,10 @@ export default function ShipmentDNDList({ shipmentsList }: { shipmentsList: {
                 startTransition(async () => {
                     await updateShipmentOrder(debouncedItems)
                         .then((data) => {
-                            console.log(data)
+                            // console.log(data)
                             if (data.success) {
                                 toast({ description: "Zapisano kolejność opcji dostawy" })
+                                location.reload()
                             }
                         })
                 })
@@ -104,7 +104,7 @@ export default function ShipmentDNDList({ shipmentsList }: { shipmentsList: {
                                 <div className='flex items-center'>
                                     <img src={item.image || ""} alt="" className='w-[70px] h-[30px] object-contain' />
                                     <div className='ml-3'>
-                                        <h1 className='text-sm font-semibold'>{item.name}</h1>
+                                        <h1 className='text-sm font-semibold'>{item.name} - {item.prepaid ? "Płatność internetowa" : "Za pobraniem"}</h1>
                                         <h2 className='text-xs font-medium'>{item.description}</h2>
                                     </div>
                                 </div>

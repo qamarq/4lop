@@ -12,6 +12,7 @@ import { orderStatuses, paymentStatuses, przelewy24PaymentStatuses } from '@/con
 import { Button } from '@/components/ui/button'
 import { useCurrentUser } from '@/hooks/use-current-user'
 import { getOrderByOrderNumber } from '@/actions/orders'
+import { getRefreshPayment } from '@/actions/payment'
 
 export default function OrderDetails() {
     const [loadingOrders, setLoadingOrders] = useState(false)
@@ -34,8 +35,16 @@ export default function OrderDetails() {
     }, [paymentData]);
 
     async function getPayment() {
-        // setLoadingPayment(true)
-        // if (!order || !user) return
+        setLoadingPayment(true)
+        if (!order || !user) return
+
+        await getRefreshPayment(orderNumber || "0")
+            .then((data) => {
+                if (data.success) {
+                    setLoadingPayment(false);
+                    window.location.href = data.paymentLink
+                }
+            })
         // const response = await fetch('/api/shop/payments/prepare', {
         //     method: 'POST',
         //     body: JSON.stringify({ 
@@ -177,7 +186,7 @@ export default function OrderDetails() {
                                     {" "}- {przelewy24PaymentStatuses[order.payment.status as string]}
                                 </p>
                             
-                                {order.payment.status == "n" && (
+                                {order.payment.status == "0" && (
                                     <Button onClick={getPayment} className='ml-4' disabled={loadingPayment}>
                                         {loadingPayment ? <Loader2Icon className='w-4 h-4 mr-2 animate-spin' /> : null}
                                         Zapłać {order.worthClientCurrency.formatted} (spróbuj ponownie)

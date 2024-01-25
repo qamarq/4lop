@@ -1,8 +1,12 @@
 "use server"
 
 import { Przelewy24PaymentMethod } from "@/constants/payment";
+import { currentUser } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import axios from "axios";
+import { Country, Currency, Encoding, Language, Order as P24Order } from "@ingameltd/node-przelewy24"
+import { p24 } from "@/lib/p24"
+import { v4 } from "uuid";
 
 // import { stripe } from "@/lib/stripe";
 
@@ -16,6 +20,42 @@ const axiosInstance = axios.create({
         password: process.env.P24_API_KEY || "",
     },
 });
+
+export const getRefreshPayment = async (orderNumber: string) => {
+    try {
+        const user = await currentUser()
+        if (!user) return { error: "User not found" }
+
+        const order = await prisma.orders.findFirst({ where: { orderNumber: parseInt(orderNumber), userId: user.id } })
+        if (!order) return { error: "Order not found" }
+
+        const newSessionId = v4()
+        const p24Order: P24Order = {
+            sessionId: newSessionId,
+            amount: order.orderAmount*100, // Transaction amount expressed in lowest currency unit, e.g. 1.23 PLN = 123
+            currency: Currency.PLN,
+            description: `Zamówienie ze sklepu 4lop o numerze ${order.orderNumber} - ponowna płatność`,
+            email: user.email || "",
+            country: Country.Poland,
+            language: Language.PL,
+            client: `${user.firstname} ${user.lastname}`,
+            address: user.street,
+            zip: user.zipCode,
+            city: user.city,
+            phone: user.phone,
+            urlReturn: `${process.env.NEXTAUTH_URL}/koszyk/platnosc/podsumowanie?sessionID=${newSessionId}`,
+            urlStatus: `https://4lop.pl/api/payment/p24`, // callback to get notification
+            timeLimit: 15, // 15min
+            encoding: Encoding.UTF8,
+        }
+        const payment = await p24.createTransaction(p24Order)
+        await prisma.orders.update({ where: { id: order.id }, data: { paymentSecret: payment.token, paymentID: newSessionId } })
+        return { success: true, paymentLink: payment.link }
+    } catch (error) {
+        console.log(error)
+        return { error: "Something went wrong" }
+    }
+}
 
 export const getPaymentMethods = async () => {
     try {
@@ -49,7 +89,7 @@ export const getPaymentStatus = async (sessionId: string) => {
         // const payment = await stripe.paymentIntents.retrieve(paymentId);
         const res = await axiosInstance.get('/transaction/by/sessionId/'+sessionId);
         const response = res.data.data
-        console.log(response)
+        // console.log(response)
 
         const order = await prisma.orders.findFirst({ where: { paymentID: sessionId } })
 

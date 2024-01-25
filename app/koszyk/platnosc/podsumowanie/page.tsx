@@ -35,6 +35,14 @@ export default function PaymentSummaryPage() {
             checkPayment()
             fetchedRef.current = true
         }
+
+        const interval = setInterval(() => {
+            checkPayment()
+        }, 10000)
+
+        return () => {
+            clearInterval(interval)
+        }
     }, [])
 
     return (

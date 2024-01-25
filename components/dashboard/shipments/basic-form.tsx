@@ -6,7 +6,7 @@ import * as z from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { BasicShipmentSchema } from "@/schemas"
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import {
     Form,
     FormControl,
@@ -19,12 +19,17 @@ import {
 import { FormSuccess } from "@/components/form-success"
 import { FormError } from "@/components/form-error"
 import { Button } from "@/components/ui/button"
-import { ChevronLeftIcon, Loader2Icon, SaveIcon } from "lucide-react"
+import { ChevronLeftIcon, Loader2Icon, PlusIcon, SaveIcon, Trash2Icon } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Switch } from "@/components/ui/switch"
 import Link from "next/link"
 import { updateBasicShipmentData } from "@/actions/shipment-update"
 import { useRouter } from "next/navigation"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { getOneProduct } from "@/actions/products"
+import { formattedPrice } from "@/lib/utils"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 export const BasicForm = ({ shipment }: { shipment: {
     id: string;
@@ -36,8 +41,7 @@ export const BasicForm = ({ shipment }: { shipment: {
     pickupPoint: boolean;
     companyKey: string | null;
     prepaid: boolean;
-    minWorth: number;
-    maxWorth: number;
+    excluding: boolean;
     personalCollection: boolean;
     shippingTimeDays: number;
     shippingInWeekends: boolean;
@@ -45,6 +49,7 @@ export const BasicForm = ({ shipment }: { shipment: {
     const [isPending, startTransition] = useTransition()
     const [error, setError] = useState<string | undefined>("")
     const [success, setSuccess] = useState<string | undefined>("")
+    const [selectedTmpProduct, setSelectedTmpProduct] = useState<string>("")
     const router = useRouter()
 
     const form = useForm<z.infer<typeof BasicShipmentSchema>>({
@@ -59,8 +64,7 @@ export const BasicForm = ({ shipment }: { shipment: {
             prepaid: shipment.prepaid,
             shippingTimeDays: shipment.shippingTimeDays.toString(),
             shippingInWeekends: shipment.shippingInWeekends,
-            minWorth: shipment.minWorth.toString(),
-            maxWorth: shipment.maxWorth.toString(),
+            excluding: shipment.excluding,
         } : {
             prepaid: false,
             pickupPoint: false,
@@ -81,6 +85,9 @@ export const BasicForm = ({ shipment }: { shipment: {
                     }
                     if (data.success) {
                         setSuccess("Zaktualizowano opcję dostawy.")
+                        setTimeout(() => {
+                            setSuccess("")
+                        }, 3000)
                     }
                     if (data.redirect) {
                         setSuccess("Dodano nową opcję dostawy.")
@@ -93,7 +100,7 @@ export const BasicForm = ({ shipment }: { shipment: {
     }
 
     return (
-        <Card className='w-full'>
+        <Card className='w-full overflow-y-auto max-h-full'>
             <CardHeader>
                 <div className="flex items-center justify-between">
                     <div className='flex items-center'>
@@ -121,7 +128,7 @@ export const BasicForm = ({ shipment }: { shipment: {
                         onSubmit={form.handleSubmit(onSubmit)}
                         className='space-y-6 mb-[3rem]'
                     >
-                        <div className='grid grid-cols-2 gap-4'>
+                        <div className='grid grid-cols-1 gap-4 sm:grid-cols-2'>
                             <FormField
                                 control={form.control}
                                 name='name'
@@ -182,6 +189,20 @@ export const BasicForm = ({ shipment }: { shipment: {
                                                 <Input {...field} disabled={isPending} placeholder='Cena dostawy' type='number' />
                                                 <span className="text-xs text-muted-foreground ml-1">PLN</span>
                                             </div>
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+
+                            <FormField
+                                control={form.control}
+                                name='shippingTimeDays'
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Średni czas dostawy (dni)</FormLabel>
+                                        <FormControl>
+                                            <Input {...field} disabled={isPending} placeholder='Cena dostawy' type='number' />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>
@@ -251,7 +272,7 @@ export const BasicForm = ({ shipment }: { shipment: {
                                 )}
                             />
 
-                            <div className="flex items-center gap-2">
+                            {/* <div className="flex items-center gap-2">
                                 <FormField
                                     control={form.control}
                                     name='minWorth'
@@ -285,7 +306,7 @@ export const BasicForm = ({ shipment }: { shipment: {
                                         </FormItem>
                                     )}
                                 />
-                            </div>
+                            </div> */}
 
                             <FormField
                                 control={form.control}
@@ -310,18 +331,112 @@ export const BasicForm = ({ shipment }: { shipment: {
 
                             <FormField
                                 control={form.control}
-                                name='shippingTimeDays'
+                                name="excluding"
                                 render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Średni czas dostawy (dni)</FormLabel>
+                                    <FormItem className='flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm'>
+                                        <div className='space-y-0.5'>
+                                            <FormLabel>Wyklucz produkty</FormLabel>
+                                            <FormDescription>Opcja wykluczenia danych produktów danej dostawy</FormDescription>
+                                            <FormMessage />
+                                        </div>
                                         <FormControl>
-                                            <Input {...field} disabled={isPending} placeholder='Cena dostawy' type='number' />
+                                            <Switch 
+                                                disabled={isPending}
+                                                checked={field.value}
+                                                onCheckedChange={field.onChange}
+                                            />
                                         </FormControl>
-                                        <FormMessage />
                                     </FormItem>
                                 )}
                             />
                         </div>
+                        <Card>
+                            <CardHeader>
+                                <div className="flex items-center">
+                                    <div className="w-full">
+                                        <CardTitle>Wykluczone produkty</CardTitle>
+                                        <CardDescription>Tutaj możesz zarządzać wykluczonymi produktami dla tej opcji dostawy</CardDescription>
+                                    </div>
+                                    <Popover>
+                                        <PopoverTrigger asChild>
+                                            <Button type="button" className="min-w-max">
+                                                Dodaj produkt
+                                            </Button>
+                                        </PopoverTrigger>
+                                        <PopoverContent className="w-[400px]">
+                                            <div className="grid gap-4">
+                                                <div className="space-y-1">
+                                                    <h4 className="font-medium leading-none text-lg">Wybierz produkt</h4>
+                                                    <p className="text-xs text-muted-foreground">
+                                                        Wybierz z listy produkt, który chcesz dodać do wykluczonych produktów.
+                                                    </p>
+                                                </div>
+
+                                                <Select>
+                                                    <SelectTrigger className="w-full">
+                                                        <SelectValue placeholder="Wybierz produkt" />
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                        <SelectItem value="apple">Apple</SelectItem>
+                                                        <SelectItem value="banana">Banana</SelectItem>
+                                                        <SelectItem value="blueberry">Blueberry</SelectItem>
+                                                        <SelectItem value="grapes">Grapes</SelectItem>
+                                                        <SelectItem value="pineapple">Pineapple</SelectItem>
+                                                    </SelectContent>
+                                                </Select>
+
+                                                <div className="flex items-center justify-between">
+                                                    <Button variant={"ghost"} asChild>
+                                                        <Link href="/dashboard/products">Nie widzisz produktu?</Link>
+                                                    </Button>
+                                                    <Button disabled={selectedTmpProduct === ""}>
+                                                        <PlusIcon className="h-4 w-4 mr-2" />
+                                                        Dodaj
+                                                    </Button>
+                                                </div>
+                                            </div>
+                                        </PopoverContent>
+                                    </Popover>
+                                </div>
+                            </CardHeader>
+                            <CardContent>
+                                <div className="flex flex-col items-center justify-center py-3">
+                                    {!shipment || shipment?.excludedProducts.length === 0 ? (
+                                        <p className="text-sm text-muted-foreground">Brak wykluczonych produktów</p>
+                                    ) : (
+                                        <Table>
+                                            <TableHeader>
+                                                <TableRow>
+                                                    <TableHead>Nazwa</TableHead>
+                                                    <TableHead>Cena</TableHead>
+                                                    <TableHead className="text-right"></TableHead>
+                                                </TableRow>
+                                            </TableHeader>
+                                            <TableBody>
+                                                {shipment.excludedProducts.map(async (excludedProduct) => {
+                                                    const productItemRaw = await getOneProduct(parseInt(excludedProduct))
+                                                    if (productItemRaw.error || productItemRaw.product === undefined) { return null }
+                                                    const productItem = productItemRaw.product
+                                                    
+                                                    return (
+                                                        <TableRow key={excludedProduct}>
+                                                            <TableCell><span className='font-semibold'>{productItem.name}</span></TableCell>
+                                                            <TableCell><span className='font-semibold'>{productItem.price.price.gross.formatted}</span></TableCell>
+                                                            <TableCell className="text-right">
+                                                                <Button variant="ghost" className="h-8 w-8 p-0">
+                                                                    <span className="sr-only">Usuń</span>
+                                                                    <Trash2Icon className="w-4 h-4" />
+                                                                </Button>
+                                                            </TableCell>
+                                                        </TableRow>
+                                                    )
+                                                })}
+                                            </TableBody>
+                                        </Table>
+                                    )}
+                                </div>
+                            </CardContent>
+                        </Card>
                         <FormSuccess message={success} />
                         <FormError message={error} />
                     </form>

@@ -11,21 +11,9 @@ import { Resend } from "resend";
 export async function POST(req: Request) {
 	const rawBody = await req.text();
 
-    console.log(rawBody)
-
-    const mailOptions = {
-        from: '4lop <noreply@4lop.pl>',
-        to: "kamilm@you2.pl",
-        subject: "New Payment - 4lop",
-        text: `${rawBody}`
-    };
-      
-    transporter.sendMail(mailOptions);
-
     try {
         const verify: NotificationRequest = JSON.parse(rawBody)
         const res = p24.verifyNotification(verify)
-        console.log("Status płatności: ", res)
         if (res) {
             const verifyRequest: Verification = {
                 amount: verify.amount,
@@ -35,7 +23,6 @@ export async function POST(req: Request) {
             }
             
             const verified = await p24.verifyTransaction(verifyRequest)
-            console.log("Verified: ", verified)
             if (verified) {
                 const order = await prisma.orders.findFirst({ where: { paymentID: verify.sessionId } })
                 if (!order) return NextResponse.json({ message: "Order not found" }, { status: 404 })

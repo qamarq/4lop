@@ -159,8 +159,7 @@ model ShippingMethod {
     pickupPoint        Boolean  @default(false)
     companyKey         String?
     prepaid            Boolean  @default(true)
-    minWorth           Float    @default(0)
-    maxWorth           Float    @default(0)
+    excluding          Boolean  @default(false)
     personalCollection Boolean  @default(false)
     shippingTimeDays   Int      @default(0)
     shippingInWeekends Boolean  @default(false)
@@ -236,6 +235,7 @@ model Orders {
 model Products {
     id                   String @id @default(auto()) @map("_id") @db.ObjectId
     productId            Int
+    productName          String
     priceGrossValue      Float
     priceNetValue        Float
     priceTaxValue        Float

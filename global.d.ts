@@ -418,6 +418,7 @@ interface Addon {
     code?: number;
     size?: string;
     notAvailable?: boolean;
+    hidden?: boolean;
     depedencies?: number[];
     versions?: AddonVersion[];
 }

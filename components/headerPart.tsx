@@ -104,13 +104,13 @@ export default function HeaderPart() {
                                         </div>
                                     </DropdownMenuTrigger>
                                     <DropdownMenuContent className="w-40" align="end">
-                                            <DropdownMenuItem>
-                                                <Link href="/konto">
+                                            <Link href="/konto">
+                                                <DropdownMenuItem>
                                                     <p className="flex items-center">
                                                         <User2Icon className="w-4 h-4 mr-2" /> Twoje konto
                                                     </p>
-                                                </Link>
-                                            </DropdownMenuItem>
+                                                </DropdownMenuItem>
+                                            </Link>
                                             <DropdownMenuItem>
                                                 <LogoutButton>
                                                     <div className='flex items-center'>
