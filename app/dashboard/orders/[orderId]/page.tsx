@@ -133,7 +133,7 @@ export default async function OrderDetailsPage({ params }: { params: { orderId: 
                     <CardDescription>Zarządzaj zamówieniem w prosty sposób.</CardDescription>
                 </CardHeader>
                 <CardContent className='py-[1rem] px-[1.5rem]'>
-                    <SidebarOrderManageComponent />
+                    <SidebarOrderManageComponent orderId={order.orderId} defaultOrderStatus={order.status} />
                 </CardContent>
             </Card>
         </div>

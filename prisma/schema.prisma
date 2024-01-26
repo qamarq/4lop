@@ -226,6 +226,7 @@ model Orders {
     paymentCurrency      String?  
     products             Json[]  
     shippingMethodId     String?               @db.ObjectId
+    shippingNumber       String?               @default("")
     purchaseDocument     purchaseDocumentType  @default(CONFIRMATION)
     deliveryRemarks      String                @default("")
     remarks              String                @default("")

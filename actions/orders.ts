@@ -6,10 +6,11 @@ import { getProductById } from "@/data/products"
 import { currentRole, currentUser } from "@/lib/auth"
 import { prisma } from "@/lib/db"
 import { stripe } from "@/lib/stripe"
-import { UserRole, pickupPointData, purchaseDocumentType } from "@prisma/client"
+import { UserRole, orderStatusType, pickupPointData, purchaseDocumentType } from "@prisma/client"
 import { v4 } from "uuid"
 import { Country, Currency, Encoding, Language, Order as P24Order } from "@ingameltd/node-przelewy24"
 import { p24 } from "@/lib/p24"
+import { revalidatePath } from "next/cache"
 
 interface createOrderProps {
     deliveryRemarks: string
@@ -303,4 +304,18 @@ export const getOrderByOrderIdAsAdmin = async (orderId: string) => {
     const preparedOrder = await getPreparedOrderByOrderId(orderId)
 
     return { order: preparedOrder }
+}
+
+export const updateOrderStatuses = async (orderId: string, orderStatus: orderStatusType, shippingNumber: string) => {
+    const user = await currentUser()
+    const role = await currentRole()
+    if (!user) return { error: "Brak zalogowanego użytkownika" }
+    if (role !== UserRole.ADMIN) return { error: "Brak uprawnień" }
+
+    const existingOrder = await prisma.orders.findUnique({ where: { id: orderId } })
+    if (!existingOrder) return { error: "Brak zamówienia" }
+
+    await prisma.orders.update({ where: { id: orderId }, data: { orderStatus, shippingNumber } })
+    revalidatePath("/dashboard/orders/"+orderId)
+    return { success: "Status zamówienia został zaktualizowany" }
 }
