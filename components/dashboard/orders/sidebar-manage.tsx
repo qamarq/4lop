@@ -11,31 +11,59 @@ import {
     SelectValue,
 } from "@/components/ui/select"
 import { orderStatuses, przelewy24PaymentStatuses } from '@/constants/payment'
-import { Loader2Icon, SaveIcon } from 'lucide-react'
+import { CoinsIcon, Loader2Icon, SaveIcon } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { updateOrderStatuses } from '@/actions/orders'
 import { orderStatusType } from '@prisma/client'
 import { toast } from '@/components/ui/use-toast'
+import { Separator } from '@/components/ui/separator'
+import { refundPayment } from '@/actions/payment'
 
-export default function SidebarOrderManageComponent({ orderId, defaultOrderStatus, defaultDeliveryNumber }: { orderId: string, defaultOrderStatus: string, defaultDeliveryNumber: string }) {
+export default function SidebarOrderManageComponent({ orderId, defaultOrderStatus, defaultDeliveryNumber, defaultPaymentStatus }: { orderId: string, defaultOrderStatus: string, defaultDeliveryNumber: string, defaultPaymentStatus: string }) {
     const [orderStatus, setOrderStatus] = React.useState(defaultOrderStatus)
     const [deliveryNumber, setDeliveryNumber] = React.useState(defaultDeliveryNumber)
-    const [isPending, startTransition] = React.useTransition()
+    const [paymentStatus, setPaymentStatus] = React.useState(defaultPaymentStatus)
+    const [isPendingOrder, startTransitionOrder] = React.useTransition()
+    const [isPendingPayment, startTransitionPayment] = React.useTransition()
 
     const updateOrderSettings = async () => {
-        startTransition(async () => {
+        startTransitionOrder(async () => {
             await updateOrderStatuses(orderId, orderStatus as orderStatusType, deliveryNumber)
                 .then((data) => {
                     if (data.success) {
                         toast({
                             description: "Zmieniono status zamówienia",
                         })
+                    } else if (data.error) {
+                        toast({
+                            description: data.error,
+                            variant: "destructive"
+                        })
                     }
                 })
         })
-        
+    }
+
+    const updatePaymentSettings = async () => {
+        startTransitionPayment(async () => {
+            await refundPayment(orderId)
+                .then(data => {
+                    if (data.success) {
+                        setPaymentStatus("3")
+                        setOrderStatus("REFUNDED")
+                        toast({
+                            description: "Zwrócono płatność do klienta",
+                        })
+                    } else if (data.error) {
+                        toast({
+                            description: data.error,
+                            variant: "destructive"
+                        })
+                    }
+                })
+        })
     }
 
     return (
@@ -74,9 +102,16 @@ export default function SidebarOrderManageComponent({ orderId, defaultOrderStatu
                 <Label htmlFor="delivery">Numer śledzenia przesyłki</Label>
                 <Input value={deliveryNumber} onChange={(e) => setDeliveryNumber(e.target.value)} id="delivery" type="text" placeholder='Numer śledzenia' />
             </div>
-            <Button disabled={isPending} onClick={updateOrderSettings}>
-                {isPending ? <Loader2Icon className='w-4 h-4 mr-2 animate-spin' /> : <SaveIcon className='w-4 h-4 mr-2' />}
+            <Button disabled={isPendingOrder} onClick={updateOrderSettings}>
+                {isPendingOrder ? <Loader2Icon className='w-4 h-4 mr-2 animate-spin' /> : <SaveIcon className='w-4 h-4 mr-2' />}
                 Zapisz zmiany
+            </Button>
+
+            <Separator className='my-3' />
+
+            <Button disabled={paymentStatus !== "2" || isPendingPayment} onClick={updatePaymentSettings}>
+                {isPendingPayment ? <Loader2Icon className='w-4 h-4 mr-2 animate-spin' /> : <CoinsIcon className='w-4 h-4 mr-2' />}
+                Zwróć płatność do klienta
             </Button>
         </div>
     )

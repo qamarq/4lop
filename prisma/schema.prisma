@@ -233,6 +233,8 @@ model Orders {
     remarks              String                @default("")
     pickupPointId        String                @default("")
     pickupPointData      pickupPointData?
+    refundUUID           String?               @default("")
+    refundRequestID      String?               @default("")
 }
 
 model Products {

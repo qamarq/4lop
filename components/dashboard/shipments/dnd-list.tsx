@@ -46,6 +46,17 @@ export default function ShipmentDNDList({ shipmentsList }: { shipmentsList: {
     const [isPending, startTransition] = useTransition()
     const [debouncedItems, setDebouncedItems] = useState(items);
     const isFirstTime = React.useRef(true);
+    const scrollableRef = React.useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        if (scrollableRef.current) {
+            scrollableRef.current.addEventListener('touchmove', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                return false;
+            });
+        }
+    }, [])
 
     const onShipmentDelete = async (id: string) => {
         startTransition(() => {
@@ -79,7 +90,7 @@ export default function ShipmentDNDList({ shipmentsList }: { shipmentsList: {
     
     return (
         <div className=''>
-            <Reorder.Group axis="y" values={items} onReorder={setItems} className='space-y-2'>
+            <Reorder.Group axis="y" values={items} onReorder={setItems} className='space-y-2' ref={scrollableRef}>
                 {items.map((item) => (
                     <Reorder.Item key={item.id} value={item}>
                         <Dialog>

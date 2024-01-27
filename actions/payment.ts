@@ -1,12 +1,14 @@
 "use server"
 
 import { Przelewy24PaymentMethod } from "@/constants/payment";
-import { currentUser } from "@/lib/auth";
+import { currentRole, currentUser } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import axios from "axios";
 import { Country, Currency, Encoding, Language, Order as P24Order } from "@ingameltd/node-przelewy24"
 import { p24 } from "@/lib/p24"
 import { v4 } from "uuid";
+import { UserRole, orderStatusType } from "@prisma/client";
+import { revalidatePath } from "next/cache";
 
 // import { stripe } from "@/lib/stripe";
 
@@ -94,6 +96,53 @@ export const getPaymentStatus = async (sessionId: string) => {
         const order = await prisma.orders.findFirst({ where: { paymentID: sessionId } })
 
         return { success: true, payment: { status: response.status, orderNumber: order ? order.orderNumber : 0, paymentMethod: response.paymentMethod, statement: response.statement, orderId: response.orderId } }
+    } catch (error) {
+        console.log(error)
+        return { error: "Something went wrong" }
+    }
+}
+
+export const refundPayment = async (orderId: string) => {
+    try {
+        const role = await currentRole()
+        if (role !== UserRole.ADMIN) return { error: "Access denied" }
+
+        const order = await prisma.orders.findFirst({ where: { id: orderId } })
+        if (!order) return { error: "Order not found" }
+
+        if (order.paymentStatus !== "2") return { error: "Order not paid" }
+
+        const refundsUuid = v4()
+        const requestId = v4()
+        const ref = {
+            refundsUuid,
+            requestId,
+            refunds: [
+                {
+                    amount: order.orderAmount*100,
+                    description: 'Zwrot płatności za zamówienie nr '+order.orderNumber,
+                    orderId: Number(order.paymentOrderID),
+                    sessionId: order.paymentID || "",
+                }
+            ],
+        }
+          
+        const result = await p24.refund(ref)
+        if (result[0].status === true) {
+            await prisma.orders.update({ where: { id: order.id }, data: { 
+                paymentStatus: "3",
+                refundUUID: refundsUuid,
+                refundRequestID: requestId,
+                orderStatus: orderStatusType.REFUNDED 
+            } })
+
+            //TODO: Wyslij email o zwrocie kasy
+
+            revalidatePath("/dashboard/orders/"+orderId)
+            return { success: true }
+        } else {
+            return { error: "Something went wrong" }
+        }
     } catch (error) {
         console.log(error)
         return { error: "Something went wrong" }

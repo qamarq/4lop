@@ -100,9 +100,9 @@ export default function OrderDetails() {
             
                             <div className={`${styles.order_item_body} ${styles.horizontal}`}>
                                 <img className={styles.item_body_img} src={order.shipping.courier.icon} alt="" />
-                                <p className={styles.item_body_text}>{order.shipping.courier.name}</p>
+                                <p className={styles.item_body_text}>{order.shipping.courier.name}{" "}</p>{" "}
                                 {order.shipping.deliveryNumber && (
-                                    <p>{"  "}- Numer przesyłki: {order.shipping.deliveryNumber}</p>
+                                    <p>- Numer przesyłki: {order.shipping.deliveryNumber}</p>
                                 )}
                             </div>
                         </div>

@@ -38,7 +38,7 @@ export default async function OrderDetailsPage({ params }: { params: { orderId: 
                         </div>
                         <div className='flex items-center mb-1'>
                             <p className='w-full text-md font-normal'>Numer zamówienia</p>
-                            <h1 className='min-w-max text-md font-semibold'>{order.orderNumber}</h1>
+                            <h1 className='min-w-max text-md font-semibold'>#{order.orderNumber}</h1>
                         </div>
                         <div className='flex items-center mb-1'>
                             <p className='w-full text-md font-normal'>Status płatności</p>
@@ -133,7 +133,7 @@ export default async function OrderDetailsPage({ params }: { params: { orderId: 
                     <CardDescription>Zarządzaj zamówieniem w prosty sposób.</CardDescription>
                 </CardHeader>
                 <CardContent className='py-[1rem] px-[1.5rem]'>
-                    <SidebarOrderManageComponent orderId={order.orderId} defaultOrderStatus={order.status} defaultDeliveryNumber={order.shipping.deliveryNumber} />
+                    <SidebarOrderManageComponent orderId={order.orderId} defaultOrderStatus={order.status} defaultDeliveryNumber={order.shipping.deliveryNumber} defaultPaymentStatus={order.payment.status} />
                 </CardContent>
             </Card>
         </div>
