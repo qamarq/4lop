@@ -430,7 +430,7 @@ export const BasicForm = ({ exludedDataTable, shipment }: { exludedDataTable: {n
                                                     <SelectTrigger className="w-full">
                                                         <SelectValue placeholder="Wybierz produkt" />
                                                     </SelectTrigger>
-                                                    <SelectContent>
+                                                    <SelectContent className="max-h-[400px]">
                                                         {productsInDB.map((product) => {
                                                             if (form.getValues("excludedProducts").includes(product.id.toString())) { return null }
                                                             return (

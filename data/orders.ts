@@ -105,6 +105,7 @@ export const getPreparedOrderByOrderId = async (orderId: string) => {
         shipping: {
             costUndefined: false,
             remarks: order.remarks,
+            deliveryNumber: order.shippingNumber || "",
             costClientCurrency: {
                 value: shippingCost,
                 currency: "pln",

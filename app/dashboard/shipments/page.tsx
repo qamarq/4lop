@@ -9,7 +9,7 @@ import Link from 'next/link'
 import ShipmentDNDList from '@/components/dashboard/shipments/dnd-list'
 
 const getShipmentsList = async () => {
-    const shipmentList = await prisma.shippingMethod.findMany()
+    const shipmentList = await prisma.shippingMethod.findMany({ orderBy: { numberInOrder: "asc" } })
     return shipmentList
 }
 

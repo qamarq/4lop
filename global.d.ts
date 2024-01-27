@@ -553,6 +553,7 @@ interface Order {
     shipping: {
         costUndefined: boolean
         remarks: string
+        deliveryNumber: string
         costClientCurrency: {
             value: number
             currency: string

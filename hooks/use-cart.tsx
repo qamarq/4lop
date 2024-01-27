@@ -163,11 +163,12 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
                     const offlineCartRAW = localStorage.getItem(LOCALSTORAGE_CART_KEY_NAME);
                     if (offlineCartRAW) {
                         const offlineCart = JSON.parse(offlineCartRAW);
+                        let somethingWasAdded = false
                         offlineCart.forEach(async (item: { id: number, quantity: number }) => {
                             await addToBasket(item.id, item.quantity)
                                 .then((data) => {
                                     if (data.success) {
-                                        
+                                        somethingWasAdded = true
                                     } else if (data.error) {
                                         toast({
                                             variant: "destructive",
@@ -176,7 +177,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
                                     }
                                 })
                         })
-                        toast({
+                        somethingWasAdded && toast({
                             description: "Dodano do koszyka produkty zapisane w pamięci lokalnej"
                         })
                         localStorage.removeItem(LOCALSTORAGE_CART_KEY_NAME)

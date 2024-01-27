@@ -62,7 +62,7 @@ export default function ShipmentDNDList({ shipmentsList }: { shipmentsList: {
                             // console.log(data)
                             if (data.success) {
                                 toast({ description: "Zapisano kolejność opcji dostawy" })
-                                location.reload()
+                                // location.reload()
                             }
                         })
                 })

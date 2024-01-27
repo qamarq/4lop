@@ -163,6 +163,7 @@ model ShippingMethod {
     personalCollection Boolean  @default(false)
     shippingTimeDays   Int      @default(0)
     shippingInWeekends Boolean  @default(false)
+    numberInOrder      Int      @default(0)
 }
 
 type deliveryAddress {

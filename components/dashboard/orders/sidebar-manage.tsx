@@ -19,9 +19,9 @@ import { updateOrderStatuses } from '@/actions/orders'
 import { orderStatusType } from '@prisma/client'
 import { toast } from '@/components/ui/use-toast'
 
-export default function SidebarOrderManageComponent({ orderId, defaultOrderStatus }: { orderId: string, defaultOrderStatus: string }) {
+export default function SidebarOrderManageComponent({ orderId, defaultOrderStatus, defaultDeliveryNumber }: { orderId: string, defaultOrderStatus: string, defaultDeliveryNumber: string }) {
     const [orderStatus, setOrderStatus] = React.useState(defaultOrderStatus)
-    const [deliveryNumber, setDeliveryNumber] = React.useState('')
+    const [deliveryNumber, setDeliveryNumber] = React.useState(defaultDeliveryNumber)
     const [isPending, startTransition] = React.useTransition()
 
     const updateOrderSettings = async () => {

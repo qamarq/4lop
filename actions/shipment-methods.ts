@@ -7,7 +7,7 @@ import { P24, P24Error } from "@ingameltd/node-przelewy24";
 import nodemailer from "nodemailer"
 
 export const getShipmentMethods = async () => {
-    const shipmentMethods = await prisma.shippingMethod.findMany()
+    const shipmentMethods = await prisma.shippingMethod.findMany({ orderBy: { numberInOrder: "asc" } })
     if (!shipmentMethods) return { error: "Shipment methods not found" }
 
     const shipmentResponse: Shipment[] = await Promise.all(shipmentMethods.map(async (shipmentItem): Promise<Shipment> => {

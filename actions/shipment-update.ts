@@ -29,17 +29,22 @@ export const updateShipmentOrder = async (shipmentList: {
     // return { success: "Zaktualizowano kolejność metod wysyłki" }
 
     try {
-        await prisma.shippingMethod.deleteMany()
+        // await prisma.shippingMethod.deleteMany()
+        // for (const shipment of shipmentList) {
+        //     await prisma.shippingMethod.create({
+        //         data: shipment
+        //     })
+        // }
+        let i = 0
         for (const shipment of shipmentList) {
-            const { id, ...toInsert } = shipment
-            await prisma.shippingMethod.create({
-                data: {
-                    ...toInsert
-                }
+            i++
+            await prisma.shippingMethod.update({
+                where: { id: shipment.id },
+                data: { numberInOrder: i } 
             })
         }
 
-        revalidatePath("/dashboard/shipments")
+        // revalidatePath("/dashboard/shipments")
         return { success: "Zaktualizowano kolejność metod wysyłki" }
     } catch (err) {
         console.log(err)
@@ -84,8 +89,9 @@ export const updateBasicShipmentData = async (id: string | null, value: z.infer<
             revalidatePath(`/dashboard/shipments/${id}`)
             return { success: "Zaktualizowano metodę wysyłki" }
         } else {
+            const countShippingMethods = await prisma.shippingMethod.count()
             const addedMethod = await prisma.shippingMethod.create({
-                data: { ...values }
+                data: { ...values, numberInOrder: countShippingMethods + 1 }
             })
             revalidatePath("/dashboard/shipments")
             return { redirect: `/dashboard/shipments/${addedMethod.id}` }

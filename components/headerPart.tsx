@@ -145,6 +145,14 @@ export default function HeaderPart() {
                                         )} */}
                                     </Link>
                                 ))}
+                                {role === UserRole.ADMIN && (
+                                    <Link href="/dashboard">
+                                        <div className={`${styles.button} ${pathname === "/dashboard" ? styles.active : ""}`}>
+                                            Panel administratora
+                                            <span className={styles.bg}></span>
+                                        </div>
+                                    </Link>
+                                )}
                             </div>
                             <div className={styles.mobile_icons_buttons}>
                                 <Link href="/sklep" className={styles.icon}><Search size={22}/></Link>
