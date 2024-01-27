@@ -349,13 +349,25 @@ export default function CartPage() {
                                     })}
                                 </DropdownMenuContent>
                             </DropdownMenu>
-                            <Button variant="outline" className="ml-1" onClick={() => {
+                            {/* <Button variant="outline" className="ml-1" onClick={() => {
                                 refreshCart()
                                 toast({
                                     description: "Odświeżono koszyk",
                                 })
                             }}>
                                 <RotateCcwIcon className="h-4 w-4 text-gray-800" />
+                            </Button> */}
+                            <Button 
+                                className="ml-1" 
+                                variant={"outline"} 
+                                disabled={table.getFilteredSelectedRowModel().rows.length === 0}
+                                onClick={() => {
+                                    table.getFilteredSelectedRowModel().rows.map((row) => {
+                                        removeItem(row.original.id, row.original.size)
+                                    })
+                                }}
+                            >
+                                Usuń zaznaczone ({table.getFilteredSelectedRowModel().rows.length})
                             </Button>
                         </div>
                         <div className="rounded-md border">

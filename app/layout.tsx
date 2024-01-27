@@ -94,18 +94,18 @@ export default async function RootLayout({
                                 </div> */}
                                 <div className={styles.item}>
                                     <h1>Social Media</h1>
-                                    <div className={styles.subitem}>
+                                    <Link href="https://www.facebook.com/pakujz4lop/" className={styles.subitem}>
                                         <FacebookIcon className={styles.icon} size={FooterIconsSize} />
                                         <p>Facebook</p>
-                                    </div>
-                                    <div className={styles.subitem}>
+                                    </Link>
+                                    <Link href="https://www.instagram.com/pakujz4lop/" className={styles.subitem}>
                                         <InstagramIcon className={styles.icon} size={FooterIconsSize} />
                                         <p>Instagram</p>
-                                    </div>
-                                    <div className={styles.subitem}>
+                                    </Link>
+                                    <Link href="https://www.youtube.com/@elektromaniacy6306" className={styles.subitem}>
                                         <YoutubeIcon className={styles.icon} size={FooterIconsSize} />
                                         <p>YouTube</p>
-                                    </div>
+                                    </Link>
                                 </div>
                                 <div className={styles.item}>
                                     <h1>Kontakt</h1>
