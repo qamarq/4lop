@@ -9,6 +9,7 @@ import { p24 } from "@/lib/p24"
 import { v4 } from "uuid";
 import { UserRole, orderStatusType } from "@prisma/client";
 import { revalidatePath } from "next/cache";
+import { sendEmail } from "@/lib/mail";
 
 // import { stripe } from "@/lib/stripe";
 
@@ -137,6 +138,7 @@ export const refundPayment = async (orderId: string) => {
             } })
 
             //TODO: Wyslij email o zwrocie kasy
+            await sendEmail(order.buyerEmail|| "", "Zwrot płatności", `Witaj ${order.orderAddress.firstname} ${order.orderAddress.lastname},<br><br>Twoja płatność za zamówienie nr ${order.orderNumber} została zwrócona.<br><br>Pozdrawiamy,<br>Zespół 4lop`)
 
             revalidatePath("/dashboard/orders/"+orderId)
             return { success: true }

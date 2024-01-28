@@ -1,5 +1,6 @@
 import { getPaymentStatus } from "@/actions/payment";
 import { prisma } from "@/lib/db"
+import { sendEmail } from "@/lib/mail";
 import { p24 } from "@/lib/p24";
 import { Currency, NotificationRequest, Verification } from "@ingameltd/node-przelewy24";
 import { orderStatusType } from "@prisma/client";
@@ -37,6 +38,10 @@ export async function POST(req: Request) {
                             orderStatus: paymentStatus.payment.status.toString() == "2" ? orderStatusType.PAID : undefined
                         }
                     })
+
+                    if (paymentStatus.payment.status.toString() === "2") {
+                        await sendEmail(order.buyerEmail || "", "Zamówienie nr "+order.orderNumber+" zostało opłacone", "Twoje zamówienie zostało opłacone. Dziękujemy za zakupy w naszym sklepie.")
+                    }
 
                     if (paymentStatus.payment.status.toString() == "2" && process.env.P24_SANDBOX_MODE === "false") {
                         order.products.forEach(async (product: any) => {

@@ -11,6 +11,7 @@ import { v4 } from "uuid"
 import { Country, Currency, Encoding, Language, Order as P24Order } from "@ingameltd/node-przelewy24"
 import { p24 } from "@/lib/p24"
 import { revalidatePath } from "next/cache"
+import { sendEmail } from "@/lib/mail"
 
 interface createOrderProps {
     deliveryRemarks: string
@@ -258,6 +259,7 @@ export const createOrder = async ({
         // }
 
         await prisma.cart.delete({ where: { userId: user.id } })
+        await sendEmail(user.email || "", "Potwierdzenie zamówienia", `Witaj ${user.firstname} ${user.lastname},<br><br>Dziękujemy za złożenie zamówienia w naszym sklepie. Poniżej znajduje się podsumowanie zamówienia.<br><br><b>Numer zamówienia:</b> ${newOrderNumber}<br><b>Metoda płatności:</b> ${prepaidBool ? "Przelew" : "Płatność przy odbiorze"}<br><b>Metoda dostawy:</b> ${courier ? courier.name : "Brak dostawy"}<br><b>Adres dostawy:</b> ${user.street}, ${user.zipCode} ${user.city}<br><b>Adres email:</b> ${user.email || ""}<br><b>Telefon:</b> ${user.phone}<br><br><b>Produkty:</b><br>${basketProducts.map((product) => `<b>${product.productDetails.name}</b> - ${product.quantity} szt. - ${product.productDetails.price.price.gross.value} zł/szt. = ${product.quantity * product.productDetails.price.price.gross.value} zł`).join("<br>")}<br><br><b>Koszt dostawy:</b> ${shippingCost} zł<br><b>Suma:</b> ${orderAmountTotal} zł<br><br>Pozdrawiamy,<br>Zespół 4lop`)
 
         return { success: "Zamówienie zostało utworzone", order: { orderId: order.id, orderNumber: newOrderNumber }, payment: paymentIntent ? { link: paymentIntent.link } : null }
     } catch (error) {
@@ -316,6 +318,7 @@ export const updateOrderStatuses = async (orderId: string, orderStatus: orderSta
     if (!existingOrder) return { error: "Brak zamówienia" }
 
     await prisma.orders.update({ where: { id: orderId }, data: { orderStatus, shippingNumber } })
+    await sendEmail(existingOrder.buyerEmail || "", "Zmiana statusu zamówienia", `Witaj ${existingOrder.orderAddress.firstname} ${existingOrder.orderAddress.lastname},<br><br>Status Twojego zamówienia nr ${existingOrder.orderNumber} został zmieniony na ${orderStatus}.<br><br>Pozdrawiamy,<br>Zespół 4lop`)
     revalidatePath("/dashboard/orders/"+orderId)
     return { success: "Status zamówienia został zaktualizowany" }
 }

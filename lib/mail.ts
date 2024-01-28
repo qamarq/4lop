@@ -52,3 +52,26 @@ export const sendPasswordResetEmail = async (email: string, token: string) => {
       
     transporter.sendMail(mailOptions);
 }
+
+/**
+ * Wysyła email z podanym tematem i treścią do podanego adresu email
+ * @param email Parametr email odbiorcy
+ * @param subject Parametr tematu wiadomości
+ * @param body Parametr treści wiadomości
+ */
+export const sendEmail = async (email: string, subject: string, body: string) => {
+    const mailOptions = {
+        from: '4lop <noreply@4lop.pl>',
+        to: email,
+        subject: subject,
+        html: body
+    };
+      
+    transporter.sendMail(mailOptions, function(error, info){
+        if (error) {
+            return { error: true, message: error }
+        } else {
+            return { success: true, message: info.response }
+        }   
+    });
+}
