@@ -284,7 +284,7 @@ export default function UsersTableComponent({ users }: { users: User[] }) {
                         variant="outline"
                         size="sm"
                         onClick={() => {
-                            console.log(table.getPageCount());
+                            // console.log(table.getPageCount());
                             table.nextPage();
                         }}
                         disabled={!table.getCanNextPage()}>

@@ -12,13 +12,12 @@ import {
     getSortedRowModel,
     useReactTable,
 } from '@tanstack/react-table';
-import { ArrowUpDown, ChevronDown, MoreHorizontal } from 'lucide-react';
+import { ArrowUpDown, MoreHorizontal, PlusIcon } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import {
     DropdownMenu,
-    DropdownMenuCheckboxItem,
     DropdownMenuContent,
     DropdownMenuItem,
     DropdownMenuLabel,
@@ -35,12 +34,22 @@ import {
     TableRow,
 } from '@/components/ui/table';
 import React, { useEffect } from 'react';
-import { Orders } from '@prisma/client';
-import { orderStatuses, przelewy24PaymentStatuses } from '@/constants/payment';
-import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
+import {
+    Dialog,
+    DialogClose,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+  } from "@/components/ui/dialog"
+import { Label } from '@/components/ui/label';
+import { toast } from '@/components/ui/use-toast';
+import { getProductByIdAdmin } from '@/actions/products';
 
-export const columns: ColumnDef<Orders>[] = [
+export const columns: ColumnDef<{ name: string, id: string }>[] = [
     {
         id: 'select',
         header: ({ table }) => (
@@ -66,7 +75,7 @@ export const columns: ColumnDef<Orders>[] = [
         enableHiding: false,
     },
     {
-        accessorKey: 'orderNumber',
+        accessorKey: 'name',
         header: ({ column }) => {
             return (
                 <Button
@@ -74,56 +83,14 @@ export const columns: ColumnDef<Orders>[] = [
                     onClick={() =>
                         column.toggleSorting(column.getIsSorted() === 'asc')
                     }>
-                    Numer zamówienia
+                    Nazwa produktu
                     <ArrowUpDown className="ml-2 h-4 w-4" />
                 </Button>
             );
         },
         cell: ({ row }) => (
             <div className="capitalize">
-                Zamówienie nr. {row.getValue('orderNumber')}
-            </div>
-        ),
-    },
-    {
-        accessorKey: 'buyerEmail',
-        header: 'E-mail klienta',
-        cell: ({ row }) => (
-            <div>
-                <h1>{row.getValue('buyerEmail')}</h1>
-            </div>
-        ),
-    },
-    {
-        accessorKey: 'orderAmount',
-        header: () => <div className="text-right">Kwota zamówienia</div>,
-        cell: ({ row }) => {
-            const amount = parseFloat(row.getValue('orderAmount'));
-
-            // Format the amount as a dollar amount
-            const formatted = new Intl.NumberFormat('pl-PL', {
-                style: 'currency',
-                currency: 'PLN',
-            }).format(amount);
-
-            return <div className="text-right font-medium">{formatted}</div>;
-        },
-    },
-    {
-        accessorKey: 'orderStatus',
-        header: 'Status zamówienia',
-        cell: ({ row }) => (
-            <div>
-                <Badge variant={"outline"}>{orderStatuses[row.getValue('orderStatus') as keyof typeof orderStatuses]}</Badge>
-            </div>
-        ),
-    },
-    {
-        accessorKey: 'paymentStatus',
-        header: 'Status płatności',
-        cell: ({ row }) => (
-            <div>
-                <Badge variant={row.getValue('paymentStatus') === "2" ? "default" : "destructive"}>{przelewy24PaymentStatuses[row.getValue('paymentStatus') as keyof typeof przelewy24PaymentStatuses]}</Badge>
+                {row.getValue('name')}
             </div>
         ),
     },
@@ -131,9 +98,7 @@ export const columns: ColumnDef<Orders>[] = [
         id: 'actions',
         enableHiding: false,
         cell: ({ row }) => {
-            const paymentID = row.original.paymentID || 'Brak';
-            const userId = row.original.userId;
-            const orderId = row.original.id;
+            const productId = row.original.id;
 
             return (
                 <DropdownMenu>
@@ -147,19 +112,14 @@ export const columns: ColumnDef<Orders>[] = [
                         <DropdownMenuLabel>Opcje</DropdownMenuLabel>
                         <DropdownMenuItem
                             onClick={() =>
-                                navigator.clipboard.writeText(paymentID)
+                                navigator.clipboard.writeText(productId)
                             }>
-                            Skopiuj identyfikator płatności
+                            Skopiuj ID produktu
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
-                        <Link href={`/dashboard/users/${userId}`}>
+                        <Link href={`/dashboard/products/${productId}`}>
                             <DropdownMenuItem className='cursor-pointer'>
-                                Zobacz kupującego
-                            </DropdownMenuItem>
-                        </Link>
-                        <Link href={`/dashboard/orders/${orderId}`}>
-                            <DropdownMenuItem className='cursor-pointer'>
-                                Zobacz szczegóły zamówienia
+                                Zobacz produkt
                             </DropdownMenuItem>
                         </Link>
                     </DropdownMenuContent>
@@ -169,16 +129,17 @@ export const columns: ColumnDef<Orders>[] = [
     },
 ];
 
-export default function OrderTableComponent({ orders }: { orders: Orders[] }) {
+export default function ProductsTableComponent({ products }: { products: { name: string, id: string }[] }) {
     const [sorting, setSorting] = React.useState<SortingState>([]);
     const [columnFilters, setColumnFilters] =
         React.useState<ColumnFiltersState>([]);
     const [columnVisibility, setColumnVisibility] =
         React.useState<VisibilityState>({});
     const [rowSelection, setRowSelection] = React.useState({});
+    const productIdInputRef = React.useRef<HTMLInputElement>(null);
 
     const table = useReactTable({
-        data: orders,
+        data: products,
         columns,
         onSortingChange: setSorting,
         onColumnFiltersChange: setColumnFilters,
@@ -196,6 +157,30 @@ export default function OrderTableComponent({ orders }: { orders: Orders[] }) {
         },
     });
 
+    const importProductById = async () => {
+        if (productIdInputRef.current) {
+            await getProductByIdAdmin(Number(productIdInputRef.current.value))
+                .then((data) => {
+                    if (data.success) {
+                        toast({
+                            description: `Pomyślnie zaimportowano produkt ${data.product.name}`,
+                        })
+                    } else {
+                        toast({
+                            description: `Nie znaleziono produktu o podanym ID`,
+                            variant: 'destructive'
+                        })
+                    }
+                })
+                .catch((error) => {
+                    toast({
+                        description: `Nie znaleziono produktu o podanym ID`,
+                        variant: 'destructive'
+                    })
+                })
+        }
+    }
+
     useEffect(() => {
         if (table) {
             table.setPageSize(5);
@@ -206,44 +191,54 @@ export default function OrderTableComponent({ orders }: { orders: Orders[] }) {
         <div className="w-full">
             <div className="flex items-center py-4">
                 <Input
-                    placeholder="Szukaj emaili..."
+                    placeholder="Szukaj po nazwie..."
                     value={
                         (table
-                            .getColumn('buyerEmail')
+                            .getColumn('name')
                             ?.getFilterValue() as string) ?? ''
                     }
                     onChange={(event) =>
                         table
-                            .getColumn('buyerEmail')
+                            .getColumn('name')
                             ?.setFilterValue(event.target.value)
                     }
                     className="max-w-sm"
                 />
-                <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                        <Button variant="outline" className="ml-auto">
-                            Kolumny <ChevronDown className="ml-2 h-4 w-4" />
+                <Dialog>
+                    <DialogTrigger asChild>
+                        <Button className="ml-auto">
+                            Zaimportuj nowy <PlusIcon className="ml-2 h-4 w-4" />
                         </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                        {table
-                            .getAllColumns()
-                            .filter((column) => column.getCanHide())
-                            .map((column) => {
-                                return (
-                                    <DropdownMenuCheckboxItem
-                                        key={column.id}
-                                        className="capitalize"
-                                        checked={column.getIsVisible()}
-                                        onCheckedChange={(value) =>
-                                            column.toggleVisibility(!!value)
-                                        }>
-                                        {column.id}
-                                    </DropdownMenuCheckboxItem>
-                                );
-                            })}
-                    </DropdownMenuContent>
-                </DropdownMenu>
+                    </DialogTrigger>
+
+                    <DialogContent className="sm:max-w-[425px]">
+                        <DialogHeader>
+                            <DialogTitle>Zaimportuj produkt</DialogTitle>
+                            <DialogDescription>
+                                Aby zaimportować nowy produkt, wklej jego ID ze sklepu poniżej.
+                            </DialogDescription>
+                        </DialogHeader>
+                        <div className="grid gap-4 py-4">
+                            <div className="grid grid-cols-4 items-center gap-4">
+                                <Label htmlFor="productId" className="text-right min-w-max">
+                                    ID produktu
+                                </Label>
+                                <Input
+                                    id="productId"
+                                    defaultValue="123456"
+                                    type="number"
+                                    ref={productIdInputRef}
+                                    className="col-span-3"
+                                />
+                            </div>
+                        </div>
+                        <DialogFooter>
+                            <DialogClose asChild>
+                                <Button type="submit" onClick={importProductById}>Importuj</Button>
+                            </DialogClose>
+                        </DialogFooter>
+                    </DialogContent>
+                </Dialog>
             </div>
             <div className="rounded-md border">
                 <Table>
@@ -299,7 +294,7 @@ export default function OrderTableComponent({ orders }: { orders: Orders[] }) {
             <div className="flex items-center justify-end space-x-2 py-4">
                 <div className="flex-1 text-sm text-muted-foreground">
                     Zaznaczono {table.getFilteredSelectedRowModel().rows.length} z{' '}
-                    {table.getFilteredRowModel().rows.length} kolumn.
+                    {table.getFilteredRowModel().rows.length} produktów.
                 </div>
                 <div className="space-x-2">
                     <Button
@@ -318,18 +313,6 @@ export default function OrderTableComponent({ orders }: { orders: Orders[] }) {
                         disabled={!table.getCanNextPage()}>
                         Następna
                     </Button>
-                    {/* <select
-                        value={table.getState().pagination.pageSize}
-                        onChange={e => {
-                            table.setPageSize(Number(e.target.value))
-                        }}
-                        >
-                        {[5, 10, 15, 20].map(pageSize => (
-                            <option key={pageSize} value={pageSize}>
-                                Show {pageSize}
-                            </option>
-                        ))}
-                        </select> */}
                 </div>
             </div>
         </div>
