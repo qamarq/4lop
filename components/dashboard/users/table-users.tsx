@@ -270,7 +270,7 @@ export default function UsersTableComponent({ users }: { users: User[] }) {
             <div className="flex items-center justify-end space-x-2 py-4">
                 <div className="flex-1 text-sm text-muted-foreground">
                     Zaznaczono {table.getFilteredSelectedRowModel().rows.length} z{' '}
-                    {table.getFilteredRowModel().rows.length} kolumn.
+                    {table.getFilteredRowModel().rows.length} użytkowników.
                 </div>
                 <div className="space-x-2">
                     <Button
