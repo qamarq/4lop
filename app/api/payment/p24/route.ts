@@ -39,11 +39,8 @@ export async function POST(req: Request) {
                         }
                     })
 
-                    console.log("Payment status: ", paymentStatus.payment.status.toString())
                     if (paymentStatus.payment.status.toString() === "2") {
-                        console.log("Sending email to: ", order.buyerEmail)
-                        const response = await sendEmail(order.buyerEmail || "", "Zamówienie nr "+order.orderNumber+" zostało opłacone", "Twoje zamówienie zostało opłacone. Dziękujemy za zakupy w naszym sklepie.")
-                        console.log("Email sent: ", response)
+                        await sendEmail(order.buyerEmail || "", "Zamówienie nr "+order.orderNumber+" zostało opłacone", "Twoje zamówienie zostało opłacone. Dziękujemy za zakupy w naszym sklepie.")
                     }
 
                     if (paymentStatus.payment.status.toString() == "2" && process.env.P24_SANDBOX_MODE === "false") {
