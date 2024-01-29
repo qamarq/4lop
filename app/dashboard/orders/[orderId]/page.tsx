@@ -12,6 +12,8 @@ import { orderStatuses, przelewy24PaymentStatuses } from '@/constants/payment'
 import { getOrderByOrderIdAsAdmin } from '@/actions/orders'
 import Link from 'next/link'
 import SidebarOrderManageComponent from '@/components/dashboard/orders/sidebar-manage'
+import { Button } from '@/components/ui/button'
+import { ChevronLeftIcon } from 'lucide-react'
 
 export default async function OrderDetailsPage({ params }: { params: { orderId: string } }) {
     const orderDataResponse = await getOrderByOrderIdAsAdmin(params.orderId)
@@ -22,8 +24,13 @@ export default async function OrderDetailsPage({ params }: { params: { orderId: 
         <div className='pl-3 flex h-[60rem] w-full gap-1'>
             <Card className="grow h-full">
                 <CardHeader>
-                    <CardTitle>Informacje</CardTitle>
-                    <CardDescription>Poniżej znajdziesz wszystkie informacje o zamówieniu.</CardDescription>
+                    <div className='flex items-center gap-2'>
+                        <Button size={"icon"} variant={"outline"} asChild><Link href="/dashboard/orders"><ChevronLeftIcon className='w-4 h-4' /></Link></Button>
+                        <div>
+                            <CardTitle>Informacje</CardTitle>
+                            <CardDescription>Poniżej znajdziesz wszystkie informacje o zamówieniu.</CardDescription>
+                        </div>
+                    </div>
                 </CardHeader>
                 <CardContent className='flex flex-col gap-2 h-[48rem] overflow-y-auto'>
                     <div className='flex flex-col rounded-lg border p-3 shadow-sm w-full'>

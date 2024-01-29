@@ -158,10 +158,9 @@ export const BasicForm = ({ exludedDataTable, shipment }: { exludedDataTable: {n
             <CardHeader>
                 <div className="flex items-center justify-between">
                     <div className='flex items-center'>
-                        <Button variant={"outline"} asChild>
+                        <Button variant={"outline"} asChild size={"icon"}>
                             <Link href="/dashboard/shipments">
-                                <ChevronLeftIcon className='w-4 h-4 mr-2' />
-                                Powrót
+                                <ChevronLeftIcon className='w-4 h-4' />
                             </Link>
                         </Button>
 
