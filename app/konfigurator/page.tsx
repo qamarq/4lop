@@ -109,7 +109,7 @@ export default function ConfiguratorPage() {
         let tmpTable = tables.find(version => version.len === selectedSize);
         if (tmpTable) {
             await addItem({ id: tmpTable.code, size: tmpTable.size, quantity: 1 })
-            appliedAddons.map(async (appliedAddon) => {
+            await Promise.all(appliedAddons.map(async (appliedAddon) => {
                 let addonItem = options[selectedTable-1].addons[appliedAddon-1]
                 let selectedVersion = null
                 if (addonItem.versions) {
@@ -120,19 +120,21 @@ export default function ConfiguratorPage() {
                 } else if (addonItem.code && addonItem.size) {
                     await addItem({ id: addonItem.code, size: addonItem.size, quantity: 1 })
                 }
+            }))
+
+            toast({
+                description: "Dodano wszystkie części do koszyka. Zmiana może potrwać chwilę.",
             })
+            setLoading(false)
+            setStep(1)
+            setSelectedTable(0)
+            setSelectedSize(0)
+            setTotalPrice(0)
+            setAppliedAddons([])
 
             setTimeout(() => {
-                toast({
-                    description: "Dodano wszystkie części do koszyka. Zmiana może potrwać chwilę.",
-                })
-                setLoading(false)
-                setStep(1)
-                setSelectedTable(0)
-                setSelectedSize(0)
-                setTotalPrice(0)
-                setAppliedAddons([])
-            }, 1500)
+                router.push("/koszyk")
+            }, 1000)
         }
     }
 
@@ -171,10 +173,14 @@ export default function ConfiguratorPage() {
                                             src={item.thumb} 
                                         />
                                         <div className={styles.text}>
-                                            <h1>{item.name}</h1>
+                                            <h1>Skonfiguruj swój własny stół</h1>
                                         </div>
                                     </div>
                                 ))}
+
+                                <div className={styles.banner}>
+                                    <h1 className='text-2xl text-muted-foreground font-semibold'>Miejsce na baner</h1>
+                                </div>
                             </div>
                             <Button disabled={selectedTable === 0} className='w-[230px] mt-5' onClick={() => setStep(2)}>Następny krok</Button>
                         </motion.div>

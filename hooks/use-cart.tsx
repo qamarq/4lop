@@ -3,7 +3,7 @@
 
 import { addToBasket, getBasket, prepareBasketProducts, removeFromBasket, updateBasket } from "@/actions/basket";
 import { toast } from "@/components/ui/use-toast";
-import { LOCALSTORAGE_CART_KEY_NAME, SAVED_ORDER_SETTINGS_NAME } from "@/constants";
+import { LOCALSTORAGE_CART_KEY_NAME, LOCALSTORAGE_TMPCART_KEY_NAME, SAVED_ORDER_SETTINGS_NAME } from "@/constants";
 import { formattedPrice } from "@/lib/utils";
 import { createContext, useContext, useEffect, useState, ReactNode, useRef } from "react";
 
@@ -115,8 +115,8 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     const [loading, setLoading] = useState(true);
     const fetchedFirstTime = useRef(false);
 
-    const addOfflineItem = async ({ id, quantity }: { id: number, quantity: number }): Promise<void> => {
-        let cartRAW = localStorage.getItem(LOCALSTORAGE_CART_KEY_NAME);
+    const addOfflineItem = async ({ id, quantity, notEnough = false }: { id: number, quantity: number, notEnough: boolean }): Promise<void> => {
+        let cartRAW = localStorage.getItem(notEnough ? LOCALSTORAGE_TMPCART_KEY_NAME : LOCALSTORAGE_CART_KEY_NAME);
         if (!cartRAW) cartRAW = "[]"
         const cart = JSON.parse(cartRAW);
         const existingItemIndex = cart.findIndex((product: any) => product.id === id );
@@ -125,7 +125,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
         } else {
             cart.push({id, quantity})
         }
-        localStorage.setItem(LOCALSTORAGE_CART_KEY_NAME, JSON.stringify(cart));
+        localStorage.setItem(notEnough ? LOCALSTORAGE_TMPCART_KEY_NAME : LOCALSTORAGE_CART_KEY_NAME, JSON.stringify(cart));
         toast({
             description: "Dodano do koszyka"
         })
@@ -251,7 +251,10 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
                         }
                     } else if (data.error) {
                         if (data.error === "not_logged_in") {
-                            addOfflineItem({ id, quantity })
+                            addOfflineItem({ id, quantity, notEnough: false })
+                            fetchCart()
+                        } else if (data.notEnoughProducts) {
+                            addOfflineItem({ id, quantity, notEnough: true })
                             fetchCart()
                         } else {
                             toast({

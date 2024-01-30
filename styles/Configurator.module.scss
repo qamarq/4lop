@@ -80,11 +80,23 @@
             justify-content: center;
             padding-inline: 10rem;
             margin-top: 60px;
+            width: 100%;
+            gap: 1rem;
 
             @media only screen and (max-width: 1300px) { 
                 grid-template-columns: repeat(1, 1fr);
                 gap: 5rem;
                 padding-inline: 20px;
+            }
+
+            .banner {
+                flex: 1;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                height: 345px;
+                border: 3px solid #d1d1d1;
+                border-radius: 15px;
             }
 
             .item {
@@ -98,6 +110,7 @@
                 justify-content: center;
                 cursor: pointer;
                 transition: all 500ms ease-out;
+                flex: 0 1 400px;
 
                 img {
                     width: 100%;

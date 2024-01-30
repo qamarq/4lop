@@ -22,7 +22,7 @@ import {
     AlertDialogHeader,
     AlertDialogTitle
 } from "@/components/ui/alert-dialog"
-import { ChevronRight, ChevronDown, ShoppingCartIcon, MoreHorizontal, EyeIcon, CopyIcon, TrashIcon, PencilLineIcon, Loader2Icon, RotateCcwIcon, LogInIcon } from "lucide-react"
+import { ChevronRight, ChevronDown, ShoppingCartIcon, MoreHorizontal, EyeIcon, CopyIcon, TrashIcon, PencilLineIcon, Loader2Icon, RotateCcwIcon, LogInIcon, ServerOffIcon } from "lucide-react"
 import styles from "@/styles/Cart.module.scss"
 import { useRouter } from 'next/navigation'
 import basketIcon from "@/assets/icons/basket.svg";
@@ -59,6 +59,9 @@ import { Label } from '@/components/ui/label'
 import { prepareLink } from '@/lib/utils';
 import { toast } from '@/components/ui/use-toast';
 import { useCurrentUser } from '@/hooks/use-current-user';
+import { LOCALSTORAGE_TMPCART_KEY_NAME } from '@/constants';
+import { prepareBasketProducts } from '@/actions/basket';
+import { v4 } from 'uuid';
 
 
 export default function CartPage() {
@@ -72,9 +75,7 @@ export default function CartPage() {
     } = useCart();
 
     const [sorting, setSorting] = useState<SortingState>([])
-    const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>(
-        []
-    )
+    const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
     const [loading, setLoading] = useState(false)
     const [updateQuantityValue, setUpdateQuantityValue] = useState(1)
     const [tmpVal, setTmpVal] = useState<{
@@ -86,7 +87,10 @@ export default function CartPage() {
     const [rowSelection, setRowSelection] = useState({})
     const [dialogDeleteOpened, setDialogDeleteOpened] = useState(false);
     const [dialogUpdateOpened, setDialogUpdateOpened] = useState(false);
+    const [isPendingNotEnough, startTransitionNotEnough] = React.useTransition()
+    const [notEnoughProducts, setNotEnoughProducts] = useState<{ productId: number; quantity: number; productDetails: ProductItem }[] | null>(null)
     const user = useCurrentUser()
+    const firstTimeRef = React.useRef(true)
     
     const table = useReactTable({
         data: cart ? cart.products : [],
@@ -127,8 +131,25 @@ export default function CartPage() {
     //     test()
     // }, [])
 
+    const prepareNotEnought = async () => {
+        const notEnoughProductsRAW = localStorage.getItem(LOCALSTORAGE_TMPCART_KEY_NAME)
+        if (notEnoughProductsRAW) {
+            const notEnoughProducts = JSON.parse(notEnoughProductsRAW) as { id: number; quantity: number; }[]
+            startTransitionNotEnough(async () => {
+                await prepareBasketProducts(notEnoughProducts)
+                    .then((data) => {
+                        setNotEnoughProducts(data)
+                    })
+            })
+        }
+    }
+
     useEffect(() => {
-        refreshCart()
+        if (firstTimeRef.current) {
+            refreshCart()
+            prepareNotEnought()
+            firstTimeRef.current = false
+        }
     }, [])
 
     const deleteItemLocal = async (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
@@ -227,92 +248,6 @@ export default function CartPage() {
                         </div>
                     </div>
                 ) : (
-                    // <div className={styles.full_cart}>
-                    //     <div className={styles.inner_full_cart}>
-                    //         <div className={styles.cart_items}>
-                    //             {cart && cart.products.map((cartItem) => (
-                    //                 <div key={v4()} className={styles.cart_item}>
-                    //                     <Checkbox checked={true} />
-                    //                     <div className={styles.thumbnail}>
-                    //                         <img src={`https://elektromaniacy.pl/${cartItem.data.icon}`} alt={cartItem.data.name} />
-                    //                     </div>
-                    //                     <div className={styles.content_item}>
-                    //                         <div className={styles.content_item_title}>
-                    //                             <h1>{cartItem.data.name}</h1>
-                    //                             <div className={styles.button_del}>
-                    //                                 <XIcon size={20} />
-                    //                             </div>
-                    //                         </div>
-                    //                         <div className={styles.content_subitem}>
-                    //                             <p>Ilość</p>
-                    //                             <div className={styles.counter}>
-                    //                                 <div className={styles.counter_btn} onClick={() => {
-                    //                                     // if (cartItem.count > 1) {
-                    //                                     //     updateItem({
-                    //                                     //         id: cartItem.id,
-                    //                                     //         value: {
-                    //                                     //             count: cartItem.count - 1
-                    //                                     //         }
-                    //                                     //     })
-                    //                                     // } else {
-                    //                                     //     removeItem(cartItem.id)
-                    //                                     // }
-                    //                                 }}>
-                    //                                     <MinusIcon size={14} />
-                    //                                 </div>
-                    //                                 <div className={styles.counter_display}>
-                    //                                     <p>{cartItem.quantity}</p>
-                    //                                 </div>
-                    //                                 <div className={styles.counter_btn} onClick={() => {
-                    //                                     // updateItem({
-                    //                                     //     id: cartItem.id,
-                    //                                     //     value: {
-                    //                                     //         count: cartItem.count + 1
-                    //                                     //     }
-                    //                                     // })
-                    //                                 }}>
-                    //                                     <PlusIcon size={14} />
-                    //                                 </div>
-                    //                             </div>
-                    //                         </div>
-                    //                         <div className={styles.content_subitem}>
-                    //                             <p>Cena jednego produktu</p>
-                    //                             <h1>{cartItem.data.price.price.gross.formatted}</h1>
-                    //                         </div>
-                    //                         <div className={styles.content_subitem}>
-                    //                             <p>Wartość w całości</p>
-                    //                             <h1>{(cartItem.data.price.price.gross.value*cartItem.quantity).toFixed(2)}zł</h1>
-                    //                         </div>
-                    //                     </div>
-                    //                 </div>
-                    //             ))}
-                    //         </div>
-                    //         <div className={styles.cart_summary}>
-                    //             <div className={styles.summary_item}>
-                    //                 <p>Wartość zamówienia:</p>
-                    //                 <h1>9zł</h1>
-                    //             </div>
-                    //             <div className={styles.summary_item}>
-                    //                 <p>Ilość przedmiotów:</p>
-                    //                 <h1>x100</h1>
-                    //             </div>
-                    //             <hr />
-                    //             <div className={styles.summary_main_item}>
-                    //                 <p>Do zapłaty:</p>
-                    //                 <h1>9zł</h1>
-                    //             </div>
-                    //             <div className={styles.buttons}>
-                    //                 <Button className={styles.btn_cart}>
-                    //                     Przejdź dalej
-                    //                 </Button>
-                    //                 <Button className={styles.btn_cart} variant={"outline"}>
-                    //                     Kontynuuj zakupy
-                    //                 </Button>
-                    //             </div>
-                    //         </div>
-                    //     </div>
-                    // </div>
-
                     <div className="w-full">
                         <div className="flex items-center py-4">
                             <Input
@@ -475,6 +410,51 @@ export default function CartPage() {
                                             </TableCell>
                                         </TableRow>
                                     )}
+                                    {isPendingNotEnough && (
+                                        <TableRow>
+                                            <TableCell
+                                                colSpan={columns.length}
+                                                className="h-24 text-center"
+                                            >
+                                                <div className='flex items-center'>
+                                                    <Loader2Icon className='w-4 h-4 mr-2 animate-spin' />Ładowanie pozostałych produktów...
+                                                </div>
+                                            </TableCell>
+                                        </TableRow>
+                                    )}
+                                    {notEnoughProducts && notEnoughProducts.length > 0 && (
+                                        <>
+                                            {notEnoughProducts.map((product) => {
+                                                return (
+                                                    <TableRow key={product.productId}>
+                                                        <TableCell></TableCell>
+                                                        <TableCell>
+                                                            <div className="capitalize w-[70px] h-[70px] rounded-md bg-[#eee] flex items-center justify-center">
+                                                                <img className='w-[80%] max-h-[80%] mix-blend-multiply' src={`https://elektromaniacy.pl/${product.productDetails.icon}`} alt="" />
+                                                            </div>
+                                                        </TableCell>
+                                                        <TableCell>
+                                                            <div className="capitalize">
+                                                                <h1 className='font-bold text-[1.7rem]'>{product.productDetails.name}</h1>
+                                                                <h2 className='truncate max-w-[300px] font-semibold'><span className='text-gray-500 font-medium'>Opis: </span>{product.productDetails.description}</h2>
+                                                                {product.productDetails.versionName && (
+                                                                    <h2 className='truncate max-w-[300px] font-semibold'><span className='text-gray-500 font-medium'>Wersja: </span>{product.productDetails.versionName}</h2>
+                                                                )}
+                                                                <h2 className='truncate max-w-[300px] font-semibold normal-case'><span className='text-gray-500 font-medium'>Cena/szt.: </span>{product.productDetails.price.price.gross.formatted}</h2>
+                                                            </div>
+                                                        </TableCell>
+                                                        <TableCell>
+                                                            0 szt.
+                                                        </TableCell>
+                                                        <TableCell>
+                                                            <div className='text-right font-medium'><p className='text-rose-500'>Skontaktuj się,<br/> aby zapytać o dostępność</p></div>
+                                                        </TableCell>
+                                                        <TableCell><ServerOffIcon className='w-4 h-4 text-rose-500' /></TableCell>
+                                                    </TableRow>
+                                                )
+                                            })}
+                                        </>
+                                    )}
                                 </TableBody>
                             </Table>
                         </div>
@@ -503,6 +483,7 @@ export default function CartPage() {
                                 {user !== undefined ? (
                                     <Button disabled={cart?.products.length === 0} onClick={() => {
                                         router.push("/koszyk/zamowienie")
+                                        localStorage.removeItem(LOCALSTORAGE_TMPCART_KEY_NAME)
                                     }}>
                                         Przejdź do zamawiania
                                         <ShoppingCartIcon className='w-4 h-4 ml-2' />

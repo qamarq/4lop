@@ -132,7 +132,7 @@ export const addToBasket = async (productId: number, quantity: number) => {
 
     const userCart = await addToBasketByProductId(user.id, productId, quantity)
 
-    if ('error' in userCart) return { error: userCart.error }
+    if ('error' in userCart) return { error: userCart.error, notEnoughProducts: userCart.notEnoughProducts }
 
     return {
         success: true,

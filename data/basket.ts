@@ -52,15 +52,15 @@ export const addToBasketByProductId = async (userId: string, productId: number, 
 
     const productExistInCart = await getProductFromCart(userId, productId)
     if (!productExistInCart) {
-        if (quantity > productExistsInDB.amount) return { error: "Not enough products in stock" }
+        if (quantity > productExistsInDB.amount) return { error: "Brak wystarczającej ilości w magazynie", notEnoughProducts: true }
         userCart = await prisma.cart.update({
             where: { userId: userId },
             data: {
                 products: {
                     push: [
                         {
-                            productId: productId,
-                            quantity: quantity,
+                            productId,
+                            quantity,
                         },
                     ],
                 },
@@ -81,7 +81,7 @@ export const addToBasketByProductId = async (userId: string, productId: number, 
             } else return cartProduct;
         });
 
-        if (notEnoughProducts) return { error: "Brak wystarczającej ilości w magazynie" }
+        if (notEnoughProducts) return { error: "Brak wystarczającej ilości w magazynie", notEnoughProducts: true }
 
         userCart = await prisma.cart.update({
             where: { userId: userId },

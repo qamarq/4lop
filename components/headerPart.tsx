@@ -85,7 +85,10 @@ export default function HeaderPart() {
                                         <ClockIcon size={10} />
                                     ) : (
                                         <>
-                                            {cart?.products.reduce((total, item) => total + item.quantity, 0)}
+                                            {cart?.products.reduce((total, item) => {
+                                                if (item.quantity === -1) return total
+                                                return total + item.quantity
+                                            }, 0)}
                                         </>
                                     )}
                                 </span>
@@ -167,7 +170,10 @@ export default function HeaderPart() {
                                             <ClockIcon size={10} />
                                         ) : (
                                             <>
-                                                {cart?.products.reduce((total, item) => total + item.quantity, 0)}
+                                                {cart?.products.reduce((total, item) => {
+                                                    if (item.quantity === -1) return total
+                                                    return total + item.quantity
+                                                }, 0)}
                                             </>
                                         )}
                                     </span>

@@ -50,7 +50,7 @@ export const columns: ColumnDef<CartProducts>[] = [
                     {row.original.data.versionName && (
                         <h2 className='truncate max-w-[300px] font-semibold'><span className='text-gray-500 font-medium'>Wersja: </span>{row.original.data.versionName}</h2>
                     )}
-                    <h2 className='truncate max-w-[300px] font-semibold'><span className='text-gray-500 font-medium'>Cena/szt.: </span>{row.original.data.price.price.gross.formatted}</h2>
+                    <h2 className='truncate max-w-[300px] font-semibold normal-case'><span className='text-gray-500 font-medium'>Cena/szt.: </span>{row.original.data.price.price.gross.formatted}</h2>
                 </div>
             )
         },
@@ -61,7 +61,7 @@ export const columns: ColumnDef<CartProducts>[] = [
         cell: ({ row }) => {
             const quantity = row.original.quantity
             return (
-                <div className="lowercase">{quantity} szt.</div>
+                <div className="lowercase">{quantity === -1 ? 0 : quantity} szt.</div>
             )
         },
     },
