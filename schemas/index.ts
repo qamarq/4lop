@@ -50,6 +50,11 @@ export const LoginSchema = z.object({
     code: z.optional(z.string().length(6))
 });
 
+export const AdminProductsSchema = z.object({
+    price: z.coerce.number().min(0.01, { message: "Cena musi być większa od 0" }),
+    amount: z.coerce.number().min(0, { message: "Ilość musi być większa lub równa 0" }),
+});
+
 export const RegisterSchema = z.object({
     email: z.string().email({
         message: 'Please enter a valid email',

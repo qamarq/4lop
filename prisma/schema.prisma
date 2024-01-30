@@ -248,6 +248,7 @@ model Products {
     priceNetFormatted    String
     priceTaxFormatted    String
     amount               Int
+    taxPercent           Int
 
     @@unique([productId])
 }

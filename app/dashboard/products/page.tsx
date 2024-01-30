@@ -9,7 +9,7 @@ export default async function DashboardProductsPage() {
         <div className={styles.content}>
             <div className='h-full'>
                 {productsResponse.success && (
-                    <ProductsTableComponent products={productsResponse.products.map(product => { return {name: product.name, id: product.originalId } })} />
+                    <ProductsTableComponent products={productsResponse.products.map(product => { return {name: product.name, id: product.originalId, productId: product.id } })} />
                 )}
             </div>
         </div>

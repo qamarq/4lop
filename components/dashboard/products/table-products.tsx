@@ -49,7 +49,7 @@ import { Label } from '@/components/ui/label';
 import { toast } from '@/components/ui/use-toast';
 import { getProductByIdAdmin } from '@/actions/products';
 
-export const columns: ColumnDef<{ name: string, id: string }>[] = [
+export const columns: ColumnDef<{ name: string, id: string, productId: number }>[] = [
     {
         id: 'select',
         header: ({ table }) => (
@@ -129,7 +129,7 @@ export const columns: ColumnDef<{ name: string, id: string }>[] = [
     },
 ];
 
-export default function ProductsTableComponent({ products }: { products: { name: string, id: string }[] }) {
+export default function ProductsTableComponent({ products }: { products: { name: string, id: string, productId: number }[] }) {
     const [sorting, setSorting] = React.useState<SortingState>([]);
     const [columnFilters, setColumnFilters] =
         React.useState<ColumnFiltersState>([]);

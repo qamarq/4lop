@@ -33,7 +33,8 @@ export const getProductById = async (productId: number) => {
                 priceNetFormatted: product.price.price.net.formatted,
                 priceTaxValue: product.price.tax.worth.value,
                 priceTaxFormatted: product.price.tax.worth.formatted,
-                amount: product.sizes[0].amount
+                amount: product.sizes[0].amount,
+                taxPercent: product.price.tax.vatPercent
             }
         })
     }
