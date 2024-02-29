@@ -252,3 +252,9 @@ model Products {
 
     @@unique([productId])
 }
+
+model PageContent {
+    id                   String @id @default(auto()) @map("_id") @db.ObjectId
+    elementId            String
+    content              String
+}

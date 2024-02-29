@@ -2,7 +2,7 @@
 
 import React, { useEffect } from 'react'
 import { usePathname, useRouter } from "next/navigation"
-import { ArchiveIcon, HelpCircleIcon, TruckIcon, LifeBuoyIcon, HomeIcon, BoxIcon, PieChartIcon, User2Icon } from 'lucide-react'
+import { ArchiveIcon, HelpCircleIcon, TruckIcon, LifeBuoyIcon, HomeIcon, BoxIcon, PieChartIcon, User2Icon, PencilIcon } from 'lucide-react'
 import bg from "@/assets/account/bg.jpg"
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
@@ -60,15 +60,15 @@ export default function DashboardSidebar() {
                     </div>
                     <h3>Produkty</h3>
                 </Link>
-                <Link href="/dashboard/statistics" className={`${styles.navigation_item} ${activePage == "statistics" && styles.active}`}>
+                <Link href="/dashboard/editing" className={`${styles.navigation_item} ${activePage == "editing" && styles.active}`}>
                     <div className={styles.icon}>
-                        <PieChartIcon className='w-4 h-4' />
+                        <PencilIcon className='w-4 h-4' />
                     </div>
-                    <h3>Statystyki</h3>
+                    <h3>Edycja strony</h3>
                 </Link>
             </div>
-            <div className={styles.space_h}></div>
-            <Button className='w-full'>Jakiś button</Button>
+            {/* <div className={styles.space_h}></div>
+            <Button className='w-full'>Jakiś button</Button> */}
         </div>
     )
 }

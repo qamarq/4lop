@@ -1,6 +1,6 @@
+/* eslint-disable @next/next/no-img-element */
 import { ChevronRight, ChevronsDown, PhoneOutgoing, Plus } from 'lucide-react';
 import styles from '../styles/Home.module.scss';
-import { v4 } from 'uuid';
 
 import {
     Select,
@@ -32,8 +32,18 @@ import Skelete from '@/components/HomeComponents/Skelete';
 import Bestsellers from '@/components/HomeComponents/Bestsellers';
 import NewProducts from '@/components/HomeComponents/NewProducts';
 import Link from 'next/link';
+import { getElementContentByElementId } from '@/actions/manage-page-content';
 
-export default function Home() {
+export default async function Home() {
+    const heroTitle = await getElementContentByElementId('heroTitle') || "Profesjonalne stoły do pakowania";
+    const heroSubtitle = await getElementContentByElementId('heroSubtitle') || "Z naszą szeroką ofertą masz szansę zmodyfikować swój stół pod zamówienie";
+    const heroButtonText = await getElementContentByElementId('heroButtonText') || "Sprawdź";
+    const heroButtonLink = await getElementContentByElementId('heroButtonLink') || "/sklep";
+
+    const firstBanner = JSON.parse(await getElementContentByElementId('linkFirstBanner') || '{"title": "", "image": "", "link": ""}') as {title: string, image: string, link: string};
+    const secondBanner = JSON.parse(await getElementContentByElementId('linkSecondBanner') || '{"title": "", "image": "", "link": ""}') as {title: string, image: string, link: string};
+    const thirdBanner = JSON.parse(await getElementContentByElementId('linkThirdBanner') || '{"title": "", "image": "", "link": ""}') as {title: string, image: string, link: string};
+    
     return (
         <>
             <div className={styles.container}>
@@ -41,13 +51,13 @@ export default function Home() {
                     <div className={styles.inner}>
                         <div className={styles.content}>
                             <div className={styles.texts}>
-                                <h1>Profesjonalne stoły do pakowania</h1>
+                                <h1>{heroTitle}</h1>
 
-                                <h2>Z naszą szeroką ofertą masz szansę zmodyfikować swój stół pod zamówienie</h2>
+                                <h2>{heroSubtitle}</h2>
 
-                                <Link href="/sklep">
+                                <Link href={heroButtonLink}>
                                     <button className={styles.button}>
-                                        <p>Sprawdź</p>
+                                        <p>{heroButtonText}</p>
                                     </button>
                                 </Link>
                             </div>
@@ -126,24 +136,24 @@ export default function Home() {
                 </div>
 
                 <div className={styles.fast_links}>
-                    <Link href="/szybkie-linki/dla-malych-esklepow" className={styles.card}>
-                        <Image src={card1} alt="" />
+                    <Link href={firstBanner.link} className={styles.card}>
+                        <img src={firstBanner.image} alt="" />
                         <div className={styles.card_content}>
-                            <p>Dla małych e-sklepów</p>
+                            <p>{firstBanner.title}</p>
                             <ChevronRight size={24} />
                         </div>
                     </Link>
-                    <Link href="/szybkie-linki/ekspresowe-wysylki" className={styles.card}>
-                        <Image src={card2} alt="" />
+                    <Link href={secondBanner.link} className={styles.card}>
+                        <img src={secondBanner.image} alt="" />
                         <div className={styles.card_content}>
-                            <p>Ekspresowe wysyłki</p>
+                            <p>{secondBanner.title}</p>
                             <ChevronRight size={24} />
                         </div>
                     </Link>
-                    <Link href="/szybkie-linki/oferta-dla-dystrybutorow" className={styles.card}>
-                        <Image src={card3} alt="" />
+                    <Link href={thirdBanner.link} className={styles.card}>
+                        <img src={thirdBanner.image} alt="" />
                         <div className={styles.card_content}>
-                            <p>Oferta dla dystrybutorów</p>
+                            <p>{thirdBanner.title}</p>
                             <ChevronRight size={24} />
                         </div>
                     </Link>
