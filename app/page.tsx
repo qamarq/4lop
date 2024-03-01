@@ -43,6 +43,8 @@ export default async function Home() {
     const firstBanner = JSON.parse(await getElementContentByElementId('linkFirstBanner') || '{"title": "", "image": "", "link": ""}') as {title: string, image: string, link: string};
     const secondBanner = JSON.parse(await getElementContentByElementId('linkSecondBanner') || '{"title": "", "image": "", "link": ""}') as {title: string, image: string, link: string};
     const thirdBanner = JSON.parse(await getElementContentByElementId('linkThirdBanner') || '{"title": "", "image": "", "link": ""}') as {title: string, image: string, link: string};
+
+    const faqContent = JSON.parse(await getElementContentByElementId('faqContent') || '[]') as {id: string, title: string, content: string}[];
     
     return (
         <>
@@ -208,7 +210,7 @@ export default async function Home() {
                     <span className={styles.line} />
                 </div>
 
-                <FAQContainer />
+                <FAQContainer faqContent={faqContent} />
             </div>
             <div className={styles.container}>
                 <div className={styles.title}>

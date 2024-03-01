@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 import { CartProvider } from '@/hooks/use-cart'
 // import './globals.css'
 import "@/styles/index.scss"
@@ -17,6 +18,8 @@ import { auth } from '@/auth'
 import { Analytics } from '@vercel/analytics/react';
 import { SpeedInsights } from "@vercel/speed-insights/next"
 import Link from 'next/link'
+import { prisma } from '@/lib/db'
+import { cn } from '@/lib/utils'
 
 
 const inter = Inter({ subsets: ['latin'] })
@@ -33,6 +36,9 @@ export default async function RootLayout({
     children: React.ReactNode
 }) {
     const session = await auth()
+    const socialMediaFooter = JSON.parse((await prisma.pageContent.findFirst({ where: { elementId: 'socialMediaFooter' } }))?.content || '[]') as {id: string, label: string, image: string, link: string}[]
+    const contactFooter = JSON.parse((await prisma.pageContent.findFirst({ where: { elementId: 'contactFooter' } }))?.content || '[]') as {id: string, label: string, image: string}[]
+    
     return (
         <html lang="pl">
             <CartProvider>
@@ -94,7 +100,15 @@ export default async function RootLayout({
                                 </div> */}
                                 <div className={styles.item}>
                                     <h1>Social Media</h1>
-                                    <Link href="https://www.facebook.com/pakujz4lop/" className={styles.subitem}>
+                                    {socialMediaFooter.map((item) => (
+                                        <Link key={item.id} href={item.link} className={styles.subitem}>
+                                            {/* <FacebookIcon className={styles.icon} size={FooterIconsSize} /> */}
+                                            <img src={item.image} className={cn("w-4 h-4", styles.icon)} alt={item.label} />
+                                            <p>{item.label}</p>
+                                        </Link>
+                                    ))}
+                                   
+                                    {/* <Link href="https://www.facebook.com/pakujz4lop/" className={styles.subitem}>
                                         <FacebookIcon className={styles.icon} size={FooterIconsSize} />
                                         <p>Facebook</p>
                                     </Link>
@@ -105,11 +119,17 @@ export default async function RootLayout({
                                     <Link href="https://www.youtube.com/@elektromaniacy6306" className={styles.subitem}>
                                         <YoutubeIcon className={styles.icon} size={FooterIconsSize} />
                                         <p>YouTube</p>
-                                    </Link>
+                                    </Link> */}
                                 </div>
                                 <div className={styles.item}>
                                     <h1>Kontakt</h1>
-                                    <div className={styles.subitem}>
+                                    {contactFooter.map((item) => (
+                                        <div key={item.id} className={styles.subitem}>
+                                            <img src={item.image} className={cn("w-4 h-4", styles.icon)} alt={item.label} />
+                                            <p>{item.label}</p>
+                                        </div>
+                                    ))}
+                                    {/* <div className={styles.subitem}>
                                         <Phone className={styles.icon} size={FooterIconsSize} />
                                         <p>+48 519 653 388</p>
                                     </div>
@@ -124,7 +144,7 @@ export default async function RootLayout({
                                     <div className={styles.subitem}>
                                         <Hash className={styles.icon} size={FooterIconsSize} />
                                         <p>NIP: 879-269-40-85</p>
-                                    </div>
+                                    </div> */}
                                 </div>
 
                                 <div className={styles.copywrite}>

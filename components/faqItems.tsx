@@ -53,17 +53,14 @@ export const FAQItem = ({ title, content } : { title: string, content: string })
     )
 }
 
-export const FAQContainer = () => {
+export const FAQContainer = ({ faqContent }: { faqContent: {id: string, title: string, content: string}[] }) => {
     return (
         <motion.div layout className={styles.faq_container}>
             <LayoutGroup>
                 <motion.ul layout initial={{ borderRadius: 25 }}>
-                    <FAQItem title={"Jaki jest <span>koszt wysyłki</span> zakupionego stołu?"} content={"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus vulputate eget tellus nec interdum. Sed a justo eu neque lobortis sollicitudin. Curabitur ultrices elit justo, id pulvinar massa blandit condimentum. Donec congue nibh id tristique commodo. Ut lacinia vestibulum augue. Aliquam venenatis sapien nec hendrerit pretium. Pellentesque faucibus faucibus malesuada."} />
-                    <FAQItem title={"Czy mogę <span>zwrócić / reklamować</span> zakupione stoły?"} content={"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus vulputate eget tellus nec interdum. Sed a justo eu neque lobortis sollicitudin. Curabitur ultrices elit justo, id pulvinar massa blandit condimentum. Donec congue nibh id tristique commodo. Ut lacinia vestibulum augue. Aliquam venenatis sapien nec hendrerit pretium. Pellentesque faucibus faucibus malesuada."} />
-                    <FAQItem title={"Czy mogę dokonać rezerwacji stołu?"} content={"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus vulputate eget tellus nec interdum. Sed a justo eu neque lobortis sollicitudin. Curabitur ultrices elit justo, id pulvinar massa blandit condimentum. Donec congue nibh id tristique commodo. Ut lacinia vestibulum augue. Aliquam venenatis sapien nec hendrerit pretium. Pellentesque faucibus faucibus malesuada."} />
-                    <FAQItem title={"Czy wszystkie stoły dostępne na stronie są również w sklepie?"} content={"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus vulputate eget tellus nec interdum. Sed a justo eu neque lobortis sollicitudin. Curabitur ultrices elit justo, id pulvinar massa blandit condimentum. Donec congue nibh id tristique commodo. Ut lacinia vestibulum augue. Aliquam venenatis sapien nec hendrerit pretium. Pellentesque faucibus faucibus malesuada."} />
-                    <FAQItem title={"Jakie są godziny otwarcia sklepu w Toruniu?"} content={"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus vulputate eget tellus nec interdum. Sed a justo eu neque lobortis sollicitudin. Curabitur ultrices elit justo, id pulvinar massa blandit condimentum. Donec congue nibh id tristique commodo. Ut lacinia vestibulum augue. Aliquam venenatis sapien nec hendrerit pretium. Pellentesque faucibus faucibus malesuada."} />
-                    <FAQItem title={"Jaki jest czas oczekiwania dostawy do mojego domu?"} content={"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus vulputate eget tellus nec interdum. Sed a justo eu neque lobortis sollicitudin. Curabitur ultrices elit justo, id pulvinar massa blandit condimentum. Donec congue nibh id tristique commodo. Ut lacinia vestibulum augue. Aliquam venenatis sapien nec hendrerit pretium. Pellentesque faucibus faucibus malesuada."} />
+                    {faqContent.map((item) => (
+                        <FAQItem key={item.id} title={item.title} content={item.content} />
+                    ))}
                 </motion.ul>
             </LayoutGroup>
             
