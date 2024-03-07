@@ -12,6 +12,8 @@ import {
     SelectValue,
 } from "@/components/ui/select"
 
+export const dynamic = 'force-dynamic'
+
 import heroImage from "@/assets/blog/hero.jpg"
 import Image from 'next/image'
 import { client } from '@/sanity/lib/client'
