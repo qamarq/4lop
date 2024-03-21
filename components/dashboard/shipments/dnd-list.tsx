@@ -89,7 +89,7 @@ export default function ShipmentDNDList({ shipmentsList }: { shipmentsList: {
     }, [items]);
     
     return (
-        <div className=''>
+        <div className='h-full'>
             <Reorder.Group axis="y" values={items} onReorder={setItems} className='space-y-2' ref={scrollableRef}>
                 {items.map((item) => (
                     <Reorder.Item key={item.id} value={item}>

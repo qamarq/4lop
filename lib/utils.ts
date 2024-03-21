@@ -25,6 +25,11 @@ export const prepareLink = (url: string) => {
     return nameWithoutExtension
 }
 
+export const createSlugLink = (name: string, id: string) => {
+    const formattedName = slugify(name)
+    return `/sklep/produkt/${formattedName}-${id}`
+}
+
 export const getCookieValue = (cookies: ReadonlyRequestCookies, name: string) => {
     const token = cookies.get(name);
     if (!token) {
@@ -34,8 +39,20 @@ export const getCookieValue = (cookies: ReadonlyRequestCookies, name: string) =>
     return value
 }
 
+export const getNetPrice = (price: number, tax: number) => {
+    return price - (price * (tax / 100))
+}
+
 export const formattedPrice = (price: number) => {
-    return `${price.toFixed(2)} zł`
+    // return `${price.toFixed(2)} zł`
+    const formatter = new Intl.NumberFormat('pl-PL', {
+        style: 'currency',
+        currency: 'PLN',
+        minimumFractionDigits: 2,
+    });
+
+    // Zwróć sformatowaną cenę
+    return formatter.format(price);
 }
 
 export const slugify = (str: string) => {

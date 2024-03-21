@@ -1510,32 +1510,32 @@ export const options: Table[] = [
         addons: [
             {
                 name: "Półka boczna 80x20cm",
-                price: 149, 
-                code: 11311, 
+                price: 143, 
+                code: "65fc63a5df6f5dc50ecd1ddd", 
                 size: "uniw"
             },
             {
                 name: "Półka boczna 80x40cm",
-                price: 206, 
-                code: 11431, 
+                price: 197, 
+                code: "65fc6384df6f5dc50ecd1ddc", 
                 size: "uniw"
             },
             {
                 name: "Półka z uchwytem na laptop",
                 price: 319, 
-                code: 11432, 
+                code: "65fc6f4666020a462cfefb6f", 
                 size: "uniw"
             },
             {
                 name: "Zestaw kosza na śmieci",
                 price: 149, 
-                code: 11306, 
+                code: "65fc6f7f66020a462cfefb70", 
                 size: "uniw"
             },
             {
                 name: "Półka 160x20cm pod blat/na nadstawkę",
                 price: 0, 
-                code: 0, 
+                code: "0", 
                 size: "uniw",
                 notAvailable: true,
                 hidden: true
@@ -1543,53 +1543,53 @@ export const options: Table[] = [
             {
                 name: "Nadstawka do stołu",
                 versions: [
-                    { len: 140, price: 253, code: 13973, size: "uniw" },
-                    { len: 160, price: 281, code: 11857, size: "uniw" },
-                    { len: 180, price: 319, code: 11858, size: "uniw" },
-                    { len: 200, price: 337, code: 11859, size: "uniw" }
+                    { len: 140, price: 253, code: "65fc6fe266020a462cfefb71", size: "uniw" },
+                    { len: 160, price: 281, code: "65fc700566020a462cfefb72", size: "uniw" },
+                    { len: 180, price: 319, code: "65fc702e66020a462cfefb73", size: "uniw" },
+                    { len: 200, price: 337, code: "65fc704e66020a462cfefb74", size: "uniw" }
                 ]
             },
             {
                 name: "Półka górna na kartony",
                 depedencies: [6],
                 versions: [
-                    { len: 140, price: 243, code: 12853, size: "uniw" },
-                    { len: 160, price: 272, code: 11376, size: "uniw" },
-                    { len: 180, price: 300, code: 11424, size: "uniw" },
-                    { len: 200, price: 319, code: 11425, size: "uniw" }
+                    { len: 140, price: 243, code: "65fc740c66020a462cfefb75", size: "uniw" },
+                    { len: 160, price: 272, code: "65fc742866020a462cfefb76", size: "uniw" },
+                    { len: 180, price: 300, code: "65fc743766020a462cfefb77", size: "uniw" },
+                    { len: 200, price: 319, code: "65fc744566020a462cfefb78", size: "uniw" }
                 ]
             },
             {
                 name: "Półka pod blat/na nadstawkę",
                 depedencies: [6],
                 versions: [
-                    { len: 140, price: 152, code: 12854, size: "uniw" },
-                    { len: 160, price: 188, code: 11428, size: "uniw" },
-                    { len: 180, price: 206, code: 11429, size: "uniw" },
-                    { len: 200, price: 233, code: 11430, size: "uniw" }
+                    { len: 140, price: 152, code: "65fc753666020a462cfefb79", size: "uniw" },
+                    { len: 160, price: 188, code: "65fc759666020a462cfefb7c", size: "uniw" },
+                    { len: 180, price: 206, code: "65fc755266020a462cfefb7a", size: "uniw" },
+                    { len: 200, price: 233, code: "65fc755f66020a462cfefb7b", size: "uniw" }
                 ]
             },
             {
                 name: "Rurka na stretch z uchwytami",
                 depedencies: [6],
                 versions: [
-                    { len: 140, price: 93, code: 12851, size: "uniw" },
-                    { len: 160, price: 112, code: 11304, size: "uniw" },
-                    { len: 180, price: 131, code: 11426, size: "uniw" },
-                    { len: 200, price: 140, code: 11305, size: "uniw" }
+                    { len: 140, price: 93, code: "65fc75f966020a462cfefb7d", size: "uniw" },
+                    { len: 160, price: 112, code: "65fc761166020a462cfefb7e", size: "uniw" },
+                    { len: 180, price: 131, code: "65fc762c66020a462cfefb7f", size: "uniw" },
+                    { len: 200, price: 140, code: "65fc763766020a462cfefb80", size: "uniw" }
                 ]
             },
             {
-                name: "Uchwyt kamery",
-                price: 102, 
-                code: 11427, 
+                name: "Uchwyt do monitoringu",
+                price: 305, 
+                code: "65fc76aa66020a462cfefb81", 
                 size: "uniw",
                 depedencies: [6],
             },
             {
-                name: "Uchwyt do monitoringu",
-                price: 319, 
-                code: 11433, 
+                name: "Uchwyt kamery",
+                price: 98, 
+                code: "65fc634bdf6f5dc50ecd1ddb", 
                 size: "uniw",
                 depedencies: [6, 7],
             }

@@ -4,7 +4,7 @@
 import { addToBasket, getBasket, prepareBasketProducts, removeFromBasket, updateBasket } from "@/actions/basket";
 import { toast } from "@/components/ui/use-toast";
 import { LOCALSTORAGE_CART_KEY_NAME, LOCALSTORAGE_TMPCART_KEY_NAME, SAVED_ORDER_SETTINGS_NAME } from "@/constants";
-import { formattedPrice } from "@/lib/utils";
+import { formattedPrice, getNetPrice } from "@/lib/utils";
 import { createContext, useContext, useEffect, useState, ReactNode, useRef } from "react";
 
 type DeliveryUpdate = { courierId: string, prepaid: boolean } | null;
@@ -12,9 +12,9 @@ type DeliveryUpdate = { courierId: string, prepaid: boolean } | null;
 interface CartContextType {
     cart: Cart | null;
     loading: boolean;
-    addItem: ({ id, size, quantity }: { id: number, size: string, quantity: number }) => Promise<void>;
-    updateItem: ({ id, size, quantity }: { id: number, size: string, quantity: number }) => Promise<void>;
-    removeItem: (id: number, size: string) => Promise<void>;
+    addItem: ({ id, quantity }: { id: string, quantity: number }) => Promise<void>;
+    updateItem: ({ id, quantity }: { id: string, quantity: number }) => Promise<void>;
+    removeItem: (id: string) => Promise<void>;
     resetCart: () => Promise<void>;
     delivery: {courierId: string, prepaid: boolean} | null;
     updateDelivery: (data: DeliveryUpdate) => Promise<void>;
@@ -44,9 +44,9 @@ const buildOfflineCart = async () => {
             prepaidCost: { value: 0, currency: "pln", formatted: "0.00 zł" },
             insuranceCost: { value: 0, currency: "pln", formatted: "0.00 zł" },
             totalProductsCost: {
-                value: basketProducts.reduce((acc, curr) => acc + curr.quantity * curr.productDetails.price.price.gross.value, 0),
+                value: basketProducts.reduce((acc, curr) => acc + curr.quantity * curr.productDetails.price, 0),
                 currency: "pln",
-                formatted: formattedPrice(basketProducts.reduce((acc, curr) => acc + curr.quantity * curr.productDetails.price.price.gross.value, 0))
+                formatted: formattedPrice(basketProducts.reduce((acc, curr) => acc + curr.quantity * curr.productDetails.price, 0))
             },
             totalAdditionalCost: {
                 value: 0,
@@ -59,12 +59,12 @@ const buildOfflineCart = async () => {
                 currency: "pln",
                 formatted: "0.00 zł",
             },
-            totalToPay: { value: basketProducts.reduce((acc, curr) => acc + curr.quantity * curr.productDetails.price.price.gross.value, 0), currency: "pln", formatted: formattedPrice(basketProducts.reduce((acc, curr) => acc + curr.quantity * curr.productDetails.price.price.gross.value, 0)) },
+            totalToPay: { value: basketProducts.reduce((acc, curr) => acc + curr.quantity * curr.productDetails.price, 0), currency: "pln", formatted: formattedPrice(basketProducts.reduce((acc, curr) => acc + curr.quantity * curr.productDetails.price, 0)) },
         },
         summaryBasket: {
             productsCount: 0,
             worth: {
-                gross: { value: basketProducts.reduce((acc, curr) => acc + curr.quantity * curr.productDetails.price.price.gross.value, 0), currency: "pln", formatted: formattedPrice(basketProducts.reduce((acc, curr) => acc + curr.quantity * curr.productDetails.price.price.gross.value, 0)) },
+                gross: { value: basketProducts.reduce((acc, curr) => acc + curr.quantity * curr.productDetails.price, 0), currency: "pln", formatted: formattedPrice(basketProducts.reduce((acc, curr) => acc + curr.quantity * curr.productDetails.price, 0)) },
                 net: { value: 0, currency: "pln", formatted: "0.00 zł" },
             },
             rebate: { value: 0, currency: "pln", formatted: "0.00 zł" },
@@ -77,27 +77,27 @@ const buildOfflineCart = async () => {
         products: basketProducts.map((basketProduct) => {
             return {
                 id: basketProduct.productId,
-                size: basketProduct.productDetails.sizes[0].name,
+                size: "test",
                 comment: "",
                 availableNow: true,
                 additional: "",
                 quantity: basketProduct.quantity,
                 worth: {
                     gross: {
-                        value: basketProduct.quantity * basketProduct.productDetails.price.price.gross.value,
+                        value: basketProduct.quantity * basketProduct.productDetails.price,
                         currency: "pln",
-                        formatted: formattedPrice(basketProduct.quantity * basketProduct.productDetails.price.price.gross.value)
+                        formatted: formattedPrice(basketProduct.quantity * basketProduct.productDetails.price)
                     },
                     net: {
-                        value: basketProduct.quantity * basketProduct.productDetails.price.price.net.value,
+                        value: basketProduct.quantity * getNetPrice(basketProduct.productDetails.price, basketProduct.productDetails.taxPercent),
                         currency: "pln",
-                        formatted: formattedPrice(basketProduct.quantity * basketProduct.productDetails.price.price.net.value)
+                        formatted: formattedPrice(basketProduct.quantity * getNetPrice(basketProduct.productDetails.price, basketProduct.productDetails.taxPercent))
                     }
                 },
-                tax: basketProduct.productDetails.price.tax,
+                tax: { worth: { value: 0, currency: "PLN", formatted: "" }, vatPercent: basketProduct.productDetails.taxPercent, vatString: `${basketProduct.productDetails.taxPercent/100}%` },
                 data: basketProduct.productDetails,
                 basketGroupId: 0,
-                versionsName: basketProduct.productDetails.versionName,
+                versionsName: basketProduct.productDetails.variant,
                 valuesVersionName: "",
                 bundleProducts: null
             }
@@ -115,7 +115,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     const [loading, setLoading] = useState(true);
     const fetchedFirstTime = useRef(false);
 
-    const addOfflineItem = async ({ id, quantity, notEnough = false }: { id: number, quantity: number, notEnough: boolean }): Promise<void> => {
+    const addOfflineItem = async ({ id, quantity, notEnough = false }: { id: string, quantity: number, notEnough: boolean }): Promise<void> => {
         let cartRAW = localStorage.getItem(notEnough ? LOCALSTORAGE_TMPCART_KEY_NAME : LOCALSTORAGE_CART_KEY_NAME);
         if (!cartRAW) cartRAW = "[]"
         const cart = JSON.parse(cartRAW);
@@ -131,7 +131,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
         })
     }
 
-    const removeOfflineItem = async (id: number): Promise<void> => {
+    const removeOfflineItem = async (id: string): Promise<void> => {
         let cartRAW = localStorage.getItem(LOCALSTORAGE_CART_KEY_NAME);
         if (!cartRAW) cartRAW = "[]"
         const cart = JSON.parse(cartRAW);
@@ -145,7 +145,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
         })
     }
 
-    const updateOfflineItem = async ({ id, quantity }: { id: number, quantity: number }): Promise<void> => {
+    const updateOfflineItem = async ({ id, quantity }: { id: string, quantity: number }): Promise<void> => {
         let cartRAW = localStorage.getItem(LOCALSTORAGE_CART_KEY_NAME);
         if (!cartRAW) cartRAW = "[]"
         const cart = JSON.parse(cartRAW);
@@ -164,7 +164,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
                     if (offlineCartRAW) {
                         const offlineCart = JSON.parse(offlineCartRAW);
                         let somethingWasAdded = false
-                        offlineCart.forEach(async (item: { id: number, quantity: number }) => {
+                        offlineCart.forEach(async (item: { id: string, quantity: number }) => {
                             await addToBasket(item.id, item.quantity)
                                 .then((data) => {
                                     if (data.success) {
@@ -225,13 +225,13 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     //     }
     // }, [cart]);
 
-    const addItem = async ({ id, size, quantity }: { id: number, size: string, quantity: number }): Promise<void> => {
+    const addItem = async ({ id, quantity }: { id: string, quantity: number }): Promise<void> => {
         if (cart) {
             const tmpCart = cart
             let updatedCart = JSON.parse(JSON.stringify(cart)) as Cart;
 
             const existingItemIndex = updatedCart.products.findIndex(
-                (product) => product.id === id && product.size === size
+                (product) => product.id === id
             );
 
             if (existingItemIndex !== -1) {
@@ -268,13 +268,13 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
         }
     };
 
-    const updateItem = async ({ id, size, quantity }: { id: number, size: string, quantity: number }): Promise<void> => {
+    const updateItem = async ({ id, quantity }: { id: string, quantity: number }): Promise<void> => {
         if (cart) {
             const tmpCart = cart
             let updatedCart = JSON.parse(JSON.stringify(cart)) as Cart;
 
             const existingItemIndex = updatedCart.products.findIndex(
-                (product) => product.id === id && product.size === size
+                (product) => product.id === id
             );
 
             if (existingItemIndex !== -1) {
@@ -306,13 +306,13 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
         }
     };
 
-    const removeItem = async (id: number, size: string): Promise<void> => {
+    const removeItem = async (id: string): Promise<void> => {
         // setCart((prev) => prev.filter((item) => item.id !== id));
         if (cart) {
             const tmpCart = cart
             let updatedCart = JSON.parse(JSON.stringify(cart)) as Cart;
             updatedCart.products = cart.products.filter((product) => {
-                return !(product.id === id && product.size === size);
+                return !(product.id === id);
             });
             setCart(updatedCart);
 

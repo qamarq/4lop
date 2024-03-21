@@ -1,14 +1,14 @@
 import React from 'react'
-import styles from "@/styles/Account.module.scss"
-import { cn } from '@/lib/utils'
 import { AlignLeftIcon, FootprintsIcon, HelpCircleIcon, HomeIcon, LinkIcon, WorkflowIcon } from 'lucide-react'
 import Link from 'next/link'
 
 export default function EditingPage() {
     return (
-        <div className={styles.content}>
-            <div className={cn(styles.header_content, "justify-between")}>
-                <h1 className={styles.content_title}>Edytuj elementy strony</h1>
+        <>
+            <div className="flex items-center justify-between space-y-2">
+                <h2 className="text-3xl font-bold tracking-tight">
+                    Edytuj elementy strony
+                </h2>
             </div>
 
             <div className='mt-4 flex flex-col gap-3'>
@@ -55,6 +55,6 @@ export default function EditingPage() {
                     </div>
                 </Link>
             </div>
-        </div>
+        </>
     )
 }

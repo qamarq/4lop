@@ -6,7 +6,7 @@ import { toast } from '../ui/use-toast';
 import { useRouter } from 'next/navigation'
 import { useCart } from '@/hooks/use-cart';
 import { Skeleton } from '../ui/skeleton';
-import { prepareLink } from '@/lib/utils';
+import { prepareLink, slugify } from '@/lib/utils';
 import { useState } from 'react';
 import Link from 'next/link';
 
@@ -38,11 +38,7 @@ export const HomeProduct = (
     const { addItem } = useCart();
     const [isAdding, setIsAdding] = useState(false)
     const router = useRouter()
-    const formattedName = name
-        .replace(/[^a-zA-Z0-9]+/g, " ")
-        .trim()
-        .toLowerCase()
-        .replace(/\s+/g, "-");
+    const formattedName = slugify(name)
     const linkToHref = `/sklep/produkt/${formattedName}-${id}`
 
     const cardClick = () => {
@@ -78,8 +74,7 @@ export const HomeProduct = (
         // })
         setIsAdding(true)
         await addItem({
-            id: parseInt(id),
-            size: "uniw",
+            id,
             quantity: 1
         })
         setIsAdding(false)

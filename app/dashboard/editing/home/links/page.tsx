@@ -15,8 +15,10 @@ export default async function EditHomeHero() {
 
     return (
         <div className={styles.content}>
-            <div className={cn(styles.header_content, "justify-between")}>
-                <h1 className={styles.content_title}>Strona główna - Szybki linki</h1>
+            <div className="flex items-center justify-between space-y-2">
+                <h2 className="text-3xl font-bold tracking-tight">
+                    Strona główna - Szybki linki
+                </h2>
             </div>
 
             <LinksForm firstBanner={firstBanner} secondBanner={secondBanner} thirdBanner={thirdBanner}  />

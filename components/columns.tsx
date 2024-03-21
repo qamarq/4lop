@@ -1,7 +1,9 @@
+/* eslint-disable @next/next/no-img-element */
 import { Checkbox } from './ui/checkbox';
 import { ColumnDef } from '@tanstack/react-table';
 import { Button } from './ui/button';
 import { ArrowUpDown } from 'lucide-react';
+import { formattedPrice } from '@/lib/utils';
 
 export const columns: ColumnDef<CartProducts>[] = [
     {
@@ -29,10 +31,10 @@ export const columns: ColumnDef<CartProducts>[] = [
         accessorKey: 'zdjęcie',
         header: 'Zdjęcie',
         cell: ({ row }) => {
-            const icon = row.original.data.icon
+            const icon = row.original.data.iconImage
             return (
                 <div className="capitalize w-[70px] h-[70px] rounded-md bg-[#eee] flex items-center justify-center">
-                    <img className='w-[80%] max-h-[80%] mix-blend-multiply' src={`https://elektromaniacy.pl/${icon}`} alt="" />
+                    <img className='w-[80%] max-h-[80%] mix-blend-multiply' src={icon} alt="" />
                 </div>
             )
         },
@@ -42,15 +44,15 @@ export const columns: ColumnDef<CartProducts>[] = [
         header: 'Nazwa',
         cell: ({ row }) => {
             const name = row.original.data.name
-            const desc = row.original.data.description
+            const desc = row.original.data.shortDescription
             return (
                 <div className="capitalize">
                     <h1 className='font-bold text-[1.7rem]'>{name}</h1>
                     <h2 className='truncate max-w-[300px] font-semibold'><span className='text-gray-500 font-medium'>Opis: </span>{desc}</h2>
-                    {row.original.data.versionName && (
-                        <h2 className='truncate max-w-[300px] font-semibold'><span className='text-gray-500 font-medium'>Wersja: </span>{row.original.data.versionName}</h2>
+                    {row.original.data.variant && (
+                        <h2 className='truncate max-w-[300px] font-semibold'><span className='text-gray-500 font-medium'>Wersja: </span>{row.original.data.variant}</h2>
                     )}
-                    <h2 className='truncate max-w-[300px] font-semibold normal-case'><span className='text-gray-500 font-medium'>Cena/szt.: </span>{row.original.data.price.price.gross.formatted}</h2>
+                    <h2 className='truncate max-w-[300px] font-semibold normal-case'><span className='text-gray-500 font-medium'>Cena/szt.: </span>{formattedPrice(row.original.data.price)}</h2>
                 </div>
             )
         },

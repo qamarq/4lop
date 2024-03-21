@@ -262,7 +262,7 @@ export default function SummaryPage() {
                         {cart?.products.map((product, index) => (
                             <div key={index} className={styles.order_item}>
                                 <div className={styles.icon}>
-                                    <img src={`https://elektromaniacy.pl/${product.data.icon}`} alt="" />
+                                    <img src={product.data.iconImage} alt="" />
                                 </div>
                                 <div className={styles.texts}>
                                     <h1>{product.data.name}</h1>

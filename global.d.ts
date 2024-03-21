@@ -139,7 +139,7 @@ interface ProductItem {
             icon: string,
             deliveryDate: any
         },
-        shipping: [], //TODO
+        shipping: { today: boolean }, //TODO
         price: [], //TODO
         amountWholesale: number
     }[],
@@ -147,11 +147,42 @@ interface ProductItem {
     pointsReceiver: number
 }
 
+interface ProductDB {
+    id: string | null
+    name: string
+    iconImage: string
+    categoryId: string
+    type: string
+    price: string
+    taxPercent: number
+    discount: number
+    shortDescription: string
+    description: JsonValue | null
+    group: string
+    variant: string
+    amount: number
+    sellBy: number
+    unit: string
+    unitFraction: string
+    shippingToday: boolean
+    available: boolean
+    availabilityDesc: string
+    images: {
+        type: string
+        typeSecond: string
+        url: string
+        urlSecond: string
+        width: number
+        height: number
+    }[],
+    status: string
+}
+
 interface GetProductResponse {
-    results: { resultCount: number, resultPage: 8, currentPage: number, limitPerPage: number },
+    results: { resultCount: number, resultPage: number, currentPage: number, limitPerPage: number },
     orderBy: { name: string, type: string },
     filtrContext: { name: string, value: number },
-    products: ProductItem[],
+    products: ProductDB[],
 } 
 
 interface Cart {
@@ -192,8 +223,12 @@ interface Cart {
     products: CartProducts[];
 }
 
+interface ProductDBWithNumberPrice extends Omit<ProductDB, 'price'> {
+    price: number;
+}
+
 interface CartProducts {
-    id: number,
+    id: string,
     size: string,
     comment: string,
     availableNow: boolean,
@@ -220,7 +255,7 @@ interface CartProducts {
         vatPercent: number,
         vatString: string
     },
-    data: ProductItem,
+    data: ProductDBWithNumberPrice,
     basketGroupId: number,
     versionsName: string,
     valuesVersionName: string,
@@ -409,14 +444,14 @@ interface PickupPoint {
 interface AddonVersion {
     len: number;
     price: number;
-    code: number;
+    code: string;
     size: string;
 }
 
 interface Addon {
     name: string;
     price?: number;
-    code?: number;
+    code?: string;
     size?: string;
     notAvailable?: boolean;
     hidden?: boolean;
@@ -513,14 +548,14 @@ interface Order {
         }
         orderedProducts: [{
             price: any;
-            id: number
+            id: string
             name: string
             size: string
             sizeDescription: string
             quantity: number
             unit: string
             link: string
-            icon: string
+            iconImage: string
             iconSmall: string
             priceClientCurrency: {
                 gross: {
@@ -645,3 +680,10 @@ interface ParcelLocker {
 }
 
 declare module 'react-inpost-geowidget';
+declare module '@editorjs/embed';
+declare module '@editorjs/table';
+declare module '@editorjs/list';
+declare module '@editorjs/code';
+declare module '@editorjs/link';
+declare module '@editorjs/inline-code';
+declare module '@editorjs/image';

@@ -17,15 +17,19 @@ export default async function ShipmentsPage() {
     const shipmentsList = await getShipmentsList()
 
     return (
-        <div className={styles.content}>
-            <div className={cn(styles.header_content, "justify-between")}>
-                <h1 className={styles.content_title}>Opcje dostawy</h1>
-                <Button asChild>
-                    <Link href="/dashboard/shipments/new">
-                        <PlusIcon className='w-4 h-4 mr-2' />
-                        Dodaj nową
-                    </Link>
-                </Button>
+        <>
+            <div className="flex items-center justify-between space-y-2">
+                <h2 className="text-3xl font-bold tracking-tight">
+                    Opcje dostawy
+                </h2>
+                <div className="flex items-center space-x-2">
+                    <Button asChild>
+                        <Link href="/dashboard/shipments/new">
+                            <PlusIcon className='w-4 h-4 mr-2' />
+                            Dodaj nową
+                        </Link>
+                    </Button>
+                </div>
             </div>
 
             <div className='mt-1 h-full'>
@@ -33,6 +37,6 @@ export default async function ShipmentsPage() {
                     <ShipmentDNDList shipmentsList={shipmentsList} />
                 </div>
             </div>
-        </div>
+        </>
     )
 }

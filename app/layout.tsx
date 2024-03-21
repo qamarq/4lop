@@ -5,6 +5,7 @@ import "@/styles/index.scss"
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import { Toaster } from '@/components/ui/toaster'
+import { Toaster as SonnerToaster } from 'sonner'
 import styles from '../styles/Layout.module.scss';
 import Image from "next/image"
 import logo from '@/public/4lop.svg';
@@ -20,6 +21,7 @@ import { SpeedInsights } from "@vercel/speed-insights/next"
 import Link from 'next/link'
 import { prisma } from '@/lib/db'
 import { cn } from '@/lib/utils'
+import { UploadProvider } from '@/hooks/use-upload'
 
 
 const inter = Inter({ subsets: ['latin'] })
@@ -42,120 +44,123 @@ export default async function RootLayout({
     return (
         <html lang="pl">
             <CartProvider>
-                <SessionProvider session={session}>
-                    <body className={inter.className}>
-                        {/* <ScrollToTop /> */}
-                        <Toaster />
-                        <div className={styles.container}>
-                            <HeaderPart />
-                            <Suspense fallback={<LoadingPage />}>
-                                {children}
-                            </Suspense>
-                            <footer>
-                                <div className={styles.item_main}>
-                                    <Image src={logo} alt="" />
-                                    <p>Profesjonalne stoły do pakowania</p>
-                                </div>
-                                <div className={styles.item}>
-                                    <h1>Nawigacja</h1>
-                                    <Link href="/">
-                                        <div className={styles.subitem}>
-                                            <ChevronRight className={styles.icon} size={FooterIconsSize} />
-                                            <p>Strona główna</p>
-                                        </div>
-                                    </Link>
-                                    <Link href="/sklep">
-                                        <div className={styles.subitem}>
-                                            <ChevronRight className={styles.icon} size={FooterIconsSize} />
-                                            <p>Produkty</p>
-                                        </div>
-                                    </Link>
-                                    <Link href="/onas">
-                                        <div className={styles.subitem}>
-                                            <ChevronRight className={styles.icon} size={FooterIconsSize} />
-                                            <p>O nas</p>
-                                        </div>
-                                    </Link>
-                                    <Link href="/konfigurator">
-                                        <div className={styles.subitem}>
-                                            <ChevronRight className={styles.icon} size={FooterIconsSize} />
-                                            <p>Konﬁgurator</p>
-                                        </div>
-                                    </Link>
-                                </div>
-                                {/* <div className={styles.item}>
-                                    <h1>Szybkie linki</h1>
-                                    <div className={styles.subitem}>
-                                        <LinkIcon className={styles.icon} size={FooterIconsSize} />
-                                        <p>Wysyłki ekspresowe</p>
+                <UploadProvider>
+                    <SessionProvider session={session}>
+                        <body className={inter.className}>
+                            {/* <ScrollToTop /> */}
+                            <Toaster />
+                            <SonnerToaster />
+                            <div className={styles.container}>
+                                <HeaderPart />
+                                <Suspense fallback={<LoadingPage />}>
+                                    {children}
+                                </Suspense>
+                                <footer>
+                                    <div className={styles.item_main}>
+                                        <Image src={logo} alt="" />
+                                        <p>Profesjonalne stoły do pakowania</p>
                                     </div>
-                                    <div className={styles.subitem}>
-                                        <LinkIcon className={styles.icon} size={FooterIconsSize} />
-                                        <p>Dla małych e-sklepów</p>
-                                    </div>
-                                    <div className={styles.subitem}>
-                                        <LinkIcon className={styles.icon} size={FooterIconsSize} />
-                                        <p>Dla dystrybutorów</p>
-                                    </div>
-                                </div> */}
-                                <div className={styles.item}>
-                                    <h1>Social Media</h1>
-                                    {socialMediaFooter.map((item) => (
-                                        <Link key={item.id} href={item.link} className={styles.subitem}>
-                                            {/* <FacebookIcon className={styles.icon} size={FooterIconsSize} /> */}
-                                            <img src={item.image} className={cn("w-4 h-4", styles.icon)} alt={item.label} />
-                                            <p>{item.label}</p>
+                                    <div className={styles.item}>
+                                        <h1>Nawigacja</h1>
+                                        <Link href="/">
+                                            <div className={styles.subitem}>
+                                                <ChevronRight className={styles.icon} size={FooterIconsSize} />
+                                                <p>Strona główna</p>
+                                            </div>
                                         </Link>
-                                    ))}
-                                   
-                                    {/* <Link href="https://www.facebook.com/pakujz4lop/" className={styles.subitem}>
-                                        <FacebookIcon className={styles.icon} size={FooterIconsSize} />
-                                        <p>Facebook</p>
-                                    </Link>
-                                    <Link href="https://www.instagram.com/pakujz4lop/" className={styles.subitem}>
-                                        <InstagramIcon className={styles.icon} size={FooterIconsSize} />
-                                        <p>Instagram</p>
-                                    </Link>
-                                    <Link href="https://www.youtube.com/@elektromaniacy6306" className={styles.subitem}>
-                                        <YoutubeIcon className={styles.icon} size={FooterIconsSize} />
-                                        <p>YouTube</p>
-                                    </Link> */}
-                                </div>
-                                <div className={styles.item}>
-                                    <h1>Kontakt</h1>
-                                    {contactFooter.map((item) => (
-                                        <div key={item.id} className={styles.subitem}>
-                                            <img src={item.image} className={cn("w-4 h-4", styles.icon)} alt={item.label} />
-                                            <p>{item.label}</p>
+                                        <Link href="/sklep">
+                                            <div className={styles.subitem}>
+                                                <ChevronRight className={styles.icon} size={FooterIconsSize} />
+                                                <p>Produkty</p>
+                                            </div>
+                                        </Link>
+                                        <Link href="/onas">
+                                            <div className={styles.subitem}>
+                                                <ChevronRight className={styles.icon} size={FooterIconsSize} />
+                                                <p>O nas</p>
+                                            </div>
+                                        </Link>
+                                        <Link href="/konfigurator">
+                                            <div className={styles.subitem}>
+                                                <ChevronRight className={styles.icon} size={FooterIconsSize} />
+                                                <p>Konﬁgurator</p>
+                                            </div>
+                                        </Link>
+                                    </div>
+                                    {/* <div className={styles.item}>
+                                        <h1>Szybkie linki</h1>
+                                        <div className={styles.subitem}>
+                                            <LinkIcon className={styles.icon} size={FooterIconsSize} />
+                                            <p>Wysyłki ekspresowe</p>
                                         </div>
-                                    ))}
-                                    {/* <div className={styles.subitem}>
-                                        <Phone className={styles.icon} size={FooterIconsSize} />
-                                        <p>+48 519 653 388</p>
-                                    </div>
-                                    <div className={styles.subitem}>
-                                        <MailIcon className={styles.icon} size={FooterIconsSize} />
-                                        <p>kontakt@4lop.pl</p>
-                                    </div>
-                                    <div className={styles.subitem}>
-                                        <MapPinIcon className={styles.icon} size={FooterIconsSize} />
-                                        <p>ul. Żółkiewskiego 12, 87-100 Toruń</p>
-                                    </div>
-                                    <div className={styles.subitem}>
-                                        <Hash className={styles.icon} size={FooterIconsSize} />
-                                        <p>NIP: 879-269-40-85</p>
+                                        <div className={styles.subitem}>
+                                            <LinkIcon className={styles.icon} size={FooterIconsSize} />
+                                            <p>Dla małych e-sklepów</p>
+                                        </div>
+                                        <div className={styles.subitem}>
+                                            <LinkIcon className={styles.icon} size={FooterIconsSize} />
+                                            <p>Dla dystrybutorów</p>
+                                        </div>
                                     </div> */}
-                                </div>
+                                    <div className={styles.item}>
+                                        <h1>Social Media</h1>
+                                        {socialMediaFooter.map((item) => (
+                                            <Link key={item.id} href={item.link} className={styles.subitem}>
+                                                {/* <FacebookIcon className={styles.icon} size={FooterIconsSize} /> */}
+                                                <img src={item.image} className={cn("w-4 h-4", styles.icon)} alt={item.label} />
+                                                <p>{item.label}</p>
+                                            </Link>
+                                        ))}
+                                    
+                                        {/* <Link href="https://www.facebook.com/pakujz4lop/" className={styles.subitem}>
+                                            <FacebookIcon className={styles.icon} size={FooterIconsSize} />
+                                            <p>Facebook</p>
+                                        </Link>
+                                        <Link href="https://www.instagram.com/pakujz4lop/" className={styles.subitem}>
+                                            <InstagramIcon className={styles.icon} size={FooterIconsSize} />
+                                            <p>Instagram</p>
+                                        </Link>
+                                        <Link href="https://www.youtube.com/@elektromaniacy6306" className={styles.subitem}>
+                                            <YoutubeIcon className={styles.icon} size={FooterIconsSize} />
+                                            <p>YouTube</p>
+                                        </Link> */}
+                                    </div>
+                                    <div className={styles.item}>
+                                        <h1>Kontakt</h1>
+                                        {contactFooter.map((item) => (
+                                            <div key={item.id} className={styles.subitem}>
+                                                <img src={item.image} className={cn("w-4 h-4", styles.icon)} alt={item.label} />
+                                                <p>{item.label}</p>
+                                            </div>
+                                        ))}
+                                        {/* <div className={styles.subitem}>
+                                            <Phone className={styles.icon} size={FooterIconsSize} />
+                                            <p>+48 519 653 388</p>
+                                        </div>
+                                        <div className={styles.subitem}>
+                                            <MailIcon className={styles.icon} size={FooterIconsSize} />
+                                            <p>kontakt@4lop.pl</p>
+                                        </div>
+                                        <div className={styles.subitem}>
+                                            <MapPinIcon className={styles.icon} size={FooterIconsSize} />
+                                            <p>ul. Żółkiewskiego 12, 87-100 Toruń</p>
+                                        </div>
+                                        <div className={styles.subitem}>
+                                            <Hash className={styles.icon} size={FooterIconsSize} />
+                                            <p>NIP: 879-269-40-85</p>
+                                        </div> */}
+                                    </div>
 
-                                <div className={styles.copywrite}>
-                                    <h2>Made with <span>❤️</span> by <a href="https://islandhouse.it">IslandHouse</a><br />Copyright © 4lop 2024 - All Rights Reserved</h2>
-                                </div>
-                            </footer>
-                        </div>
-                        <Analytics />
-                        <SpeedInsights/>
-                    </body>
-                </SessionProvider>
+                                    <div className={styles.copywrite}>
+                                        <h2>Made with <span>❤️</span> by <a href="https://islandhouse.it">IslandHouse</a><br />Copyright © 4lop 2024 - All Rights Reserved</h2>
+                                    </div>
+                                </footer>
+                            </div>
+                            <Analytics />
+                            <SpeedInsights/>
+                        </body>
+                    </SessionProvider>
+                </UploadProvider>
             </CartProvider>
         </html>
     )

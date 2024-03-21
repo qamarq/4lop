@@ -135,7 +135,7 @@ model TwoFactorConfirmation {
 }
 
 type cartsItems {
-    productId Int
+    productId String
     quantity  Int @default(1)
 }
 
@@ -237,24 +237,73 @@ model Orders {
     refundRequestID      String?               @default("")
 }
 
-model Products {
+model Category {
     id                   String @id @default(auto()) @map("_id") @db.ObjectId
-    productId            Int
-    productName          String
-    priceGrossValue      Float
-    priceNetValue        Float
-    priceTaxValue        Float
-    priceGrossFormatted  String
-    priceNetFormatted    String
-    priceTaxFormatted    String
-    amount               Int
-    taxPercent           Int
+    name                 String
+    products             Product[]
+}
 
-    @@unique([productId])
+model Group {
+    id                   String @id @default(auto()) @map("_id") @db.ObjectId
+    name                 String
+    variants             String[]
+    products             Product[]
 }
 
 model PageContent {
     id                   String @id @default(auto()) @map("_id") @db.ObjectId
     elementId            String
     content              String
+}
+
+type ProductImage {
+    type         String
+    typeSecond   String
+    url          String
+    urlSecond    String
+    width        Int
+    height       Int
+}
+
+model Media {
+    id                   String @id @default(auto()) @map("_id") @db.ObjectId
+    type                 String
+    url                  String
+    urlSecond            String
+    width                Int
+    height               Int
+    alt                  String
+    createdAt            DateTime @default(now())
+    updatedAt            DateTime @updatedAt
+}
+
+model Product {
+    id                   String @id @default(auto()) @map("_id") @db.ObjectId
+    name                 String
+    iconImage            String
+    categoryId           String
+    category             Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+    type                 String
+    price                Float
+    taxPercent           Int
+    discount             Float
+    shortDescription     String
+    description          Json?
+    group                String
+    groupName            Group @relation(fields: [group], references: [id], onDelete: Cascade)
+    variant              String
+    variants             String[]
+    amount               Int
+    sellBy               Int
+    unit                 String
+    unitFraction         String
+    shippingToday        Boolean
+    available            Boolean
+    availabilityDesc     String
+    images               ProductImage[]
+    createdAt            DateTime @default(now())
+    updatedAt            DateTime @updatedAt
+    status               String
+
+    @@index([categoryId])
 }

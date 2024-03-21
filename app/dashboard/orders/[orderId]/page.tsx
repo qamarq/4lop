@@ -7,7 +7,7 @@ import {
     CardHeader,
     CardTitle,
 } from "@/components/ui/card"
-import { prepareLink } from '@/lib/utils'
+import { createSlugLink, formattedPrice, prepareLink } from '@/lib/utils'
 import { orderStatuses, przelewy24PaymentStatuses } from '@/constants/payment'
 import { getOrderByOrderIdAsAdmin } from '@/actions/orders'
 import Link from 'next/link'
@@ -118,15 +118,15 @@ export default async function OrderDetailsPage({ params }: { params: { orderId: 
                         {order.products.orderedProducts.map((product) => {
                             return (
                                 <div key={product.name} className="flex items-center">
-                                    <Link href={`/sklep/produkt/${prepareLink(product.link)}`} className="flex items-center justify-center w-[60px] h-[60px] rounded-md">
-                                        <img src={`https://elektromaniacy.pl/${product.icon}`} className='w-[60px] h-[60px] rounded-md object-contain' alt={product.name} />
+                                    <Link href={createSlugLink(product.name, product.id)} className="flex items-center justify-center w-[60px] h-[60px] rounded-md">
+                                        <img src={product.iconImage} className='w-[60px] h-[60px] rounded-md object-contain' alt={product.name} />
                                     </Link>
-                                    <Link href={`/sklep/produkt/${prepareLink(product.link)}`} className="">
+                                    <Link href={createSlugLink(product.name, product.id)} className="">
                                         <h1 className=" text-md font-semibold ml-2">{product.name}</h1>
                                     </Link>
                                     <div className="min-w-max">
                                         <p className="text-sm font-medium">{product.quantity} szt.</p>
-                                        <p className="text-sm font-medium">{product.price.price.gross.formatted}</p>
+                                        <p className="text-sm font-medium">{formattedPrice(product.price)}</p>
                                     </div>
                                 </div>
                             )

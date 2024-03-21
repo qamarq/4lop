@@ -12,8 +12,10 @@ export default async function EditHomeHero() {
 
     return (
         <div className={styles.content}>
-            <div className={cn(styles.header_content, "justify-between")}>
-                <h1 className={styles.content_title}>Strona główna - Hero</h1>
+            <div className="flex items-center justify-between space-y-2">
+                <h2 className="text-3xl font-bold tracking-tight">
+                    Strona główna - Hero
+                </h2>
             </div>
 
             <HeroForm heroTitle={heroTitle} heroSubtitle={heroSubtitle} heroButtonText={heroButtonText} heroButtonLink={heroButtonLink} />

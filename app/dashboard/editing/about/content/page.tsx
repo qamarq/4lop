@@ -9,8 +9,10 @@ export default async function AboutEditing() {
     
     return (
         <div className={styles.content}>
-            <div className={cn(styles.header_content, "justify-between")}>
-                <h1 className={styles.content_title}>O nas - treść</h1>
+            <div className="flex items-center justify-between space-y-2">
+                <h2 className="text-3xl font-bold tracking-tight">
+                    O nas - treść
+                </h2>
             </div>
 
             <AboutForm aboutContent={aboutContent} />

@@ -1,7 +1,6 @@
 import { prisma } from "@/lib/db"
-import { getProductById } from "./products"
 
-export const getProductFromCart = async (userId: string, productId: number) => {
+export const getProductFromCart = async (userId: string, productId: string) => {
     const data = await prisma.cart.findFirst({
         where: {
             userId: userId,
@@ -16,7 +15,7 @@ export const getProductFromCart = async (userId: string, productId: number) => {
     return data
 }
 
-export const addToBasketByProductId = async (userId: string, productId: number, quantity: number) => {
+export const addToBasketByProductId = async (userId: string, productId: string, quantity: number) => {
     let userCart = await prisma.cart.findUnique({ where: { userId: userId } })
     if (!userCart) {
         userCart = await prisma.cart.create({ data: { userId: userId } })
@@ -30,25 +29,7 @@ export const addToBasketByProductId = async (userId: string, productId: number, 
     //     product.price.price.gross.formatted = productExistsInDB.priceGrossFormatted
     //     product.price.price.net.formatted = productExistsInDB.priceNetFormatted
     // }
-    let productExistsInDB = await prisma.products.findUnique({ where: { productId } })
-    if (!productExistsInDB) {
-        let product = await getProductById(productId)
-        productExistsInDB = await prisma.products.create({
-            data: {
-                productId: product.id,
-                productName: product.name,
-                priceGrossValue: product.price.price.gross.value,
-                priceNetValue: product.price.price.net.value,
-                priceGrossFormatted: product.price.price.gross.formatted,
-                priceNetFormatted: product.price.price.net.formatted,
-                priceTaxValue: product.price.tax.worth.value,
-                priceTaxFormatted: product.price.tax.worth.formatted,
-                amount: product.sizes[0].amount,
-                taxPercent: product.price.tax.vatPercent
-            }
-        })
-    }
-
+    let productExistsInDB = await prisma.product.findUnique({ where: { id: productId } })
     if (!productExistsInDB) return { error: "Product not found" }
 
     const productExistInCart = await getProductFromCart(userId, productId)
@@ -97,7 +78,7 @@ export const addToBasketByProductId = async (userId: string, productId: number, 
     return userCart
 }
 
-export const removeFromBasketByProductId = async (userId: string, productId: number) => {
+export const removeFromBasketByProductId = async (userId: string, productId: string) => {
     const userCart = await prisma.cart.findUnique({ where: { userId: userId } })
     if (!userCart) {
         return { error: "User cart not found" }
@@ -117,13 +98,13 @@ export const removeFromBasketByProductId = async (userId: string, productId: num
     return userCart
 }
 
-export const updateQuantityByProductId = async (userId: string, productId: number, quantity: number) => {
+export const updateQuantityByProductId = async (userId: string, productId: string, quantity: number) => {
     const userCart = await prisma.cart.findUnique({ where: { userId: userId } })
     if (!userCart) {
         return { error: "User cart not found" }
     }
 
-    const productExistsInDB = await prisma.products.findUnique({ where: { productId } })
+    const productExistsInDB = await prisma.product.findUnique({ where: { id: productId } })
     if (!productExistsInDB) return { error: "Product not found" }
 
     if (quantity > productExistsInDB.amount) return { error: "Not enough products in stock" }

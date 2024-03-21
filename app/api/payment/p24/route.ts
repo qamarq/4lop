@@ -46,9 +46,9 @@ export async function POST(req: Request) {
                     if (paymentStatus.payment.status.toString() == "2" && process.env.P24_SANDBOX_MODE === "false") {
                         order.products.forEach(async (product: any) => {
                             if (!product) return
-                            await prisma.products.update({
+                            await prisma.product.update({
                                 where: {
-                                    productId: product.productId
+                                    id: product.productId
                                 },
                                 data: {
                                     amount: {

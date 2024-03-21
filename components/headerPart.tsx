@@ -30,7 +30,7 @@ export default function HeaderPart() {
             link: "/"
         },
         {
-            name: "Nasze stoły",
+            name: "Sklep",
             link: "/sklep"
         },
         {
@@ -50,7 +50,7 @@ export default function HeaderPart() {
     return (
         <>
             {pathname !== "/studio" && (
-                <header>
+                <header className={styles.header}>
                     <div className={styles.inner_header}>
                         <Link href="/"><Image draggable={false} src={logo} alt="" className={styles.logo} /></Link>
                         <div className={styles.buttons}>

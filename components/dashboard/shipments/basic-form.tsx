@@ -26,11 +26,11 @@ import Link from "next/link"
 import { updateBasicShipmentData } from "@/actions/shipment-update"
 import { useRouter } from "next/navigation"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { getAllProductsInDB } from "@/actions/products"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { getAllProducts } from "@/actions/products"
 
-export const BasicForm = ({ exludedDataTable, shipment }: { exludedDataTable: {name: string, price: string, id: number}[], shipment: {
+export const BasicForm = ({ exludedDataTable, shipment }: { exludedDataTable: {name: string, price: string, id: string}[], shipment: {
     id: string;
     name: string;
     price: number;
@@ -49,15 +49,15 @@ export const BasicForm = ({ exludedDataTable, shipment }: { exludedDataTable: {n
     const [error, setError] = useState<string | undefined>("")
     const [success, setSuccess] = useState<string | undefined>("")
     const [selectedTmpProduct, setSelectedTmpProduct] = useState<string>("")
-    const [productsInDB, setProductsInDB] = useState<{name: string, id: number}[]>([])
+    const [productsInDB, setProductsInDB] = useState<{name: string, id: string}[]>([])
     const router = useRouter()
     const firstTimeRef = useRef(true)
 
     const getProducts = async () => {
-        await getAllProductsInDB()
+        await getAllProducts()
             .then((data) => {
-                if (data.success) {
-                    setProductsInDB(data.products)
+                if (data) {
+                    setProductsInDB(data)
                 }
             })
     }
@@ -121,8 +121,8 @@ export const BasicForm = ({ exludedDataTable, shipment }: { exludedDataTable: {n
         setSelectedTmpProduct("")
     }
 
-    const removeNewExcludedProduct = (id: number) => {
-        const newExcludedProducts = form.getValues("excludedProducts").filter((productId) => productId !== id.toString())
+    const removeNewExcludedProduct = (id: string) => {
+        const newExcludedProducts = form.getValues("excludedProducts").filter((productId) => productId !== id)
         form.setValue("excludedProducts", newExcludedProducts)
         form.handleSubmit(onSubmit)()
     }

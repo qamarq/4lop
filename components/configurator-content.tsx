@@ -36,25 +36,25 @@ export default function ConfiguratorPage({ configuratorBannerImg }: { configurat
         {
             len: 140,
             price: 1555,
-            code: 13480,
+            code: "65fc5bc8df6f5dc50ecd1dd6",
             size: "uniw"
         },
         {
             len: 160,
             price: 1738,
-            code: 11216,
+            code: "65fc0d254875b3315229d7a9",
             size: "uniw"
         },
         {
             len: 180,
             price: 2020,
-            code: 11290,
+            code: "65fc623ddf6f5dc50ecd1dd7",
             size: "uniw"
         },
         {
             len: 200,
             price: 2114,
-            code: 11291,
+            code: "65fc629fdf6f5dc50ecd1dd8",
             size: "uniw"
         }
     ]
@@ -108,17 +108,17 @@ export default function ConfiguratorPage({ configuratorBannerImg }: { configurat
         setLoading(true)
         let tmpTable = tables.find(version => version.len === selectedSize);
         if (tmpTable) {
-            await addItem({ id: tmpTable.code, size: tmpTable.size, quantity: 1 })
+            await addItem({ id: tmpTable.code, quantity: 1 })
             await Promise.all(appliedAddons.map(async (appliedAddon) => {
                 let addonItem = options[selectedTable-1].addons[appliedAddon-1]
                 let selectedVersion = null
                 if (addonItem.versions) {
                     selectedVersion = addonItem.versions.find(version => version.len === selectedSize);
                     if (selectedVersion) {
-                        await addItem({ id: selectedVersion.code, size: selectedVersion.size, quantity: 1 })
+                        await addItem({ id: selectedVersion.code, quantity: 1 })
                     }
                 } else if (addonItem.code && addonItem.size) {
-                    await addItem({ id: addonItem.code, size: addonItem.size, quantity: 1 })
+                    await addItem({ id: addonItem.code, quantity: 1 })
                 }
             }))
 

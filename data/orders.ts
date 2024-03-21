@@ -4,7 +4,7 @@ import { formattedPrice } from "@/lib/utils"
 import { getProductById } from "./products"
 import { paymentOptions, paymentOptionsIcons } from "@/constants/payment"
 import { getPaymentMethodById, getPaymentStatus } from "@/actions/payment"
-import { UserRole } from "@prisma/client"
+import { Product, UserRole } from "@prisma/client"
 
 export const getPreparedOrderByOrderId = async (orderId: string) => {
     const order = await prisma.orders.findUnique({ where: { id: orderId } })
@@ -32,12 +32,12 @@ export const getPreparedOrderByOrderId = async (orderId: string) => {
     if (courier) shippingCost = courier.price
 
     const basketProducts = await Promise.all(order.products.map(async (cartProduct: any) => {
-        const product = await getProductById(cartProduct.productId)
+        const product = await prisma.product.findUnique({ where: { id: cartProduct.productId } })
 
         return {
             productId: cartProduct.productId,
             quantity: cartProduct.quantity,
-            productDetails: product as ProductItem
+            productDetails: product as Product
         }
     }))
 
@@ -82,9 +82,9 @@ export const getPreparedOrderByOrderId = async (orderId: string) => {
         },
         products: {
             worthClientCurrency: {
-                value: basketProducts.reduce((acc, curr) => acc + curr.quantity * curr.productDetails.price.price.gross.value, 0),
+                value: basketProducts.reduce((acc, curr) => acc + curr.quantity * curr.productDetails.price, 0),
                 currency: "pln",
-                formatted: formattedPrice(basketProducts.reduce((acc, curr) => acc + curr.quantity * curr.productDetails.price.price.gross.value, 0))
+                formatted: formattedPrice(basketProducts.reduce((acc, curr) => acc + curr.quantity * curr.productDetails.price, 0))
             },
             orderedProducts: basketProducts.map((basketProduct) => { return { ...basketProduct.productDetails, quantity: basketProduct.quantity } }) as any,
         },

@@ -7,7 +7,7 @@ import { usePathname, useRouter } from 'next/navigation'
 import React, { useEffect, useRef, useState } from 'react'
 import { ChevronLeftIcon, Loader2Icon, MapPinIcon } from 'lucide-react'
 import Link from 'next/link'
-import { prepareLink } from '@/lib/utils'
+import { createSlugLink, formattedPrice, prepareLink } from '@/lib/utils'
 import { orderStatuses, paymentStatuses, przelewy24PaymentStatuses } from '@/constants/payment'
 import { Button } from '@/components/ui/button'
 import { useCurrentUser } from '@/hooks/use-current-user'
@@ -213,15 +213,15 @@ export default function OrderDetails() {
                                 {order.products.orderedProducts.map((product) => {
                                     return (
                                         <div key={product.name} className={styles.product}>
-                                            <Link href={`/sklep/produkt/${prepareLink(product.link)}`} className={styles.product_icon}>
-                                                <img src={`https://elektromaniacy.pl/${product.icon}`} alt={product.name} />
+                                            <Link href={createSlugLink(product.name, product.id)} className={styles.product_icon}>
+                                                <img src={product.iconImage} alt={product.name} />
                                             </Link>
-                                            <Link href={`/sklep/produkt/${prepareLink(product.link)}`} className={styles.product_info}>
+                                            <Link href={createSlugLink(product.name, product.id)} className={styles.product_info}>
                                                 <h1 className={styles.product_name}>{product.name}</h1>
                                             </Link>
                                             <div className={styles.product_details}>
                                                 <p className={styles.product_quantity}>{product.quantity} szt.</p>
-                                                <p className={styles.product_price}>{product.price.price.gross.formatted}</p>
+                                                <p className={styles.product_price}>{formattedPrice(product.price)}</p>
                                             </div>
                                         </div>
                                     )

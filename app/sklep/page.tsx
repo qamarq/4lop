@@ -11,6 +11,8 @@ import { Slider } from '@/components/ui/slider';
 import { v4 } from 'uuid';
 import { Label } from '@/components/ui/label';
 import { PaginationComponent } from '@/components/pagination';
+import { getProductsPagination } from '@/actions/shop';
+import { slugify } from '@/lib/utils';
 
 export default function ShopPage() {
     const [resultPage, setResultPage] = useState(0);
@@ -20,7 +22,7 @@ export default function ShopPage() {
     const [sortingOptions, setSortingOptions] = useState<string>("bestFit_desc");
     const divToScroll = useRef<HTMLDivElement>(null);
     const [returnResults, setReturnResults] = useState<GetProductResponse>({
-        results: { resultCount: 0, resultPage: 8, currentPage: 0, limitPerPage: 0 },
+        results: { resultCount: 0, resultPage: 0, currentPage: 0, limitPerPage: 0 },
         orderBy: { name: "", type: '' },
         filtrContext: { name: "", value: 0 },
         products: [],
@@ -28,22 +30,28 @@ export default function ShopPage() {
 
     const getProducts = async (myAbortController: AbortController | null) => {
         setLoading(true)
-        const response = await fetch('/api/shop/get', {
-            method: 'POST',
-            signal: myAbortController ? myAbortController.signal : null,
-            body: JSON.stringify({page: resultPage, limit: 12, text: sortingName, maxPrice: sortingMaxPrice, orderBy: { name: sortingOptions.split("_")[0], type: sortingOptions.split("_")[1] }}),
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        });
+        // const response = await fetch('/api/shop/get', {
+        //     method: 'POST',
+        //     signal: myAbortController ? myAbortController.signal : null,
+        //     body: JSON.stringify({page: resultPage, limit: 12, text: sortingName, maxPrice: sortingMaxPrice, orderBy: { name: sortingOptions.split("_")[0], type: sortingOptions.split("_")[1] }}),
+        //     headers: {
+        //         'Content-Type': 'application/json'
+        //     }
+        // });
 
-        if (response.ok) {
-            const responseData = await response.json();
-            setReturnResults(responseData.returnData)
-        } else {
-            const errorResponse = await response.json();
-            console.error(errorResponse);
-        }
+        // if (response.ok) {
+        //     const responseData = await response.json();
+        //     setReturnResults(responseData.returnData)
+        // } else {
+        //     const errorResponse = await response.json();
+        //     console.error(errorResponse);
+        // }
+
+        await getProductsPagination(resultPage, 12)
+            .then((data) => {
+                setReturnResults(data)
+            })
+        
         setLoading(false)
     }
 
@@ -121,18 +129,16 @@ export default function ShopPage() {
                                 </div>
                             ) : (
                                 <div className={styles.items}>
-                                    
                                         <>
                                             {returnResults.products.map((product) => (
                                                 <HomeProduct 
                                                     key={v4()} 
-                                                    id={product.id.toString()} 
+                                                    id={product.id || ""} 
                                                     name={product.name} 
-                                                    image={`https://elektromaniacy.pl/${product.icon}`} 
-                                                    price={product.price.price.gross.value} 
-                                                    tax={product.price.tax.vatPercent} 
+                                                    image={product.iconImage} 
+                                                    price={parseFloat(product.price)} 
+                                                    tax={product.taxPercent} 
                                                     cart={true}
-                                                    link={product.link}
                                                 /> 
                                             ))}
                                         </>
@@ -143,7 +149,7 @@ export default function ShopPage() {
                     )}
                     <div className={styles.filters}>
                         <h1 className={styles.title}>Filtry</h1>
-                        <p>Znaleziono <span>{returnResults.results.resultCount}</span> stołów</p>
+                        <p>Znaleziono <span>{returnResults.results.resultCount}</span> produktów</p>
 
                         {/* <LayoutGroup>
                             <motion.div className={styles.filters_items}>

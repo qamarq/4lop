@@ -1,20 +1,20 @@
 "use server"
 
 import { addToBasketByProductId, getProductFromCart, removeFromBasketByProductId, updateQuantityByProductId } from "@/data/basket";
-import { getProductById } from "@/data/products";
 import { currentUser } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { stripe } from "@/lib/stripe";
 import { formattedPrice } from "@/lib/utils";
+import { Product } from "@prisma/client";
 
-export const prepareBasketProducts = async (cart: { id: number, quantity: number }[]) => {
+export const prepareBasketProducts = async (cart: { id: string, quantity: number }[]) => {
     const basketProducts = await Promise.all(cart.map(async (cartProduct) => {
-        const product = await getProductById(cartProduct.id)
+        const product = await prisma.product.findUnique({ where: { id: cartProduct.id } })
 
         return {
             productId: cartProduct.id,
             quantity: cartProduct.quantity,
-            productDetails: product as ProductItem
+            productDetails: product as Product
         }
     }))
 
@@ -34,12 +34,13 @@ export const getBasket = async (courierId?: string) => {
     // console.log(paymentIntent)
     
     const basketProducts = await Promise.all(userCart.products.map(async (cartProduct) => {
-        const product = await getProductById(cartProduct.productId)
+        // const product = await getProductById(cartProduct.productId)
+        const product = await prisma.product.findUnique({ where: { id: cartProduct.productId } })
 
         return {
             productId: cartProduct.productId,
             quantity: cartProduct.quantity,
-            productDetails: product as ProductItem
+            productDetails: product as Product
         }
     }))
 
@@ -48,6 +49,8 @@ export const getBasket = async (courierId?: string) => {
         const courier = await prisma.shippingMethod.findUnique({ where: { id: courierId } })
         if (courier) shippingCost = courier.price
     }
+
+    if (basketProducts === null) return { error: "Product not found" }
 
     const basketData: Cart = {
         basketCost: {
@@ -60,9 +63,9 @@ export const getBasket = async (courierId?: string) => {
             prepaidCost: { value: 0, currency: "pln", formatted: "0.00 zł" },
             insuranceCost: { value: 0, currency: "pln", formatted: "0.00 zł" },
             totalProductsCost: {
-                value: basketProducts.reduce((acc, curr) => acc + curr.quantity * curr.productDetails.price.price.gross.value, 0),
+                value: basketProducts.reduce((acc, curr) => acc + (curr ? curr.quantity * curr.productDetails.price : 0), 0),
                 currency: "pln",
-                formatted: formattedPrice(basketProducts.reduce((acc, curr) => acc + curr.quantity * curr.productDetails.price.price.gross.value, 0))
+                formatted: formattedPrice(basketProducts.reduce((acc, curr) => acc + (curr ? curr.quantity * curr.productDetails.price : 0), 0))
             },
             totalAdditionalCost: {
                 value: 0,
@@ -75,12 +78,12 @@ export const getBasket = async (courierId?: string) => {
                 currency: "pln",
                 formatted: "0.00 zł",
             },
-            totalToPay: { value: basketProducts.reduce((acc, curr) => acc + curr.quantity * curr.productDetails.price.price.gross.value, 0) + shippingCost, currency: "pln", formatted: formattedPrice(basketProducts.reduce((acc, curr) => acc + curr.quantity * curr.productDetails.price.price.gross.value, 0) + shippingCost) },
+            totalToPay: { value: basketProducts.reduce((acc, curr) => acc + (curr ? curr.quantity * curr.productDetails.price : 0), 0) + shippingCost, currency: "pln", formatted: formattedPrice(basketProducts.reduce((acc, curr) => acc + (curr ? curr.quantity * curr.productDetails.price : 0), 0) + shippingCost) },
         },
         summaryBasket: {
             productsCount: 0,
             worth: {
-                gross: { value: basketProducts.reduce((acc, curr) => acc + curr.quantity * curr.productDetails.price.price.gross.value, 0) + shippingCost, currency: "pln", formatted: formattedPrice(basketProducts.reduce((acc, curr) => acc + curr.quantity * curr.productDetails.price.price.gross.value, 0) + shippingCost) },
+                gross: { value: basketProducts.reduce((acc, curr) => acc + (curr ? curr.quantity * curr.productDetails.price : 0), 0) + shippingCost, currency: "pln", formatted: formattedPrice(basketProducts.reduce((acc, curr) => acc + (curr ? curr.quantity * curr.productDetails.price : 0), 0) + shippingCost) },
                 net: { value: 0, currency: "pln", formatted: "0.00 zł" },
             },
             rebate: { value: 0, currency: "pln", formatted: "0.00 zł" },
@@ -90,34 +93,34 @@ export const getBasket = async (courierId?: string) => {
             },
             shipping: { cost: { value: 0, currency: "pln", formatted: "0.00 zł" }, shippingDays: 0 },
         },
-        products: basketProducts.map((basketProduct) => {
+        products: basketProducts !== null ? basketProducts.map((basketProduct) => {
             return {
                 id: basketProduct.productId,
-                size: basketProduct.productDetails.sizes[0].name,
+                size: "test",
                 comment: "",
                 availableNow: true,
                 additional: "",
                 quantity: basketProduct.quantity,
                 worth: {
                     gross: {
-                        value: basketProduct.quantity * basketProduct.productDetails.price.price.gross.value,
+                        value: basketProduct.quantity * basketProduct.productDetails.price,
                         currency: "pln",
-                        formatted: formattedPrice(basketProduct.quantity * basketProduct.productDetails.price.price.gross.value)
+                        formatted: formattedPrice(basketProduct.quantity * basketProduct.productDetails.price)
                     },
                     net: {
-                        value: basketProduct.quantity * basketProduct.productDetails.price.price.net.value,
+                        value: basketProduct.quantity * basketProduct.productDetails.price,
                         currency: "pln",
-                        formatted: formattedPrice(basketProduct.quantity * basketProduct.productDetails.price.price.net.value)
+                        formatted: formattedPrice(basketProduct.quantity * basketProduct.productDetails.price)
                     }
                 },
-                tax: basketProduct.productDetails.price.tax,
+                tax: { worth: { value: 0, currency: "PLN", formatted: "" }, vatPercent: basketProduct.productDetails.taxPercent, vatString: `${basketProduct.productDetails.taxPercent/100}%` },
                 data: basketProduct.productDetails,
                 basketGroupId: userCart ? parseInt(userCart.id) : 0,
-                versionsName: basketProduct.productDetails.versionName,
+                versionsName: basketProduct.productDetails.group,
                 valuesVersionName: "",
                 bundleProducts: null
             }
-        })
+        }) : []
     };    
 
     return {
@@ -126,7 +129,7 @@ export const getBasket = async (courierId?: string) => {
     }
 }
 
-export const addToBasket = async (productId: number, quantity: number) => {
+export const addToBasket = async (productId: string, quantity: number) => {
     const user = await currentUser()
     if (!user) return { error: "not_logged_in" }
 
@@ -140,7 +143,7 @@ export const addToBasket = async (productId: number, quantity: number) => {
     }
 }
 
-export const removeFromBasket = async (productId: number) => {
+export const removeFromBasket = async (productId: string) => {
     const user = await currentUser()
     if (!user) return { error: "not_logged_in" }
 
@@ -154,7 +157,7 @@ export const removeFromBasket = async (productId: number) => {
     }
 }
 
-export const updateBasket = async (productId: number, quantity: number) => {
+export const updateBasket = async (productId: string, quantity: number) => {
     const user = await currentUser()
     if (!user) return { error: "not_logged_in" }
 

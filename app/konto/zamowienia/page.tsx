@@ -103,7 +103,7 @@ export default function Orders() {
                                             {order.products.orderedProducts.length === 1 ? (
                                                 <div className={styles.product_icon_title}>
                                                     <div className={styles.product_icon}>
-                                                        <img src={`https://elektromaniacy.pl/${order.products.orderedProducts[0].icon}`} alt={order.products.orderedProducts[0].name} />
+                                                        <img src={order.products.orderedProducts[0].iconImage} alt={order.products.orderedProducts[0].name} />
                                                     </div>
                                                     <h1>{order.products.orderedProducts[0].name}</h1>
                                                 </div>
@@ -113,7 +113,7 @@ export default function Orders() {
                                                     {order.products.orderedProducts.map((product) => {
                                                         return (
                                                             <div key={product.name} className={styles.product_icon}>
-                                                                <img src={`https://elektromaniacy.pl/${product.icon}`} alt={product.name} />
+                                                                <img src={product.iconImage} alt={product.name} />
                                                             </div>  
                                                         )
                                                     })}

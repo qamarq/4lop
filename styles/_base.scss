@@ -1,6 +1,10 @@
 @import "vars";
 @import "mixins";
 
+.all-unset {
+    all: unset;
+}
+
 .button {
     max-width: max-content;
     padding-inline: 6.4rem; 

@@ -6,7 +6,7 @@ import { getProductById } from "@/data/products"
 import { currentRole, currentUser } from "@/lib/auth"
 import { prisma } from "@/lib/db"
 import { stripe } from "@/lib/stripe"
-import { UserRole, orderStatusType, pickupPointData, purchaseDocumentType } from "@prisma/client"
+import { Product, UserRole, orderStatusType, pickupPointData, purchaseDocumentType } from "@prisma/client"
 import { v4 } from "uuid"
 import { Country, Currency, Encoding, Language, Order as P24Order } from "@ingameltd/node-przelewy24"
 import { p24 } from "@/lib/p24"
@@ -50,20 +50,20 @@ export const createOrder = async ({
 
     let everythingOk = true
     userCart.products.forEach(async (product) => {
-        const productInDB = await getProductById(product.productId)
-        if (productInDB.sizes[0].amount < product.quantity) {
+        const productInDB = await prisma.product.findUnique({ where: { id: product.productId } })
+        if (!productInDB || productInDB.amount < product.quantity) {
             everythingOk = false
         }
     })
     if (!everythingOk) return { error: "Brak wystarczającej ilości produktów" }
 
     const basketProducts = await Promise.all(userCart.products.map(async (cartProduct) => {
-        const product = await getProductById(cartProduct.productId)
+        const product = await prisma.product.findUnique({ where: { id: cartProduct.productId } })
 
         return {
             productId: cartProduct.productId,
             quantity: cartProduct.quantity,
-            productDetails: product as ProductItem
+            productDetails: product as Product
         }
     }))
 
@@ -161,7 +161,7 @@ export const createOrder = async ({
         }
     }
 
-    const orderAmountTotal = basketProducts.reduce((acc, curr) => acc + curr.quantity * curr.productDetails.price.price.gross.value, 0) + shippingCost
+    const orderAmountTotal = Math.round((basketProducts.reduce((acc, curr) => acc + curr.quantity * curr.productDetails.price, 0) + shippingCost) * 100) / 100
 
     try {
         let paymentIntent = null
@@ -199,7 +199,7 @@ export const createOrder = async ({
             paymentSessionID = v4()
             const order: P24Order = {
                 sessionId: paymentSessionID,
-                amount: orderAmountTotal*100, // Transaction amount expressed in lowest currency unit, e.g. 1.23 PLN = 123
+                amount: (orderAmountTotal)*100, // Transaction amount expressed in lowest currency unit, e.g. 1.23 PLN = 123
                 currency: Currency.PLN,
                 description: `Zamówienie ze sklepu 4lop o numerze ${newOrderNumber}`,
                 email: user.email || "",
@@ -259,7 +259,7 @@ export const createOrder = async ({
         // }
 
         await prisma.cart.delete({ where: { userId: user.id } })
-        await sendEmail(user.email || "", "Potwierdzenie zamówienia", `Witaj ${user.firstname} ${user.lastname},<br><br>Dziękujemy za złożenie zamówienia w naszym sklepie. Poniżej znajduje się podsumowanie zamówienia.<br><br><b>Numer zamówienia:</b> ${newOrderNumber}<br><b>Metoda płatności:</b> ${prepaidBool ? "Przelew" : "Płatność przy odbiorze"}<br><b>Metoda dostawy:</b> ${courier ? courier.name : "Brak dostawy"}<br><b>Adres dostawy:</b> ${user.street}, ${user.zipCode} ${user.city}<br><b>Adres email:</b> ${user.email || ""}<br><b>Telefon:</b> ${user.phone}<br><br><b>Produkty:</b><br>${basketProducts.map((product) => `<b>${product.productDetails.name}</b> - ${product.quantity} szt. - ${product.productDetails.price.price.gross.value} zł/szt. = ${product.quantity * product.productDetails.price.price.gross.value} zł`).join("<br>")}<br><br><b>Koszt dostawy:</b> ${shippingCost} zł<br><b>Suma:</b> ${orderAmountTotal} zł<br><br>Pozdrawiamy,<br>Zespół 4lop`)
+        await sendEmail(user.email || "", "Potwierdzenie zamówienia", `Witaj ${user.firstname} ${user.lastname},<br><br>Dziękujemy za złożenie zamówienia w naszym sklepie. Poniżej znajduje się podsumowanie zamówienia.<br><br><b>Numer zamówienia:</b> ${newOrderNumber}<br><b>Metoda płatności:</b> ${prepaidBool ? "Przelew" : "Płatność przy odbiorze"}<br><b>Metoda dostawy:</b> ${courier ? courier.name : "Brak dostawy"}<br><b>Adres dostawy:</b> ${user.street}, ${user.zipCode} ${user.city}<br><b>Adres email:</b> ${user.email || ""}<br><b>Telefon:</b> ${user.phone}<br><br><b>Produkty:</b><br>${basketProducts.map((product) => `<b>${product.productDetails.name}</b> - ${product.quantity} szt. - ${product.productDetails.price} zł/szt. = ${product.quantity * product.productDetails.price} zł`).join("<br>")}<br><br><b>Koszt dostawy:</b> ${shippingCost} zł<br><b>Suma:</b> ${orderAmountTotal} zł<br><br>Pozdrawiamy,<br>Zespół 4lop`)
 
         return { success: "Zamówienie zostało utworzone", order: { orderId: order.id, orderNumber: newOrderNumber }, payment: paymentIntent ? { link: paymentIntent.link } : null }
     } catch (error) {

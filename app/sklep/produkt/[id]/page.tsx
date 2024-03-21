@@ -16,25 +16,28 @@ import {
 import { Button } from '@/components/ui/button';
 import { useRouter, usePathname } from 'next/navigation'
 import { v4 } from 'uuid'
-import { prepareLink } from '@/lib/utils'
+import { cn, createSlugLink, formattedPrice, prepareLink } from '@/lib/utils'
 import { useCart } from '@/hooks/use-cart'
-import { useCurrentUser } from '@/hooks/use-current-user'
+import { getGroupById, getOneProduct } from '@/actions/shop'
+import Output from 'editorjs-react-renderer';
 
 export default function ProductPage() {
     const router = useRouter()
     const routerQuery = usePathname()
-    const [product, setProduct] = useState<ProductItem | null>(null)
+    const [product, setProduct] = useState<ProductDB | null>(null)
     const [activeImage, setActiveImage] = useState(0)
     const [loading, setLoading] = useState(false);
     const scrollImagesRef = useRef<HTMLDivElement>(null);
     const { addItem } = useCart()
-    const user = useCurrentUser()
+    const firstTimeRef = useRef(true)
+
+    const [group, setGroup] = useState<{ name: string, variants: { name: string, link: string }[]} | null>(null)
 
     const nextImage = () => {
         if (product) {
             let currentIndex = activeImage
             currentIndex++
-            if (currentIndex >= product.enclosuresImages.length) {
+            if (currentIndex >= product.images.length) {
                 currentIndex = 0;
             }
             setActiveImage(currentIndex)
@@ -46,78 +49,46 @@ export default function ProductPage() {
             let currentIndex = activeImage
             currentIndex--
             if (currentIndex < 0) {
-                currentIndex = product.enclosuresImages.length-1;
+                currentIndex = product.images.length-1;
             }
             setActiveImage(currentIndex)
         }
     }
 
     useEffect(() => {
-        const categoriesDiv = scrollImagesRef.current;
+        const fetchProduct = async (productId: string) => {
+            await getOneProduct(productId)
+                .then(async product => {
+                    console.log(product)
+                    setProduct(product)
 
-        const handleScroll = (event: WheelEvent) => {
-            event.preventDefault();
-            if (categoriesDiv) {
-                categoriesDiv.scrollLeft += event.deltaY;
-            }
-        };
-
-        if (categoriesDiv) {
-            categoriesDiv.addEventListener('wheel', handleScroll, {
-                passive: false,
-            });
+                    if (product?.group) {
+                        await getGroupById(product.group)
+                            .then(group => {
+                                if (group) {
+                                    setGroup(group)
+                                }
+                            })
+                    }
+                })
         }
-
-        return () => {
-            if (categoriesDiv) {
-                categoriesDiv.removeEventListener('wheel', handleScroll);
-            }
-        };
-    }, []);
-
-    useEffect(() => {
-        const abortController = new AbortController();
-        const getProduct = async () => {
-            const { signal } = abortController;
+        if (routerQuery && firstTimeRef.current) {
+            firstTimeRef.current = false;
             const matches = routerQuery.split("-");
-            let productId = 0
+            let productId = ""
             if (matches.length > 0) {
-                productId = parseInt(matches[matches.length - 1]);
+                productId = matches[matches.length - 1];
             }
-            const response = await fetch('/api/shop/getOne', {
-                method: 'POST',
-                signal,
-                body: JSON.stringify({id: productId}),
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            });
-
-            if (response.ok) {
-                const responseData = await response.json();
-                console.log(responseData.returnData)
-                responseData.returnData.longDescription = responseData.returnData.longDescription.replace(/"\/data\/include\/cms\//g, '"https://elektromaniacy.pl/data/include/cms/');
-                responseData.returnData.longDescription = responseData.returnData.longDescription.replace("autoplay=1", 'autoplay=0');
-                // console.log(responseData.returnData)
-                setProduct(responseData.returnData)
-            } else {
-                const errorResponse = await response.json();
-                console.error(errorResponse);
-            }
+            
+            fetchProduct(productId)
         }
-        getProduct()
-
-        return () => {
-            abortController.abort();
-        };
     }, [routerQuery])
 
     const addToBasket = async () => {
         if (!product) return
         setLoading(true);
         await addItem({
-            id: parseInt(product.code),
-            size: product.sizes[0].id,
+            id: product.id || "",
             quantity: 1
         })
         setLoading(false);
@@ -145,13 +116,13 @@ export default function ProductPage() {
 
                         <section className={styles.hero}>
                             <div className={styles.thumbnail}>
-                                <img draggable={false} src={`https://elektromaniacy.pl/${product.enclosuresImages[activeImage].mediumUrl}`} alt={product.name} />
-                                <div onClick={prevImage} className={`${styles.btn_scroll} ${styles.left}`}>
+                                <img draggable={false} src={product.images[activeImage].url} alt={product.name} />
+                                <button onClick={prevImage} className={`${styles.btn_scroll} ${styles.left}`}>
                                     <ChevronLeft size={26} /> 
-                                </div>
-                                <div onClick={nextImage} className={`${styles.btn_scroll} ${styles.right}`}>
+                                </button>
+                                <button onClick={nextImage} className={`${styles.btn_scroll} ${styles.right}`}>
                                     <ChevronRight size={26} /> 
-                                </div>
+                                </button>
                             </div>
                             <div className={styles.content}>
                                 <div className={styles.quick_info}>
@@ -161,30 +132,30 @@ export default function ProductPage() {
                                             size={20}
                                             SVGstyle={{display: 'inline'}}
                                             transition={true}
-                                            initialValue={product.opinion.rating}
+                                            initialValue={4.5}
                                         />
-                                        <p>(opinie: {product.opinion.count})</p>
+                                        <p>(opinie: {2})</p>
                                     </div>
                                     |
                                     <div className={styles.producer}>
-                                        <p>Producent: <span>{product.producer.name}</span></p>
-                                        <p>Kod produktu: <span>{product.code}</span></p>
+                                        <p>Producent: <span>4lop</span></p>
+                                        <p>Kod produktu: <span>{product.id}</span></p>
                                     </div>
                                 </div>
-                                <p className={styles.description}>{product.description}</p>
+                                <p className={styles.description}>{product.shortDescription}</p>
 
-                                {product.group.versions && (
+                                {group && (
                                     <div className={styles.size_item}>
-                                        <h1>{product.group.name}</h1>
+                                        <h1>{group.name}</h1>
                                         <Select onValueChange={(link) => {
-                                            router.push(`/sklep/produkt/${prepareLink(link)}`)
-                                        }} defaultValue={product.group.link}>
+                                            router.push(link)
+                                        }} defaultValue={createSlugLink(product.name, product.id || "")}>
                                             <SelectTrigger className="w-[180px]">
                                                 <SelectValue placeholder="Wybierz rozmiar" />
                                             </SelectTrigger>
                                             <SelectContent>
                                                 <SelectGroup>
-                                                    {product.group.versions.map(version => (
+                                                    {group.variants.map(version => (
                                                         <SelectItem key={v4()} value={version.link}>{version.name}</SelectItem>
                                                     ))}
                                                 </SelectGroup>
@@ -196,13 +167,21 @@ export default function ProductPage() {
                                 <div className={styles.price_item}>
                                     <h1>Cena brutto</h1>
                                     <div className={styles.price}>
-                                        {product.price.beforeRebate.gross.value ? (
+                                        {/* {product.price.beforeRebate.gross ? (
                                             <>
                                                 <h2>{product.price.price.gross.formatted}</h2>
                                                 <h3>{product.price.beforeRebate.gross.formatted}</h3>
                                             </>
                                         ) : (
                                             <h2>{product.price.price.gross.formatted}</h2>
+                                        )} */}
+                                        {product.discount ? (
+                                            <>
+                                                <h2>{formattedPrice(parseFloat(product.price))}</h2>
+                                                <h3>{formattedPrice(parseFloat(product.price)+(parseFloat(product.price)*product.discount))}</h3>
+                                            </>
+                                        ) : (
+                                            <h2>{formattedPrice(parseFloat(product.price))}</h2>
                                         )}
                                     </div>
                                 </div>
@@ -218,17 +197,17 @@ export default function ProductPage() {
                                         ) : (
                                             <h2>{(product.price-(product.price*(product.tax/100))).toFixed(2)}zł</h2>
                                         )} */}
-                                        {product.price.price.net.formatted}
+                                        {formattedPrice(parseFloat(product.price)-(parseFloat(product.price)*(product.taxPercent/100)))}
                                     </div>
                                 </div>
 
-                                <p className='mt-3'>Najniższa cena w ciągu ostatnich 30 dni: <span className='font-semibold'>{product.price.omnibusPrice.gross.formatted}</span></p>
+                                <p className='mt-3'>Najniższa cena w ciągu ostatnich 30 dni: <span className='font-semibold'>{formattedPrice(0)}</span></p>
 
                                 <div className={styles.buttons}>
-                                    {product.sizes[0].amount < 1 ? (
+                                    {product.amount < 1 ? (
                                         <Button disabled>
                                             <MailIcon className='h-4 w-4 mr-2' />
-                                            {product.sizes[0].availability.description}
+                                            {product.availabilityDesc || "Produkt niedostępny"}
                                         </Button>
                                     ) : (
                                         <Button disabled={loading} onClick={addToBasket}>
@@ -244,13 +223,13 @@ export default function ProductPage() {
                                 </div>
 
                                 <div className={styles.images} ref={scrollImagesRef}>
-                                    {product.enclosuresImages.map((image, index) => (
+                                    {product.images.map((image, index) => (
                                         <div 
                                             key={v4()}
                                             onClick={() => setActiveImage(index)} 
                                             className={`${styles.item} ${activeImage === index ? styles.active : ""}`}
                                         >
-                                            <img draggable={false} src={`https://elektromaniacy.pl/${image.mediumUrl}`} alt="" />
+                                            <img draggable={false} src={image.url} alt="" />
                                         </div>
                                     ))}
                                 </div>
@@ -263,7 +242,8 @@ export default function ProductPage() {
                             <h1>Opis produktu</h1>
                             <span className={styles.line} />
                         </div>
-                        <div dangerouslySetInnerHTML={{__html: product.longDescription}} className={styles.longdesc}></div>
+                        {/* <div dangerouslySetInnerHTML={{__html: product.description}} className={styles.longdesc}></div> */}
+                        <div className={cn(styles.longdesc, "mt-5")}><Output data={ product.description } /></div>
                     </div>
 
                     {/* <div className={styles.container}>

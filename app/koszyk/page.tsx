@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 "use client"
 
 import React, { useEffect, useState } from 'react'
@@ -56,7 +57,7 @@ import {
 } from "@/components/ui/table"
 import { columns } from '@/components/columns'
 import { Label } from '@/components/ui/label'
-import { prepareLink } from '@/lib/utils';
+import { createSlugLink, formattedPrice, prepareLink } from '@/lib/utils';
 import { toast } from '@/components/ui/use-toast';
 import { useCurrentUser } from '@/hooks/use-current-user';
 import { LOCALSTORAGE_TMPCART_KEY_NAME } from '@/constants';
@@ -79,7 +80,7 @@ export default function CartPage() {
     const [loading, setLoading] = useState(false)
     const [updateQuantityValue, setUpdateQuantityValue] = useState(1)
     const [tmpVal, setTmpVal] = useState<{
-        id: number;
+        id: string;
         size: string;
         quantity: number;
     } | null>(null)
@@ -88,7 +89,7 @@ export default function CartPage() {
     const [dialogDeleteOpened, setDialogDeleteOpened] = useState(false);
     const [dialogUpdateOpened, setDialogUpdateOpened] = useState(false);
     const [isPendingNotEnough, startTransitionNotEnough] = React.useTransition()
-    const [notEnoughProducts, setNotEnoughProducts] = useState<{ productId: number; quantity: number; productDetails: ProductItem }[] | null>(null)
+    const [notEnoughProducts, setNotEnoughProducts] = useState<{ productId: string; quantity: number; productDetails: ProductDBWithNumberPrice }[] | null>(null)
     const user = useCurrentUser()
     const firstTimeRef = React.useRef(true)
     
@@ -134,7 +135,7 @@ export default function CartPage() {
     const prepareNotEnought = async () => {
         const notEnoughProductsRAW = localStorage.getItem(LOCALSTORAGE_TMPCART_KEY_NAME)
         if (notEnoughProductsRAW) {
-            const notEnoughProducts = JSON.parse(notEnoughProductsRAW) as { id: number; quantity: number; }[]
+            const notEnoughProducts = JSON.parse(notEnoughProductsRAW) as { id: string; quantity: number; }[]
             startTransitionNotEnough(async () => {
                 await prepareBasketProducts(notEnoughProducts)
                     .then((data) => {
@@ -156,7 +157,7 @@ export default function CartPage() {
         e.stopPropagation(); // prevent
         if (tmpVal) {
             setLoading(true)
-            await removeItem(tmpVal.id, tmpVal.size)
+            await removeItem(tmpVal.id)
             setTmpVal(null)
             setLoading(false)
             setDialogDeleteOpened(false)
@@ -168,7 +169,6 @@ export default function CartPage() {
             setLoading(true)
             await updateItem({
                 id: tmpVal.id,
-                size: tmpVal.size,
                 quantity: updateQuantityValue
             })
             setTmpVal(null)
@@ -298,7 +298,7 @@ export default function CartPage() {
                                 disabled={table.getFilteredSelectedRowModel().rows.length === 0}
                                 onClick={() => {
                                     table.getFilteredSelectedRowModel().rows.map((row) => {
-                                        removeItem(row.original.id, row.original.size)
+                                        removeItem(row.original.id)
                                     })
                                 }}
                             >
@@ -329,7 +329,7 @@ export default function CartPage() {
                                     {table.getRowModel().rows?.length ? (
                                         table.getRowModel().rows.map((row) => {
                                             const name = row.original.data.name;
-                                            const link = `/sklep/produkt/${prepareLink(row.original.data.link)}`
+                                            const link = createSlugLink(name, row.original.id)
 
                                             return (
                                                 <TableRow
@@ -430,17 +430,17 @@ export default function CartPage() {
                                                         <TableCell></TableCell>
                                                         <TableCell>
                                                             <div className="capitalize w-[70px] h-[70px] rounded-md bg-[#eee] flex items-center justify-center">
-                                                                <img className='w-[80%] max-h-[80%] mix-blend-multiply' src={`https://elektromaniacy.pl/${product.productDetails.icon}`} alt="" />
+                                                                <img className='w-[80%] max-h-[80%] mix-blend-multiply' src={product.productDetails.iconImage} alt="" />
                                                             </div>
                                                         </TableCell>
                                                         <TableCell>
                                                             <div className="capitalize">
                                                                 <h1 className='font-bold text-[1.7rem]'>{product.productDetails.name}</h1>
-                                                                <h2 className='truncate max-w-[300px] font-semibold'><span className='text-gray-500 font-medium'>Opis: </span>{product.productDetails.description}</h2>
-                                                                {product.productDetails.versionName && (
-                                                                    <h2 className='truncate max-w-[300px] font-semibold'><span className='text-gray-500 font-medium'>Wersja: </span>{product.productDetails.versionName}</h2>
+                                                                <h2 className='truncate max-w-[300px] font-semibold'><span className='text-gray-500 font-medium'>Opis: </span>{product.productDetails.shortDescription}</h2>
+                                                                {product.productDetails.variant && (
+                                                                    <h2 className='truncate max-w-[300px] font-semibold'><span className='text-gray-500 font-medium'>Wersja: </span>{product.productDetails.variant}</h2>
                                                                 )}
-                                                                <h2 className='truncate max-w-[300px] font-semibold normal-case'><span className='text-gray-500 font-medium'>Cena/szt.: </span>{product.productDetails.price.price.gross.formatted}</h2>
+                                                                <h2 className='truncate max-w-[300px] font-semibold normal-case'><span className='text-gray-500 font-medium'>Cena/szt.: </span>{formattedPrice(product.productDetails.price)}</h2>
                                                             </div>
                                                         </TableCell>
                                                         <TableCell>
@@ -453,6 +453,22 @@ export default function CartPage() {
                                                     </TableRow>
                                                 )
                                             })}
+                                            <TableRow>
+                                                <TableCell
+                                                    colSpan={columns.length+1}
+                                                    className="h-24 text-center"
+                                                >
+                                                    <div className='flex items- justify-end'>
+                                                        <Button variant={"outline"} onClick={() => {
+                                                            setNotEnoughProducts(null)
+                                                            localStorage.removeItem(LOCALSTORAGE_TMPCART_KEY_NAME)
+                                                        }}>
+                                                            <TrashIcon className='w-4 h-4 mr-2' />
+                                                            Usuń niedostępne produkty
+                                                        </Button>
+                                                    </div>
+                                                </TableCell>
+                                            </TableRow>
                                         </>
                                     )}
                                 </TableBody>

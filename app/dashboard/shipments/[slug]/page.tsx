@@ -1,6 +1,7 @@
-import { getOneProduct } from '@/actions/products'
+import { getProduct } from '@/actions/products'
 import { BasicForm } from '@/components/dashboard/shipments/basic-form'
 import { prisma } from '@/lib/db'
+import { formattedPrice } from '@/lib/utils'
 import React from 'react'
 
 const getShipmentData = async (id: string) => {
@@ -20,12 +21,11 @@ export default async function EditShipmentPage({ params }: { params: { slug: str
     const shipmentData = await getShipmentData(slug)
     // console.log("Shipment data: ", shipmentData)
     const exludedDataTable = shipmentData === null ? [] : await Promise.all(shipmentData.excludedProducts.map(async (productId) => {
-        const productRAW = await getOneProduct(parseInt(productId))
-        const product = productRAW.product
+        const product = await getProduct(productId)
         return {
-            id: product?.id || 0,
+            id: product?.id || "0",
             name: product?.name || productId,
-            price: product?.price.price.gross.formatted || "0 zł",
+            price: formattedPrice(product?.price || 0),
         }
     }))
 
