@@ -19,6 +19,7 @@ import Image from 'next/image'
 import { Metadata } from 'next'
 import { prisma } from '@/lib/db'
 import { cn } from '@/lib/utils'
+import ContactForm from './_components/ContactForm'
 
 export const metadata: Metadata = {
     title: 'O nas - 4lop',
@@ -31,7 +32,7 @@ export default async function AboutPage() {
 
     return (
         <>
-            <div className={styles.container}>
+            <div className={styles.container4lop}>
                 <h4 className={styles.navigation_label}>Strona główna <ChevronRight size={18} style={{marginInline: 6}} /> O nas</h4>
                 <div className={styles.title}>
                     <h1>O nas</h1>
@@ -114,7 +115,7 @@ export default async function AboutPage() {
                     </div> */}
                 </div>
             </div>
-            <div className={styles.container}>
+            <div className={styles.container4lop}>
                 <div className={styles.title}>
                     <h1>Napisz do nas</h1>
                     <span className={styles.line} />
@@ -147,42 +148,7 @@ export default async function AboutPage() {
                             </div>
                         ))}
                     </div>
-                    <form>
-                        <div className="grid w-full items-center gap-1 mb-3">
-                            <Label htmlFor="name">Twoje imię</Label>
-                            <Input required type="text" id="name" placeholder="Wpisz swoje imię" />
-                        </div>
-
-                        <div className="grid w-full items-center gap-1 mb-3">
-                            <Label htmlFor="email">Adres e-mail</Label>
-                            <Input required type="email" id="email" placeholder="Wpisz swój adres e-mail" />
-                        </div>
-
-                        <div className="grid w-full items-center gap-1 mb-3">
-                            <Label htmlFor="phone">Numer telefonu (opcjonalnie)</Label>
-                            <Input type="tel" id="phone" placeholder="Wpisz swój numer telefonu" />
-                        </div>
-
-                        <div className="grid w-full items-center gap-1 mb-3">
-                            <Label htmlFor="text">Treść wiadomości</Label>
-                            <Textarea
-                                required
-                                name="text"
-                                id="text"
-                                placeholder="Wpisz treść wiadomości"
-                                className="resize-none"
-                            />
-                        </div>
-
-                        {/* <button className={styles.button}>
-                            <SendIcon size={20} className={styles.icon} />
-                            <p>Wyślij</p>
-                        </button> */}
-                        <Button className="w-[100%]">
-                            <SendIcon className="mr-2 h-4 w-4" />
-                            Wyślij wiadomość
-                        </Button>
-                    </form>
+                    <ContactForm />
                 </div>
             </div>
        </>

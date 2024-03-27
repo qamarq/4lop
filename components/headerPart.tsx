@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 "use client"
 
 import React from 'react'
@@ -9,12 +10,15 @@ import { useRouter } from 'next/navigation'
 import { useCart } from '@/hooks/use-cart'
 import styles from '../styles/Layout.module.scss';
 import logo from '@/public/4lop.svg';
-import { ClockIcon, LogIn, LogOutIcon, MenuIcon, Search, ShoppingCartIcon, User2Icon, XIcon } from 'lucide-react'
+import { ClockIcon, Loader2Icon, LogIn, LogOutIcon, MenuIcon, Search, ShoppingCartIcon, User2Icon, XIcon } from 'lucide-react'
 import { useCurrentUser } from '@/hooks/use-current-user'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from './ui/dropdown-menu'
 import { LogoutButton } from './auth/logout-button'
 import { useCurrentRole } from '@/hooks/use-current-role'
 import { UserRole } from '@prisma/client'
+import { CommandDialog, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, CommandSeparator } from './ui/command'
+import { getProductsPagination } from '@/actions/shop'
+import { createSlugLink } from '@/lib/utils'
 
 export default function HeaderPart() {
     const pathname = usePathname();
@@ -22,6 +26,9 @@ export default function HeaderPart() {
     const router = useRouter()
     const [mobileMenuOpened, setMobileMenuOpened] = React.useState(false)
     const user = useCurrentUser()
+    const [open, setOpen] = React.useState(false)
+    const [products, setProducts] = React.useState<{id: string, name: string, link: string, image: string}[]>([])
+    const [isPending, startTransition] = React.useTransition()
     const { loading: cartLoading, cart  } = useCart();
 
     const navigation = [
@@ -46,6 +53,22 @@ export default function HeaderPart() {
             link: "/blog"
         }
     ]
+
+    const loadProducts = () => {
+        startTransition(async () => {
+            await getProductsPagination(0, 100, { sort: "bestFit_desc", category: "default" })
+                .then((data) => {
+                    const preparedProducts = data.products.map(product => ({
+                        id: product.id || "",
+                        name: product.name,
+                        link: `/sklep/${product.id}`,
+                        image: product.images[0].url
+                    }))
+
+                    setProducts(preparedProducts)
+                })
+        })
+    }
 
     return (
         <>
@@ -73,7 +96,7 @@ export default function HeaderPart() {
                             )}
                         </div>
                         <div className={styles.icons_buttons}>
-                            <Link href="/sklep" className={styles.icon}><Search size={22}/></Link>
+                            <div className={styles.icon} onClick={() => {loadProducts(); setOpen(true)}}><Search size={22}/></div>
 
                             <div 
                                 className={`${styles.icon} ${pathname === '/koszyk' ? styles.active : ""}`} 
@@ -197,6 +220,33 @@ export default function HeaderPart() {
                             </div>
                         </div>
                     )}
+
+                    <CommandDialog open={open} onOpenChange={setOpen}>
+                        <CommandInput placeholder="Wyszukaj produkt..." />
+
+                        <CommandList>
+                            <CommandEmpty>Brak wyników.</CommandEmpty>
+                            {isPending ? (
+                                <div className='flex items-center justify-center flex-col gap-2'>
+                                    <Loader2Icon size={32} className='animate-spin' />
+                                    <p className='text-sm text-muted-foreground'>Ładowanie...</p>
+                                </div>
+                            ) : (
+                                <CommandGroup heading="Produkty">
+                                    {products.map(product => (
+                                        <Link key={product.id} href={createSlugLink(product.name, product.id)} onClick={() => setOpen(false)}>
+                                            <CommandItem>
+                                                <div className="flex items-center">
+                                                    <img src={product.image} alt="" width={40} height={40} />
+                                                    <p className="ml-2">{product.name}</p>
+                                                </div>
+                                            </CommandItem>
+                                        </Link>
+                                    ))}
+                                </CommandGroup>
+                            )}
+                        </CommandList>
+                    </CommandDialog>
                 </header>
             )}
         </>

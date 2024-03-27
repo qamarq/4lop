@@ -1,4 +1,4 @@
-'use client'
+'use client';
 
 /**
  * This route is responsible for the built-in authoring environment using Sanity Studio.
@@ -9,14 +9,23 @@
  * https://github.com/sanity-io/next-sanity
  */
 
-import { NextStudio } from 'next-sanity/studio'
-import config from '../../../sanity.config'
-export const dynamic = 'force-dynamic'
+import { NextStudio } from 'next-sanity/studio';
+import config from '../../../sanity.config';
+import { useEffect } from 'react';
+export const dynamic = 'force-dynamic';
 
 export default function StudioPage() {
-  return (
-    <div style={{fontSize: '140%'}}>
+
+    useEffect(() => {
+        let root = document.getElementsByTagName('html')[0];
+        root.setAttribute( 'class', 'normal' );
+
+        return () => {
+            root.setAttribute( 'class', '' );
+        }
+    }, [])
+
+    return (
         <NextStudio config={config} />
-    </div>
-  )
+    );
 }

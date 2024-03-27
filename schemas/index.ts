@@ -130,3 +130,12 @@ export const BasicShipmentSchema = z.object({
     excluding: z.boolean(),
     excludedProducts: z.array(z.string()),
 });
+
+export const ContactSchema = z.object({
+    name: z.string().min(1, { message: "Imię jest wymagane" }),
+    email: z.string().email({
+        message: 'Wpisz prawidłowy adres e-mail',
+    }),
+    phone: z.optional(z.string().min(1, { message: "Numer telefonu jest wymagany" })),
+    text: z.string().min(1, { message: "Treść jest wymagana" }),
+});

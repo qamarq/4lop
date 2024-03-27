@@ -11,15 +11,25 @@ import { Slider } from '@/components/ui/slider';
 import { v4 } from 'uuid';
 import { Label } from '@/components/ui/label';
 import { PaginationComponent } from '@/components/pagination';
-import { getProductsPagination } from '@/actions/shop';
-import { slugify } from '@/lib/utils';
+import { getAllCategories, getAllGroups, getProductsPagination } from '@/actions/shop';
+import { Category, Group } from '@prisma/client';
+import { usePathname, useRouter } from 'next/navigation';
 
-export default function ShopPage() {
-    const [resultPage, setResultPage] = useState(0);
+export default function ShopPage({ searchParams }: { searchParams?: { page?: string, category?: string, sort?: string } }) {
+    const currentPage = Number(searchParams?.page)-1 || 0;
+    const currentCategory = searchParams?.category || "default";
+    const currentSort = searchParams?.sort || "bestFit_asc";
+
+    const pathname = usePathname();
+    const { replace } = useRouter();
+
+    const [resultPage, setResultPage] = useState(currentPage);
     const [loading, setLoading] = useState(true);
-    const [sortingName, setSortingName] = useState<string>("");
+
     const [sortingMaxPrice, setSortingMaxPrice] = useState<number>(5000);
-    const [sortingOptions, setSortingOptions] = useState<string>("bestFit_desc");
+    const [sortingOptions, setSortingOptions] = useState<string>(currentSort);
+    const [selectedCategory, setSelectedCategory] = useState<string>(currentCategory);
+
     const divToScroll = useRef<HTMLDivElement>(null);
     const [returnResults, setReturnResults] = useState<GetProductResponse>({
         results: { resultCount: 0, resultPage: 0, currentPage: 0, limitPerPage: 0 },
@@ -28,40 +38,21 @@ export default function ShopPage() {
         products: [],
     })
 
-    const getProducts = async (myAbortController: AbortController | null) => {
+    const [categories, setCategories] = useState<Category[]>([])
+    const [groups, setGroups] = useState<Group[]>([])
+
+    const getProducts = async ({ options }: { options: { sort: string, category: string } }) => {
         setLoading(true)
-        // const response = await fetch('/api/shop/get', {
-        //     method: 'POST',
-        //     signal: myAbortController ? myAbortController.signal : null,
-        //     body: JSON.stringify({page: resultPage, limit: 12, text: sortingName, maxPrice: sortingMaxPrice, orderBy: { name: sortingOptions.split("_")[0], type: sortingOptions.split("_")[1] }}),
-        //     headers: {
-        //         'Content-Type': 'application/json'
-        //     }
-        // });
 
-        // if (response.ok) {
-        //     const responseData = await response.json();
-        //     setReturnResults(responseData.returnData)
-        // } else {
-        //     const errorResponse = await response.json();
-        //     console.error(errorResponse);
-        // }
-
-        await getProductsPagination(resultPage, 12)
-            .then((data) => {
-                setReturnResults(data)
-            })
+        await getProductsPagination(resultPage, 12, options).then(data => setReturnResults(data))
+        await getAllCategories().then(data => setCategories(data))
+        await getAllGroups().then(data => setGroups(data))
         
         setLoading(false)
     }
 
     useEffect(() => {
-        const myAbortController = new AbortController();
-        getProducts(myAbortController)
-
-        return () => {
-            myAbortController.abort();
-        };
+        getProducts({ options: { sort: sortingOptions, category: selectedCategory } })
     }, [resultPage])
 
     const handlePagination = (paginationData: any) => {
@@ -72,9 +63,35 @@ export default function ShopPage() {
         }, 500)
     };
 
+    const handleChangeCategory = (category: string) => {
+        const params = new URLSearchParams(searchParams);
+
+        if (category === "default") {
+            params.delete('category')
+        } else {
+            params.set('category', category)
+        }
+
+        replace(`${pathname}?${params.toString()}`);
+        getProducts({ options: { sort: sortingOptions, category } })
+    }
+
+    const handleChangeSorting = (sort: string) => {
+        const params = new URLSearchParams(searchParams);
+
+        if (sort === "bestFit_desc") {
+            params.delete('sort')
+        } else {
+            params.set('sort', sort)
+        }
+
+        replace(`${pathname}?${params.toString()}`);
+        getProducts({ options: { sort, category: selectedCategory } })
+    }
+
     return (
         <>
-            {/* <div className={styles.container}>
+            {/* <div className={styles.container4lop}>
                 <h4 className={styles.navigation_label}>Strona główna <ChevronRight size={18} style={{marginInline: 6}} /> Nasza oferta</h4>
 
                 <div className={styles.title}>
@@ -106,8 +123,8 @@ export default function ShopPage() {
                     </div>
                 </div>
             </div> */}
-            <div className={styles.container}>
-                <h4 className={styles.navigation_label}>Strona główna <ChevronRight size={18} style={{marginInline: 6}} /> Nasza oferta</h4>
+            <div className={styles.container4lop}>
+                <h4 className={styles.navigation_label}>Strona główna <ChevronRight size={18} style={{marginInline: 6}} /> Sklep</h4>
 
                 <div className={styles.title}>
                     <h1>Wszystkie produkty</h1>
@@ -141,6 +158,11 @@ export default function ShopPage() {
                                                     cart={true}
                                                 /> 
                                             ))}
+                                            {returnResults.products.length === 0 && (
+                                                <div className='w-full h-full flex items-center justify-center'>
+                                                    <p className='font-medium text-xl uppercase text-gray-600'>Nie znaleziono żadnych produktów</p>
+                                                </div>
+                                            )}
                                         </>
                                     
                                 </div>
@@ -183,34 +205,52 @@ export default function ShopPage() {
                                 </SelectContent>
                             </Select>
                         </div> */}
+                        {groups.map((group) => (
+                            <div key={group.id} className="grid w-full items-center gap-1 mb-3">
+                                <Label htmlFor={group.id}>{group.name}</Label>
+                                <Select defaultValue="default" disabled={loading}>
+                                    <SelectTrigger id={group.id}>
+                                        <SelectValue placeholder={group.name} />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectGroup>
+                                            <SelectLabel>{group.name}</SelectLabel>
+                                            <SelectItem value="default">Wszystkie</SelectItem>
+                                            {group.variants.map((variant) => (
+                                                <SelectItem key={variant} value={variant}>{variant}</SelectItem>
+                                            ))}
+                                        </SelectGroup>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                        ))}
                         <div className="grid w-full items-center gap-1 mb-3">
-                            <Label htmlFor="rozmiar">Rozmiar stołu</Label>
-                            <Select defaultValue="default" onValueChange={setSortingName}>
-                                <SelectTrigger id="rozmiar">
-                                    <SelectValue placeholder="Wybierz rozmiar" />
+                            <Label htmlFor="Kategorie">Kategorie</Label>
+                            <Select value={selectedCategory} onValueChange={(val) => { setSelectedCategory(val); handleChangeCategory(val) }} disabled={loading}>
+                                <SelectTrigger id="Kategorie">
+                                    <SelectValue placeholder="Wybierz kategorię" />
                                 </SelectTrigger>
                                 <SelectContent>
                                     <SelectGroup>
-                                        <SelectLabel>Rozmiary stołów</SelectLabel>
+                                        <SelectLabel>Dostępne opcje</SelectLabel>
                                         <SelectItem value="default">Wszystkie</SelectItem>
-                                        <SelectItem value="140">140cm</SelectItem>
-                                        <SelectItem value="160">160cm</SelectItem>
-                                        <SelectItem value="180">180cm</SelectItem>
-                                        <SelectItem value="200">200cm</SelectItem>
+                                        {categories.map((category) => (
+                                            <SelectItem key={category.id} value={category.id}>{category.name}</SelectItem>  
+                                        ))}
                                     </SelectGroup>
                                 </SelectContent>
                             </Select>
                         </div>
                         <div className="grid w-full items-center gap-1 mb-3">
                             <Label htmlFor="Sortowanie">Sortowanie</Label>
-                            <Select value={sortingOptions} onValueChange={(e) => setSortingOptions(e)}>
+                            <Select value={sortingOptions} onValueChange={(val) => { setSortingOptions(val); handleChangeSorting(val) }} disabled={loading}>
                                 <SelectTrigger id="Sortowanie">
                                     <SelectValue placeholder="Wybierz sortowanie" />
                                 </SelectTrigger>
                                 <SelectContent>
                                     <SelectGroup>
                                         <SelectLabel>Dostępne opcje</SelectLabel>
-                                        <SelectItem value="bestFit_desc">Domyślnie</SelectItem>
+                                        <SelectItem value="bestFit_asc">Domyślnie</SelectItem>
                                         <SelectItem value="price_asc">Cena: od najtańszych</SelectItem>
                                         <SelectItem value='price_desc'>Cena: od najdroższych</SelectItem>
                                         <SelectItem value='name_asc'>Nazwa: A-Z</SelectItem>
@@ -227,24 +267,21 @@ export default function ShopPage() {
                                 onValueChange={(e) => setSortingMaxPrice(e[0])}
                                 value={[sortingMaxPrice]}
                                 max={5000}
+                                disabled={loading}
                                 step={1}
                                 id="cena"
                                 className={"w-[100%] mt-1"}
                             />
                         </div>
-                        <div className="grid w-full items-center gap-1 mb-4">
-                            <Label htmlFor="search">Wyszukaj</Label>
-                            <Input type="text" id="search" value={sortingName} onChange={(e) => setSortingName(e.target.value)} placeholder="Wpisz nazwę produktu" />
-                        </div>
-                        <Button disabled={loading} className="w-[100%]" onClick={() => getProducts(null)}>
+                        {/* <Button disabled={loading} className="w-[100%]" onClick={() => getProducts()}>
                             {loading ? <Loader2Icon className="mr-2 h-4 w-4 animate-spin" /> : <FilterIcon className="mr-2 h-4 w-4" />} Zastosuj filtry
-                        </Button>
+                        </Button> */}
                     </div>
                 </div>
                 {returnResults?.products?.length > 0 && (
-                    <PaginationComponent totalRecords={returnResults.results.resultCount} pageLimit={returnResults.results.limitPerPage} onPageChanged={handlePagination} onClick={() => {
+                    <PaginationComponent totalRecords={returnResults.results.resultCount} defaultPage={currentPage+1} pageLimit={returnResults.results.limitPerPage} onPageChanged={handlePagination} onClick={() => {
                         if (divToScroll.current) {
-                            divToScroll.current.scrollIntoView({ behavior: 'smooth' });
+                            divToScroll.current.scrollIntoView({ behavior: 'smooth' })
                         }
                     }} />   
                 )}

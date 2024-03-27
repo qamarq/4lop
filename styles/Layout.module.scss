@@ -1,4 +1,4 @@
-.container {
+.container4lop {
     width: 100%;
     min-height: 100vh;
     position: relative;
@@ -13,6 +13,7 @@
         height: auto;
         display: flex;
         align-items: center;
+        justify-content: center;
         background-color: #fff;
         padding: 20px 60px;
         border-bottom: 1px solid #64646459;
@@ -21,6 +22,7 @@
         .inner_header {
             display: flex;
             align-items: center;
+            max-width: 1300px;
             width: 100%;
         }
 
@@ -102,7 +104,7 @@
 
             .icon {
                 color: #646464;
-                margin: 0 4px;
+                margin: 0 2px;
                 cursor: pointer;
                 transition: color .3s;
                 font-weight: 900;

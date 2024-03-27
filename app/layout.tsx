@@ -50,7 +50,7 @@ export default async function RootLayout({
                             {/* <ScrollToTop /> */}
                             <Toaster />
                             <SonnerToaster />
-                            <div className={styles.container}>
+                            <div className={styles.container4lop}>
                                 <HeaderPart />
                                 <Suspense fallback={<LoadingPage />}>
                                     {children}

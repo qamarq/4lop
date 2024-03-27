@@ -307,3 +307,14 @@ model Product {
 
     @@index([categoryId])
 }
+
+model ContactForm {
+    id                   String @id @default(auto()) @map("_id") @db.ObjectId
+    name                 String
+    email                String
+    phone                String
+    message              String
+    read                 String @default("false")
+    read_by              String?
+    createdAt            DateTime @default(now())
+}

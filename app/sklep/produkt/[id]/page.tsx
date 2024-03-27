@@ -98,7 +98,7 @@ export default function ProductPage() {
         <>
             {product && (
                 <>
-                    <div className={styles.container}>
+                    <div className={styles.container4lop}>
                         <h4 className={styles.navigation_label}>
                             Strona główna 
                             <ChevronRight size={18} style={{marginInline: 6}} /> 
@@ -237,7 +237,7 @@ export default function ProductPage() {
                         </section>
                     </div>
 
-                    <div className={styles.container}>
+                    <div className={styles.container4lop}>
                         <div className={styles.title}>
                             <h1>Opis produktu</h1>
                             <span className={styles.line} />
@@ -246,14 +246,14 @@ export default function ProductPage() {
                         <div className={cn(styles.longdesc, "mt-5")}><Output data={ product.description } /></div>
                     </div>
 
-                    {/* <div className={styles.container}>
+                    {/* <div className={styles.container4lop}>
                         <div className={styles.title}>
                             <h1>Napisz swoją opinię</h1>
                             <span className={styles.line} />
                         </div>
                     </div>
 
-                    <div className={styles.container}>
+                    <div className={styles.container4lop}>
                         <div className={styles.title}>
                             <h1>Zobacz również</h1>
                             <span className={styles.line} />

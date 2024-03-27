@@ -1,15 +1,12 @@
 import React from 'react'
 import { AlignLeftIcon, FootprintsIcon, HelpCircleIcon, HomeIcon, LinkIcon, WorkflowIcon } from 'lucide-react'
 import Link from 'next/link'
+import DashboardTitle from '../_components/Title'
 
 export default function EditingPage() {
     return (
         <>
-            <div className="flex items-center justify-between space-y-2">
-                <h2 className="text-3xl font-bold tracking-tight">
-                    Edytuj elementy strony
-                </h2>
-            </div>
+            <DashboardTitle title="Edytuj elementy strony" />
 
             <div className='mt-4 flex flex-col gap-3'>
                 <Link href="/dashboard/editing/home/hero">

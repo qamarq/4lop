@@ -16,6 +16,7 @@ export type SidebarNavItem = {
     disabled?: boolean;
     external?: boolean;
     hrTop?: boolean;
+    messages?: boolean;
     icon?: keyof typeof Icons;
 } & (
     | {

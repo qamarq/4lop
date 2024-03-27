@@ -4,7 +4,6 @@ import {
     Check,
     ChevronLeft,
     ChevronRight,
-    Command,
     CreditCard,
     File,
     FilePenLine,
@@ -16,11 +15,13 @@ import {
     LayoutList,
     Loader2,
     LucideProps,
+    MailIcon,
     Moon,
     MoreVertical,
     PackageOpen,
     Pizza,
     Plus,
+    RssIcon,
     Settings,
     SunMedium,
     Trash,
@@ -48,6 +49,7 @@ export const Icons = {
     chevronLeft: ChevronLeft,
     chevronRight: ChevronRight,
     trash: Trash,
+    mail: MailIcon,
     post: FileText,
     page: File,
     media: ImageIcon,
@@ -65,6 +67,7 @@ export const Icons = {
     laptop: Laptop,
     home: HomeIcon,
     order: PackageOpen,
+    rss: RssIcon,
     gitHub: ({ ...props }: LucideProps) => (
         <svg
             aria-hidden="true"

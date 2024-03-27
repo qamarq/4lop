@@ -119,7 +119,7 @@ export default function SummaryPage() {
 
     return (
         <>
-            <div className={styles.container}>
+            <div className={styles.container4lop}>
                 <h4 className={styles.navigation_label}>
                     Strona główna 
                     <ChevronRight size={18} style={{marginInline: 6}} /> 
@@ -220,7 +220,7 @@ export default function SummaryPage() {
                     </RadioGroup>
                 </div>
             </div>
-            <div className={styles.container}>
+            <div className={styles.container4lop}>
                 <div className={styles.title}>
                     <h1>Informacje dodatkowe</h1>
                     <span className={styles.line} />
@@ -251,7 +251,7 @@ export default function SummaryPage() {
                     </div>
                 </div>
             </div>
-            <div className={styles.container}>
+            <div className={styles.container4lop}>
                 <div className={styles.title}>
                     <h1>Twoje zamówienie</h1>
                     <span className={styles.line} />

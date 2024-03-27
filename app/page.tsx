@@ -48,7 +48,7 @@ export default async function Home() {
     
     return (
         <>
-            <div className={styles.container}>
+            <div className={styles.container4lop}>
                 <div className={styles.hero}>
                     <div className={styles.inner}>
                         <div className={styles.content}>
@@ -107,7 +107,7 @@ export default async function Home() {
                     </div>
                 </div>
             </div>
-            <div className={styles.container}>
+            <div className={styles.container4lop}>
                 <div className={styles.features}>
                     <div className={styles.feature_item}>
                         <Image src={img1} alt="" />
@@ -131,7 +131,7 @@ export default async function Home() {
                     </div>
                 </div>
             </div>
-            <div className={styles.container}>
+            <div className={styles.container4lop}>
                 <div className={styles.title}>
                     <h1>Szybkie linki</h1>
                     <span className={styles.line} />
@@ -161,7 +161,7 @@ export default async function Home() {
                     </Link>
                 </div>
             </div>
-            <div className={styles.container}>
+            <div className={styles.container4lop}>
                 <div className={styles.title}>
                     <h1>Promocje</h1>
                     <span className={styles.line} />
@@ -170,7 +170,7 @@ export default async function Home() {
                     <Promotions />
                 </Suspense>
             </div>
-            <div className={styles.container}>
+            <div className={styles.container4lop}>
                 <div className={styles.title}>
                     <h1>Nasze bestsellery</h1>
                     <span className={styles.line} />
@@ -187,7 +187,7 @@ export default async function Home() {
                     </div>
                 </div> */}
             </div>
-            <div className={styles.container}>
+            <div className={styles.container4lop}>
                 <div className={styles.title}>
                     <h1>Nowości</h1>
                     <span className={styles.line} />
@@ -204,7 +204,7 @@ export default async function Home() {
                     <NewProducts />
                 </Suspense>
             </div>
-            <div className={styles.container}>
+            <div className={styles.container4lop}>
                 <div className={styles.title}>
                     <h1>Pytania i odpowiedzi</h1>
                     <span className={styles.line} />
@@ -212,7 +212,7 @@ export default async function Home() {
 
                 <FAQContainer faqContent={faqContent} />
             </div>
-            <div className={styles.container}>
+            <div className={styles.container4lop}>
                 <div className={styles.title}>
                     <h1>Obserwuj Nas</h1>
                     <span className={styles.line} />
@@ -224,7 +224,7 @@ export default async function Home() {
                     <iframe src="https://www.facebook.com/plugins/post.php?href=https%3A%2F%2Fwww.facebook.com%2Fpakujz4lop%2Fposts%2Fpfbid05dfXfQFZUUTHPomsV88nnHpQjrszsh2dRbiezwFCWVNEP6PzKXGmsrCwtVv513Nvl&show_text=true&width=500" width="500" height="593" style={{border: 'none', overflow: "hidden"}} allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"></iframe>
                 </div>
             </div>
-            <div className={styles.container}>
+            <div className={styles.container4lop}>
                 <div className={styles.title}>
                     <h1>Newsletter</h1>
                     {/* <h2>Zapisz się, aby być na bieżąco</h2> */}

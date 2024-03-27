@@ -19,7 +19,7 @@ import { z } from "zod";
 import Image from "next/image"
 
 interface UploadContextType {
-    pickFile: () => Promise<string>;
+    pickFile: (onlyUpload?: boolean) => Promise<string>;
 }
 
 const UploadContext = createContext<UploadContextType | undefined>(undefined);
@@ -31,6 +31,7 @@ const UploadFileSchema = z.object({
 
 export const UploadProvider = ({ children }: { children: ReactNode }) => {
     const [open, setOpen] = useState(false);
+    const [isOnlyUpload, setIsOnlyUpload] = useState<boolean>(false);
     const [isPending, startTransition] = useTransition()
     const [files, setFiles] = useState<Media[]>([]);
     const fileUrlRef = useRef<string | null>(null);
@@ -45,7 +46,8 @@ export const UploadProvider = ({ children }: { children: ReactNode }) => {
         },
     });
 
-    const pickFile = async (): Promise<string> => {
+    const pickFile = async (onlyUpload?: boolean): Promise<string> => {
+        setIsOnlyUpload(onlyUpload || false);
         setOpen(true);
         return new Promise((resolve) => {
             const interval = setInterval(() => {
@@ -106,21 +108,19 @@ export const UploadProvider = ({ children }: { children: ReactNode }) => {
         <UploadContext.Provider value={{ pickFile }}>
             {children}
             <Dialog open={open} onOpenChange={setOpen}>
-                <DialogContent>
+                <DialogContent onInteractOutside={(e) => {
+                    e.preventDefault();
+                }}>
                     <DialogHeader>
                         <DialogTitle>Wybierz zdjęcie</DialogTitle>
                         <DialogDescription>
                             Poniżej możesz wybrać zdjęcie. Możesz albo wybrać z dostępnych albo przesłać nowe.
                         </DialogDescription>
                     </DialogHeader>
-                    {/* <div className="grid gap-4 py-4">
-                        <Button onClick={() => handlePickFile('https://example.com/img/photo1.jpg')}>Pick photo 1</Button>
-                        <Button onClick={() => handlePickFile('https://example.com/img/photo2.jpg')}>Pick photo 2</Button>
-                    </div> */}
                     <div className="">
-                        <Tabs defaultValue="pick" className="w-full h-[500px]">
+                        <Tabs defaultValue={isOnlyUpload ? "upload" : "pick"} className="w-full h-[500px]">
                             <TabsList>
-                                <TabsTrigger value="pick"><ImageIcon className="w-3 h-3 mr-2" /> Wybierz zdjęcie</TabsTrigger>
+                                <TabsTrigger value="pick" disabled={isOnlyUpload}><ImageIcon className="w-3 h-3 mr-2" /> Wybierz zdjęcie</TabsTrigger>
                                 <TabsTrigger value="upload"><UploadCloudIcon className="w-3 h-3 mr-2" /> Prześlij nowe</TabsTrigger>
                             </TabsList>
                             <TabsContent value="pick" className="h-full">
@@ -196,7 +196,7 @@ export const UploadProvider = ({ children }: { children: ReactNode }) => {
                                             <div className='flex items-center w-full gap-2'>
                                                 <Button
                                                     className="mt-4 w-40"
-                                                    disabled={isPending}
+                                                    disabled={isPending || !form.formState.isValid}
                                                     color='primary'
                                                     type="submit"
                                                 >

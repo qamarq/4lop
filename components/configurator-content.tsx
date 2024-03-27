@@ -139,7 +139,7 @@ export default function ConfiguratorPage({ configuratorBannerImg }: { configurat
     }
 
     return (
-        <div className={styles.container}>
+        <div className={styles.container4lop}>
             <nav>
                 <AnimatePresence>
                     <Button

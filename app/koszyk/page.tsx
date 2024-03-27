@@ -178,7 +178,7 @@ export default function CartPage() {
 
     return (
         <>
-            <div className={styles.container}>
+            <div className={styles.container4lop}>
                 <h4 className={styles.navigation_label}>Strona główna <ChevronRight size={18} style={{marginInline: 6}} /> Koszyk</h4>
                 <div className={styles.title}>
                     <h1>Koszyk</h1>

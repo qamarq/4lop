@@ -30,7 +30,7 @@ export default function Payment() {
 
     return (
         <>
-            <div className={styles.container}>
+            <div className={styles.container4lop}>
                 <h4 className={styles.navigation_label}>
                     Strona główna 
                     <ChevronRight size={18} style={{marginInline: 6}} /> 

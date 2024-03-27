@@ -21,6 +21,7 @@ import Link from 'next/link'
 import { FormSuccess } from '../form-success'
 import { FormError } from '../form-error'
 import { DEFAULT_LOGIN_REDIRECT } from '@/routes'
+import { InputOTP, InputOTPGroup, InputOTPSlot } from '../ui/input-otp'
 
 export const LopLoginForm = () => {
     const router = useRouter()
@@ -37,7 +38,8 @@ export const LopLoginForm = () => {
         resolver: zodResolver(LoginSchema),
         defaultValues: {
             email: '',
-            password: ''
+            password: '',
+            code: undefined
         }
     })
     
@@ -85,6 +87,7 @@ export const LopLoginForm = () => {
                             <FormField
                                 control={form.control}
                                 name='email'
+                                key={'email'}
                                 render={({ field }) => (
                                     <FormItem>
                                         <FormLabel>Email</FormLabel>
@@ -99,6 +102,7 @@ export const LopLoginForm = () => {
                             <FormField
                                 control={form.control}
                                 name='password'
+                                key={'password'}
                                 render={({ field }) => (
                                     <FormItem>
                                         <FormLabel>Hasło</FormLabel>
@@ -124,13 +128,26 @@ export const LopLoginForm = () => {
                         <FormField
                             control={form.control}
                             name='code'
+                            key={'code'}
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>Uwierzytelnienie dwuetapowe (aplikacja)</FormLabel>
                                     <FormControl>
-                                        <Input {...field} disabled={isPending} placeholder='123456' type='number' maxLength={6} autoComplete="off" />
+                                        {/* <Input {...field} disabled={isPending} placeholder='123456' type='number' maxLength={6} autoComplete="off" /> */}
+                                        <div className='flex items-center w-full justify-center'>
+                                            <InputOTP maxLength={6} {...field} disabled={isPending} defaultValue={undefined} value={field.value} onChange={(val) => field.onChange(val)} onComplete={form.handleSubmit(onSubmitLogin)} inputMode={"numeric"}>
+                                                <InputOTPGroup>
+                                                    <InputOTPSlot index={0} />
+                                                    <InputOTPSlot index={1} />
+                                                    <InputOTPSlot index={2} />
+                                                    <InputOTPSlot index={3} />
+                                                    <InputOTPSlot index={4} />
+                                                    <InputOTPSlot index={5} />
+                                                </InputOTPGroup>
+                                            </InputOTP>
+                                        </div>
                                     </FormControl>
-                                    <FormMessage />
+                                    {/* <FormMessage /> */}
                                 </FormItem>
                             )}
                         />

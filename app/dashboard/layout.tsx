@@ -6,11 +6,20 @@ import React from 'react';
 import DashboardSidebar from '@/components/dashboard_sidebar';
 import { MainNav } from '@/components/main-nav';
 import { DashboardNav } from '@/components/nav';
+import { prisma } from '@/lib/db';
 
 const mainNav = [
     {
         title: "Sklep",
         href: "/sklep",
+    },
+    {
+        title: "O nas",
+        href: "/onas"
+    },
+    {
+        title: "Konfigurator",
+        href: "/konfigurator"
     },
     {
         title: "Blog",
@@ -40,6 +49,12 @@ const sidebarNav = [
         icon: "truck" as "truck",
     },
     {
+        title: "Wiadomości",
+        href: "/dashboard/contact-form",
+        icon: "mail" as "mail",
+        messages: true
+    },
+    {
         title: "Produkty",
         href: "/dashboard/products",
         icon: "products" as "products",
@@ -56,9 +71,20 @@ const sidebarNav = [
         icon: "products" as "products",
     },
     {
-        title: "Edycja strony",
+        title: "Edytuj strony",
         href: "/dashboard/editing",
         icon: "edit" as "edit",
+        hrTop: true
+    },
+    {
+        title: "Edytuj blog",
+        href: "/studio",
+        icon: "rss" as "rss",
+    },
+    {
+        title: "Przesłane zdjęcia",
+        href: "/dashboard/images",
+        icon: "media" as "media",
         hrTop: true
     },
 ]
@@ -78,17 +104,19 @@ export default async function LayoutDashboardPage({
         return notFound();
     }
 
+    const messagesUnreadCount = (await prisma.contactForm.findMany({ where: { read: "false" } })).length
+
     return (
         <div className="flex min-h-screen flex-col space-y-6 bg-[#FBFBFB] z-40">
             {/* <DashboardSidebar /> */}
             <header className='sticky top-0 z-50 border-b bg-background'>
-                <div className='container flex items-center justify-between h-16 py-2'>
+                <div className='container flex items-center justify-between h-[8rem]'>
                     <MainNav items={mainNav} />
                 </div>
             </header>
             <div className="container grid flex-1 gap-[12px] md:grid-cols-[200px_1fr] !py-0.5 !ps-0.5 !pe-0.5">
                 <aside className="hidden w-[200px] flex-col md:flex">
-                    <DashboardNav items={sidebarNav} />
+                    <DashboardNav items={sidebarNav} messagesUnreadCount={messagesUnreadCount} />
                 </aside>
                 <main className="flex w-full flex-1 flex-col overflow-hidden">
                     {children}

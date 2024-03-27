@@ -7,6 +7,7 @@ import { v4 } from "uuid";
 import fs from 'fs';
 import sharp from "sharp";
 import sizeOf from "image-size";
+import { revalidatePath } from "next/cache";
 
 export const getUploadedFiles = async () => {
     const role = await currentRole()
@@ -86,9 +87,33 @@ export const uploadFile = async (formData: FormData) => {
             }
         });
 
-        return { success: true, message: "File uploaded", url: `/upload/${newFileName}` }
+        return { success: true, message: "Pomyślnie przesłano plik", url: `/upload/${newFileName}` }
     } catch (error) {
         console.log('Error uploading file', error);
         return { success: false, message: "Error uploading file" }
     }
+}
+
+export const deleteFile = async (id: string) => {
+    const role = await currentRole()
+    if (role !== UserRole.ADMIN) return { success: false, message: "Unauthorized" };
+
+    const file = await prisma.media.findFirst({ where: { id } })
+    if (!file) return { success: false, message: "Nie znaleziono pliku" }
+
+    try {
+        await prisma.media.delete({ where: { id } })
+        fs.unlinkSync(`public${file.url}`);
+        fs.unlinkSync(`public${file.urlSecond}`);
+
+        revalidatePath('/dashboard/images')
+        return { success: true, message: "Usunięto pliki" }
+    } catch (error) {
+        console.log('Error deleting file', error);
+        return { success: false, message: "Podczas usuwania wystąpił błąd" }
+    }
+}
+
+export const revalidateFiles = async () => {
+    revalidatePath('/dashboard/images')
 }

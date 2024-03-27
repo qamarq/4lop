@@ -10,9 +10,10 @@ import React from 'react';
 
 interface DashboardNavProps {
     items: SidebarNavItem[];
+    messagesUnreadCount: number;
 }
 
-export function DashboardNav({ items }: DashboardNavProps) {
+export function DashboardNav({ items, messagesUnreadCount }: DashboardNavProps) {
     const path = usePathname();
 
     if (!items?.length) {
@@ -20,7 +21,7 @@ export function DashboardNav({ items }: DashboardNavProps) {
     }
 
     return (
-        <nav className="grid items-start gap-2">
+        <nav className="grid items-start gap-1">
             {items.map((item, index) => {
                 const Icon = Icons[item.icon || 'arrowRight'];
                 return (
@@ -38,8 +39,12 @@ export function DashboardNav({ items }: DashboardNavProps) {
                                         item.disabled &&
                                             'cursor-not-allowed opacity-80'
                                     )}>
-                                    <Icon className="mr-2 h-4 w-4" />
+                                    <Icon className="mr-2 h-4 w-4 min-w-4" />
                                     <span>{item.title}</span>
+
+                                    {item.messages && (
+                                        <div className='w-full flex items-center justify-end'><span className={cn('border py-[2px] px-2 rounded-full bg-muted-foreground text-black text-xs font-semibold leading-none', { 'text-white bg-primary': messagesUnreadCount > 0 })}>{messagesUnreadCount}</span></div>
+                                    )}
                                 </span>
                             </Link>
                         </React.Fragment>

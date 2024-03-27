@@ -12,6 +12,7 @@ import { FormSuccess } from "../form-success";
 import { FormError } from "../form-error";
 import Image from "next/image";
 import { Input } from "../ui/input";
+import { InputOTP, InputOTPGroup, InputOTPSlot } from "../ui/input-otp";
 
 export const TwoFactorForm = ({ callback }: { callback: (success: boolean) => void }) => {
     const [twoFactorTmp, setTwoFactorTmp] = useState<GeneratedSecret | null>(null);
@@ -106,7 +107,17 @@ export const TwoFactorForm = ({ callback }: { callback: (success: boolean) => vo
                             </div>
                         )}
                         <div className='mt-6 flex flex-col items-center gap-2'>
-                            <Input disabled={end || isPending} value={tmpCode} onChange={(e) => setTmpCode(e.target.value)} className="w-full" type="number" placeholder="123456" />
+                            {/* <Input disabled={end || isPending} value={tmpCode} onChange={(e) => setTmpCode(e.target.value)} className="w-full" type="number" placeholder="123456" /> */}
+                            <InputOTP maxLength={6} value={tmpCode} disabled={end || isPending} onChange={(value) => setTmpCode(value)} className="w-full" onComplete={onClickStepTwo} inputMode={"numeric"}>
+                                <InputOTPGroup>
+                                    <InputOTPSlot index={0} />
+                                    <InputOTPSlot index={1} />
+                                    <InputOTPSlot index={2} />
+                                    <InputOTPSlot index={3} />
+                                    <InputOTPSlot index={4} />
+                                    <InputOTPSlot index={5} />
+                                </InputOTPGroup>
+                            </InputOTP>
                             <Button disabled={end || isPending} className="w-full" onClick={onClickStepTwo}>
                                 {isPending ? (
                                     <Loader2Icon className="h-4 w-4 mr-2 animate-spin" />

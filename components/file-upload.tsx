@@ -60,7 +60,7 @@ const FileUpload = ({ onFileChange, accept }: Props) => {
                         ) : (
                             <>
                                 <p className='font-medium mb-2'>Przeciągnij plik lub kliknij poniżej</p>
-                                <Button onClick={onButtonClick} color='primary'>
+                                <Button onClick={onButtonClick} color='primary' type='button'>
                                     <FileIcon className='w-3 h-3 mr-1' />
                                     Wybierz plik
                                 </Button>

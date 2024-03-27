@@ -58,7 +58,7 @@ export default async function BlogPage() {
     const categories = await getCategories() as { title: string, _id: string, slug: { current: string } }[]
     return (
         <>
-            <div className={styles.container}>
+            <div className={styles.container4lop}>
                 <h4 className={styles.navigation_label}>Strona główna <ChevronRight size={18} style={{marginInline: 6}} /> Blog</h4>
                 <div className={styles.title}>
                     <h1>Blog</h1>
