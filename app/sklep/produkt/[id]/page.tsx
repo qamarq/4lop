@@ -178,7 +178,7 @@ export default function ProductPage() {
                                         {product.discount ? (
                                             <>
                                                 <h2>{formattedPrice(parseFloat(product.price))}</h2>
-                                                <h3>{formattedPrice(parseFloat(product.price)+(parseFloat(product.price)*product.discount))}</h3>
+                                                <h3>{formattedPrice(parseFloat(product.price)+(parseFloat(product.price)*(product.discount/100)))}</h3>
                                             </>
                                         ) : (
                                             <h2>{formattedPrice(parseFloat(product.price))}</h2>

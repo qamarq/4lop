@@ -224,10 +224,9 @@ export default async function Home() {
                     <iframe src="https://www.facebook.com/plugins/post.php?href=https%3A%2F%2Fwww.facebook.com%2Fpakujz4lop%2Fposts%2Fpfbid05dfXfQFZUUTHPomsV88nnHpQjrszsh2dRbiezwFCWVNEP6PzKXGmsrCwtVv513Nvl&show_text=true&width=500" width="500" height="593" style={{border: 'none', overflow: "hidden"}} allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"></iframe>
                 </div>
             </div>
-            <div className={styles.container4lop}>
+            {/* <div className={styles.container4lop}>
                 <div className={styles.title}>
                     <h1>Newsletter</h1>
-                    {/* <h2>Zapisz się, aby być na bieżąco</h2> */}
                     <span className={styles.line} />
                 </div>
                 <div className={styles.newsletter_container}>
@@ -271,7 +270,7 @@ export default async function Home() {
                         </button>
                     </div>
                 </div>
-            </div>
+            </div> */}
         </>
     )
 }
