@@ -180,7 +180,7 @@ export default function ConfiguratorPage({ configuratorBannerImg }: { configurat
 
                                 <div className={styles.banner}>
                                     {/* <h1 className='text-2xl text-muted-foreground font-semibold'>Miejsce na baner</h1> */}
-                                    <img src={configuratorBannerImg} alt="Konfigurator baner" className='w-full h-full' />
+                                    <img src={configuratorBannerImg} alt="Konfigurator baner" className='w-full h-full rounded-lg' />
                                 </div>
                             </div>
                             <Button disabled={selectedTable === 0} className='w-[230px] mt-5' onClick={() => setStep(2)}>Następny krok</Button>

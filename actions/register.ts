@@ -7,7 +7,6 @@ import { prisma } from "@/lib/db"
 import { getUserByEmail } from "@/data/user"
 import { generateVerificationToken } from "@/lib/tokens"
 import { sendVerificationEmail } from "@/lib/mail"
-import { stripe } from "@/lib/stripe"
 
 export const register = async (values: z.infer<typeof RegisterSchema>) => {
     const validationSchema = RegisterSchema.safeParse(values)
@@ -35,28 +34,28 @@ export const register = async (values: z.infer<typeof RegisterSchema>) => {
     if (existingUser) { return { error: "Istnieje użytkownik z takim adresem email" } }
 
     try {
-        const customer = await stripe.customers.create({
-            name: `${firstname} ${lastname}`,
-            email,
-            phone,
-            address: {
-                city,
-                country: "PL",
-                line1: street,
-                postal_code: zip
-            },
-            preferred_locales: ["pl"],
-            shipping: {
-                name: `${firstname} ${lastname}`,
-                phone,
-                address: {
-                    city,
-                    country: "PL",
-                    line1: street,
-                    postal_code: zip
-                },
-            }
-        });
+        // const customer = await stripe.customers.create({
+        //     name: `${firstname} ${lastname}`,
+        //     email,
+        //     phone,
+        //     address: {
+        //         city,
+        //         country: "PL",
+        //         line1: street,
+        //         postal_code: zip
+        //     },
+        //     preferred_locales: ["pl"],
+        //     shipping: {
+        //         name: `${firstname} ${lastname}`,
+        //         phone,
+        //         address: {
+        //             city,
+        //             country: "PL",
+        //             line1: street,
+        //             postal_code: zip
+        //         },
+        //     }
+        // });
 
         await prisma.user.create({
             data: {
@@ -71,7 +70,7 @@ export const register = async (values: z.infer<typeof RegisterSchema>) => {
                 phone,
                 accountType,
                 newsletter: newsLetter,
-                stripeCustomerId: customer.id
+                stripeCustomerId: ""
             }
         })
     

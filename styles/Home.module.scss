@@ -290,6 +290,10 @@
             border-radius: 0px 200px 200px 0px;
             background: #EEE;
             z-index: 0;
+
+            @media screen and (max-width: 1300px) {
+                display: none;
+            }
         }
 
         &::before {
@@ -304,6 +308,10 @@
             border-left: 2px solid #EEE;
             border-bottom: 2px solid #EEE;
             z-index: 0;
+
+            @media screen and (max-width: 1300px) {
+                display: none;
+            }
         }
 
         @media only screen and (max-width: 1300px) { 

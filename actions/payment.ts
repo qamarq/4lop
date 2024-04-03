@@ -11,8 +11,6 @@ import { UserRole, orderStatusType } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import { sendEmail } from "@/lib/mail";
 
-// import { stripe } from "@/lib/stripe";
-
 const axiosInstance = axios.create({
     baseURL: `https://${process.env.P24_SANDBOX_MODE === "true" ? "sandbox" : "secure"}.przelewy24.pl/api/v1`,
     headers: {

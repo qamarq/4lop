@@ -3,7 +3,6 @@
 import { addToBasketByProductId, getProductFromCart, removeFromBasketByProductId, updateQuantityByProductId } from "@/data/basket";
 import { currentUser } from "@/lib/auth";
 import { prisma } from "@/lib/db";
-import { stripe } from "@/lib/stripe";
 import { formattedPrice } from "@/lib/utils";
 import { Product } from "@prisma/client";
 

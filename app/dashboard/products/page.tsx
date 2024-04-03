@@ -37,6 +37,7 @@ import { useUpload } from '@/hooks/use-upload';
 import { getUploadedFileByURL } from '@/actions/upload';
 import { Editor } from '@/components/editor';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Checkbox } from '@/components/ui/checkbox';
 
 export default function DashboardProductsPage() {
     const [products, setProducts] = React.useState<{ label: string; value: string; status: string; image: string; }[]>([]);
@@ -77,6 +78,7 @@ export default function DashboardProductsPage() {
         available: true,
         availabilityDesc: "",
         images: [],
+        zones: [],
         status: "draft",
     });
     const firstTimeRef = React.useRef(true);
@@ -272,6 +274,7 @@ export default function DashboardProductsPage() {
                             height: image.height
                         }
                     }),
+                    zones: [],
                     status: "draft",
                 })
                 return `Produkt został zaimportowany pomyślnie.`;
@@ -494,6 +497,7 @@ export default function DashboardProductsPage() {
                                     available: true,
                                     availabilityDesc: "",
                                     images: [],
+                                    zones: [],
                                     status: "draft",
                                 })
                             }}>
@@ -647,6 +651,58 @@ export default function DashboardProductsPage() {
                                         <div className="grid w-full items-center gap-1.5">
                                             <Label htmlFor="desc">Krótki opis</Label>
                                             <Textarea id="desc" placeholder="Wpisz krótki opis produktu" value={currentProduct.shortDescription} onChange={(e) => setCurrentProduct(prev => ({ ...prev, shortDescription: e.target.value }))} />
+                                        </div>
+
+                                        <div className="grid w-full items-center gap-1.5">
+                                            <Label htmlFor="zones">Strefy</Label>
+
+                                            <div className='flex flex-col border p-3 space-y-2 rounded-lg'>
+                                                <div className="flex items-center space-x-2">
+                                                    <Checkbox
+                                                        id='promotion'
+                                                        checked={currentProduct.zones.includes("promotion")}
+                                                        onCheckedChange={(checked) => {
+                                                            return checked ? setCurrentProduct(prev => ({ ...prev, zones: [...prev.zones, "promotion"] })) : setCurrentProduct(prev => ({ ...prev, zones: prev.zones.filter((zone) => zone !== "promotion") }))
+                                                        }}
+                                                    />
+                                                    <label
+                                                        htmlFor="promotion"
+                                                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                                                    >
+                                                        Promocje
+                                                    </label>
+                                                </div>
+                                                <div className="flex items-center space-x-2">
+                                                    <Checkbox
+                                                        id='bestseller'
+                                                        checked={currentProduct.zones.includes("bestseller")}
+                                                        onCheckedChange={(checked) => {
+                                                            return checked ? setCurrentProduct(prev => ({ ...prev, zones: [...prev.zones, "bestseller"] })) : setCurrentProduct(prev => ({ ...prev, zones: prev.zones.filter((zone) => zone !== "bestseller") }))
+                                                        }}
+                                                    />
+                                                    <label
+                                                        htmlFor="bestseller"
+                                                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                                                    >
+                                                        Bestsellery
+                                                    </label>
+                                                </div>
+                                                <div className="flex items-center space-x-2">
+                                                    <Checkbox
+                                                        id='new'
+                                                        checked={currentProduct.zones.includes("new")}
+                                                        onCheckedChange={(checked) => {
+                                                            return checked ? setCurrentProduct(prev => ({ ...prev, zones: [...prev.zones, "new"] })) : setCurrentProduct(prev => ({ ...prev, zones: prev.zones.filter((zone) => zone !== "new") }))
+                                                        }}
+                                                    />
+                                                    <label
+                                                        htmlFor="new"
+                                                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                                                    >
+                                                        Nowości
+                                                    </label>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </CardContent>

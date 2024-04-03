@@ -167,7 +167,7 @@ export default async function Home() {
                     <span className={styles.line} />
                 </div>
                 <Suspense fallback={<Skelete />}>
-                    <Promotions />
+                    <Promotions zones={["promotion"]} />
                 </Suspense>
             </div>
             <div className={styles.container4lop}>
@@ -176,7 +176,7 @@ export default async function Home() {
                     <span className={styles.line} />
                 </div>
                 <Suspense fallback={<Skelete />}>
-                    <Bestsellers />
+                    <Promotions zones={["bestseller"]} />
                 </Suspense>
                 {/* <div className={styles.shop_products}>
                     <HomeProduct id={v4()} name={"Stół Rozbudowany"} image={"/components/1.png"} price={1399.00} promotion={20} newProduct={true} tax={23} />
@@ -201,7 +201,7 @@ export default async function Home() {
                     </div>
                 </div> */}
                 <Suspense fallback={<Skelete />}>
-                    <NewProducts />
+                    <Promotions zones={["new"]} />
                 </Suspense>
             </div>
             <div className={styles.container4lop}>

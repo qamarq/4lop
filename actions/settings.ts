@@ -9,7 +9,6 @@ import { generateVerificationToken } from "@/lib/tokens"
 import bcrypt from "bcryptjs"
 import { sendVerificationEmail } from "@/lib/mail"
 import { update } from "@/auth"
-import { stripe } from "@/lib/stripe"
 
 export const settings = async (value: z.infer<typeof SettingsSchema>) => {
     const user = await currentUser()
@@ -57,23 +56,23 @@ export const settings = async (value: z.infer<typeof SettingsSchema>) => {
         data: { ...values }
     })
 
-    if (values.firstname && values.lastname && values.phone && values.street && values.zipCode && values.city && values.country) {
-        await stripe.customers.update(dbUser.stripeCustomerId, {
-            name: `${values.firstname} ${values.lastname}`,
-            phone: values.phone,
-            shipping: {
-                address: {
-                    line1: values.street,
-                    postal_code: values.zipCode,
-                    city: values.city,
-                    country: values.country
-                },
-                name: `${values.firstname} ${values.lastname}`,
-                phone: values.phone
+    // if (values.firstname && values.lastname && values.phone && values.street && values.zipCode && values.city && values.country) {
+    //     await stripe.customers.update(dbUser.stripeCustomerId, {
+    //         name: `${values.firstname} ${values.lastname}`,
+    //         phone: values.phone,
+    //         shipping: {
+    //             address: {
+    //                 line1: values.street,
+    //                 postal_code: values.zipCode,
+    //                 city: values.city,
+    //                 country: values.country
+    //             },
+    //             name: `${values.firstname} ${values.lastname}`,
+    //             phone: values.phone
             
-            }
-        })
-    }
+    //         }
+    //     })
+    // }
 
     await update({
         user: {

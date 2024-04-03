@@ -146,6 +146,10 @@
         gap: 30px;
         margin-top: 50px;
 
+        @media only screen and (max-width: 1300px) { 
+            grid-template-columns: repeat(1, 1fr);
+        }
+
         .item {
             h1 {
                 font-size: 1.975rem;

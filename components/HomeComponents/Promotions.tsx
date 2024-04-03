@@ -3,6 +3,8 @@ import styles from '@/styles/Home.module.scss';
 import axios from 'axios';
 import { HomeProduct } from '../HomeProduct';
 import { v4 } from 'uuid';
+import { prisma } from '@/lib/db';
+import { createSlugLink } from '@/lib/utils';
 
 const getPromotions = async () => {
     let data = JSON.stringify({
@@ -79,20 +81,47 @@ const getPromotions = async () => {
     return { returnData: response.data.data.products }
 }
 
-export default async function Promotions() {
-    const { returnData } = await getPromotions() as { returnData: { took: number, products: ProductItem[] }}
+export default async function Promotions({ zones }: { zones: string[] }) {
+    // const { returnData } = await getPromotions() as { returnData: { took: number, products: ProductItem[] }}
+    // if ("new" in zones) {
+    //     const products = await prisma.product.findMany({ orderBy: { createdAt: 'desc' }, take: 3 })
+
+    //     return (
+    //         <div className={styles.shop_products}>
+    //             {products.map((product) => (
+    //                 <HomeProduct 
+    //                     key={v4()} 
+    //                     id={product.id.toString()} 
+    //                     name={product.name} 
+    //                     image={product.iconImage} 
+    //                     price={product.price} 
+    //                     tax={product.taxPercent} 
+    //                     cart={true}
+    //                     link={createSlugLink(product.name, product.id)}
+    //                 /> 
+    //             ))}
+    //         </div>
+    //     )
+    // }
+    const products = await prisma.product.findMany({
+        where: {
+            zones: {
+                hasSome: zones
+            }
+        }
+    })
     return (
         <div className={styles.shop_products}>
-            {returnData.products.map((product) => (
+            {products.map((product) => (
                 <HomeProduct 
                     key={v4()} 
                     id={product.id.toString()} 
                     name={product.name} 
-                    image={`https://elektromaniacy.pl/${product.icon}`} 
-                    price={product.price.price.gross.value} 
-                    tax={product.price.tax.vatPercent} 
+                    image={product.iconImage} 
+                    price={product.price} 
+                    tax={product.taxPercent} 
                     cart={true}
-                    link={product.link}
+                    link={createSlugLink(product.name, product.id)}
                 /> 
             ))}
         </div>

@@ -175,6 +175,7 @@ interface ProductDB {
         width: number
         height: number
     }[],
+    zones: string[]
     status: string
 }
 

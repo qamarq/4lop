@@ -76,6 +76,7 @@
             // grid-template-columns: repeat(3, 1fr);
             // gap: 5rem;
             display: flex;
+            flex-wrap: wrap-reverse;
             align-items: center;
             justify-content: center;
             padding-inline: 10rem;
@@ -97,6 +98,10 @@
                 height: 345px;
                 border: 3px solid #d1d1d1;
                 border-radius: 15px;
+
+                @media screen and (max-width: 1300px){
+                    height: auto;
+                }
             }
 
             .item {
