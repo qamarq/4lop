@@ -33,7 +33,7 @@ export const WelcomeEmail = ({
                         <Section className="mt-8">
                             <Img
                                 src={
-                                    'https://4lop.pl/_next/static/media/4lop.00de251c.svg'
+                                    `${process.env.NEXTAUTH_URL}/_next/static/media/4lop.00de251c.svg`
                                 }
                                 width="80"
                                 height="80"

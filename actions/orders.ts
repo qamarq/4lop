@@ -210,7 +210,7 @@ export const createOrder = async ({
                 city: user.city,
                 phone: user.phone,
                 urlReturn: `${process.env.NEXTAUTH_URL}/koszyk/platnosc/podsumowanie?sessionID=${paymentSessionID}`,
-                urlStatus: `https://4lop.pl/api/payment/p24`, // callback to get notification
+                urlStatus: `${process.env.NEXTAUTH_URL}/api/payment/p24`, // callback to get notification
                 timeLimit: 15, // 15min
                 encoding: Encoding.UTF8,
             }

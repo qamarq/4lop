@@ -35,8 +35,8 @@ export default function Gallery({ files }: { files: Media[] }) {
     return (
         <div className='grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 mt-3 gap-2'>
             {files.map((file) => {
-                const url = `https://4lop.pl${file.url}`
-                const urlSecond = `https://4lop.pl${file.urlSecond}`
+                const url = `${process.env.NEXTAUTH_URL}${file.url}`
+                const urlSecond = `${process.env.NEXTAUTH_URL}${file.urlSecond}`
 
                 const handleCopy = async (url: string) => {
                     await navigator.clipboard.writeText(url)
